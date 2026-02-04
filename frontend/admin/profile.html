@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="all,follow">
+
+    <title>Hệ thống quản lý sửa chữa & bảo hành thiết bị – phần mềm</title>
+    <link rel="shortcut icon" href="img/favicon.png">
+    
+    <!-- global stylesheets -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/font-icon-style.css">
+    <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
+
+    <!-- Core stylesheets -->
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+
+<body> 
+
+<!--MAIN NAVBAR-->        
+    <header class="header">
+    <nav class="navbar navbar-expand-lg ">
+        <div class="container-fluid ">
+            <div class="navbar-holder d-flex align-items-center justify-content-between">
+                <div class="navbar-header">
+                    <a href="index.html" class="navbar-brand">
+                        <div class="brand-text brand-big hidden-lg-down">
+                            <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
+                        </div>
+                        <div class="brand-text brand-small">
+                            <img src="img/logo.png" alt="Logo" class="img-fluid">
+                        </div>
+                    </a>
+                    </div>
+            </div>
+
+            <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                <li class="nav-item d-flex align-items-center full_scr_exp">
+                    <a class="nav-link" href="#">
+                        <img src="img/expand.png" onclick="toggleFullScreen(document.body)" class="img-fluid" alt="">
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown"> 
+                    <a id="notifications" class="nav-link" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-bell-o"></i><span class="noti-numb-bg"></span><span class="badge">12</span>
+                    </a>
+                    <ul aria-labelledby="notifications" class="dropdown-menu">
+                        <li>
+                            <a rel="nofollow" href="#" class="dropdown-item nav-link">
+                                <div class="notification">
+                                    <div class="notification-content"><i class="fa fa-envelope bg-red"></i>Bạn có 6 tin nhắn mới</div>
+                                    <div class="notification-time"><small>4 phút trước</small></div>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a rel="nofollow" href="#" class="dropdown-item nav-link">
+                                <div class="notification">
+                                    <div class="notification-content"><i class="fa fa-upload bg-blue"></i>Máy chủ đã khởi động lại</div>
+                                    <div class="notification-time"><small>10 phút trước</small></div>
+                                </div>
+                            </a>
+                        </li>
+                        <li><a rel="nofollow" href="#" class="dropdown-item all-notifications text-center"> <strong>xem tất cả thông báo</strong></a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown"> 
+                    <a id="messages" class="nav-link logout" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-envelope-o"></i><span class="noti-numb-bg"></span><span class="badge">10</span>
+                    </a>
+                    <ul aria-labelledby="messages" class="dropdown-menu">
+                        <li>
+                            <a rel="nofollow" href="#" class="dropdown-item d-flex">
+                                <div class="msg-profile"> <img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
+                                <div class="msg-body">
+                                    <h3 class="h5 msg-nav-h3">Hoàng Nam</h3><span>Đã gửi tin nhắn cho bạn</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li><a rel="nofollow" href="#" class="dropdown-item all-notifications text-center"> <strong>Đọc tất cả tin nhắn</strong></a></li>
+                    </ul>
+                </li> 
+
+                <li class="nav-item dropdown">
+                    <a id="profile" class="nav-link logout" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle" style="height: 30px; width: 30px;">
+                    </a>
+                    <ul aria-labelledby="profile" class="dropdown-menu profile">
+                        <li>
+                            <a rel="nofollow" href="#" class="dropdown-item d-flex">
+                                <div class="msg-profile"> <img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
+                                <div class="msg-body">
+                                    <h3 class="h5">Quản lý</h3><span>quanly@gmail.com</span>
+                                </div>
+                            </a>
+                        </li>
+                        <hr>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ của tôi</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a></li>
+                        <hr>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
+                    </ul>
+                </li>   
+            </ul> 
+        </div>
+    </nav>
+</header>
+
+<!--PAGE CONTENT-->
+    <div class="page-content d-flex align-items-stretch">
+
+        <!--***** SIDE NAVBAR *****-->
+        <nav class="side-navbar">
+            <div class="sidebar-header d-flex align-items-center">
+                <div class="avatar"><img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
+                <div class="title">
+                    <h1 class="h4">Quản lý</h1>
+                </div>
+            </div>
+            <hr>
+            <!-- Sidebar Navidation Menus-->
+            <ul class="list-unstyled">
+                <li class="active"> <a href="index.html">Trang chủ</a></li>
+                <li class="active"> <a href="email.html">Email</a></li>
+                <li class="active"> <a href="tables.html">Bảng</a></li>
+                <li class="active"> <a href="invoice.html">Hóa đơn</a></li>
+        </nav>
+        <div class="content-inner">
+
+            <!--***** CONTENT *****-->     
+<div class="row mt-2" id="card-prof">
+                <div class="col-md-3">
+                    <div class="card hovercard">
+                        <div class="cardheader"></div>
+                        <div class="avatar">
+                            <img alt="" src="img/avatar.jpg" class="img-fluid">
+                        </div>
+                        <div class="info">
+                            <div class="title">
+                                <a target="_blank" href="#">Nguyễn Hoàng Nam</a> </div>
+                            <div class="desc">nam.nh@baohanh.com</div> <hr>
+                        </div>
+                        <nav class="nav text-center prof-nav">
+                            <ul class="list-unstyled">
+                                <li><a href="#">Hồ sơ</a></li> <li><a href="#">Hộp thư</a></li> <li><a href="#">Cài đặt</a></li> <li><a href="login.html">Đăng xuất</a></li> </ul>
+                        </nav>
+                        <div class="bottom">
+                            <a class="btn btn-info btn-twitter btn-sm" href="#">
+                                <i class="fa fa-twitter"></i>
+                            </a>
+                            <a class="btn btn-danger btn-sm" rel="publisher" href="#">
+                                <i class="fa fa-google-plus"></i>
+                            </a>
+                            <a class="btn btn-primary btn-sm" rel="publisher" href="#">
+                                <i class="fa fa-facebook"></i>
+                            </a> 
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="card hovercard">
+                        <div class="tab" role="tabpanel"> 
+                            <ul class="nav nav-tabs" role="tablist">
+                              <li class="nav-item">
+                                <a class="nav-link active" href="#profile" role="tab" data-toggle="tab"><span><i class="fa fa-user"></i></span> Thông tin</a> </li>
+                              <li class="nav-item">
+                                <a class="nav-link" href="#buzz" role="tab" data-toggle="tab"><span><i class="fa fa-inbox"></i></span> Tin nhắn</a> </li>
+                              <li class="nav-item">
+                                <a class="nav-link" href="#references" role="tab" data-toggle="tab"><span><i class="fa fa-cog"></i></span> Cấu hình</a> </li>
+                            </ul>
+
+                            <div class="tab-content tabs">
+                              <div role="tabpanel" class="tab-pane fade show active" id="profile">
+                                    <p>Chuyên gia kỹ thuật với hơn 5 năm kinh nghiệm trong việc xử lý bảo hành và sửa chữa thiết bị điện tử. Phụ trách điều phối nhóm kỹ thuật khu vực miền Bắc.</p> <div class="row" id="report4">
+                                        <div class="col-md-4">
+                                            <div class="card text-center social-bottom sb-fb">
+                                                <i class="fa fa-facebook"></i>
+                                                <div>150 +</div>
+                                                <p>Hoàn thành</p> </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card text-center social-bottom sb-tw">
+                                                <i class="fa fa-twitter"></i>
+                                                <div>12 +</div>
+                                                <p>Đang xử lý</p> </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card text-center social-bottom sb-gp">
+                                                <i class="fa fa-google-plus"></i>
+                                                <div>4.9/5</div>
+                                                <p>Đánh giá</p> </div>
+                                        </div> 
+                                    </div>
+                                    <div class="row mt-3">
+                                        <h5 class="col-12 mb-2">Thông tin cá nhân</h5> <div class="col-6">
+                                            <div class="form-group">
+                                                <strong class="mr-5"><i class="fa fa-envelope"> Email: </i></strong> nam.nh@baohanh.com
+                                            </div>
+                                            <div class="form-group">
+                                                <strong class="mr-5"><i class="fa fa-phone"> Điện thoại: </i></strong> 090 123 4567 </div>
+                                            <div class="form-group">
+                                                <strong class="mr-5"><i class="fa fa-map"> Thành phố: </i></strong> Hà Nội </div> 
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <strong class="mr-5"><i class="fa fa-briefcase"> Bộ phận: </i></strong> Kỹ thuật sửa chữa </div>
+                                            <div class="form-group">
+                                                <strong class="mr-5"><i class="fa fa-map-marker"> Địa chỉ: </i></strong> 123 Đường Láng, Đống Đa </div>
+                                            <div class="form-group">
+                                                <strong class="mr-5"><i class="fa fa-calendar"> Ngày vào làm: </i></strong> 15/05/2020 </div> 
+                                        </div>
+                                    </div>
+                              </div>
+                              
+                              <div role="tabpanel" class="tab-pane fade" id="buzz">
+                                    <div class="panel panel-default widget">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title"><i class="fa fa-comment"></i> Tin nhắn gần đây</h3> </div>
+                                        <div class="panel-body">
+                                            <ul class="list-group">
+                                                <li class="list-group-item">
+                                                    <div class="row">
+                                                        <div class="col-md-2">
+                                                            <img src="img/avatar.jpg" class="img-circle img-fluid" alt="" /></div>
+                                                        <div class=" col-md-10">
+                                                            <div>
+                                                                <a href="#">Chúc mừng</a> <div class="mic-info">
+                                                                    Bởi: <a href="#">Quản lý hệ thống</a> vào 12 Th06 2018 </div>
+                                                            </div>
+                                                            <div class="comment-text">
+                                                                Chúng tôi xin chúc mừng bạn đã đạt chỉ tiêu xử lý bảo hành tháng này... </div>
+                                                            <a href="#" class="btn btn-sm btn-hover btn-primary"><span class="fa fa-share-alt" style="padding-right:3px;"></span></a>
+                                                            <a href="#" class="btn btn-sm btn-hover btn-danger"><span class="fa fa-remove" style="padding-right:3px;"></span></a>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                </ul>
+                                        </div>
+                                    </div>
+                              </div>
+
+                              <div role="tabpanel" class="tab-pane fade" id="references">
+                                    <div class="row mx-2">
+                                        <div class="col-md-12 panel-heading">
+                                            <h3 class="panel-title"><i class="fa fa-edit"></i> Chỉnh sửa thông tin</h3><br> </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group row">
+                                                <label style="width: 85px;" class="col-form-label">Họ tên</label> <div class="col-9">
+                                                    <input class="form-control" type="text" value="Nguyễn Hoàng Nam">
+                                                </div>
+                                            </div> 
+                                            <div class="form-group row">
+                                                <label style="width: 85px;" class="col-form-label">Email</label>
+                                                <div class="col-9">
+                                                    <input class="form-control" type="email" value="nam.nh@baohanh.com">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group row">
+                                                <label style="width: 85px;" class="col-form-label">Bộ phận</label> <div class="col-9">
+                                                    <input class="form-control" type="text" value="Kỹ thuật">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label style="width: 85px;" class="col-form-label">Điện thoại</label> <div class="col-9">
+                                                    <input class="form-control" type="tel" value="0901234567">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> 
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <!--Global Javascript -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper/popper.min.js"></script>
+    <script src="js/tether.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.cookie.js"></script>
+    <script src="js/jquery.validate.min.js"></script> 
+    <script src="js/chart.min.js"></script> 
+    <script src="js/front.js"></script> 
+    
+    <!--Core Javascript -->
+    <script>
+        new Chart(document.getElementById("myChart-nav").getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: ["M", "T", "W", "T", "F", "S", "S"],
+            datasets: [{
+              backgroundColor: [
+                "#2ecc71",
+                "#3498db",
+                "#95a5a6",
+                "#9b59b6",
+                "#f1c40f",
+                "#e74c3c",
+                "#34495e"
+              ],
+              data: [12, 19, 3, 17, 28, 24, 7]
+            }]
+          },
+          options: {
+              legend: { display: false },
+              title: {
+                display: true,
+                text: ''
+               } 
+            }
+        });
+    </script> 
+</body>
+
+</html>
