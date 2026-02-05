@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="all,follow">
+
+    <title>Hệ thống quản lý sửa chữa & bảo hành thiết bị – phần mềm</title>
+    <link rel="shortcut icon" href="img/favicon.png">
+    
+    <!-- global stylesheets -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/font-icon-style.css">
+    <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
+
+    <!-- Core stylesheets -->
+    <link rel="stylesheet" href="css/apps/email.css">
+</head>
+
+<body> 
+
+<!--MAIN NAVBAR-->
+    <header class="header">
+    <nav class="navbar navbar-expand-lg ">
+        <div class="container-fluid ">
+            <div class="navbar-holder d-flex align-items-center justify-content-between">
+                <div class="navbar-header">
+                    <a href="index.html" class="navbar-brand">
+                        <div class="brand-text brand-big hidden-lg-down">
+                            <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
+                        </div>
+                        <div class="brand-text brand-small">
+                            <img src="img/logo.png" alt="Logo" class="img-fluid">
+                        </div>
+                    </a>
+                    </div>
+            </div>
+
+            <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                <li class="nav-item d-flex align-items-center full_scr_exp">
+                    <a class="nav-link" href="#">
+                        <img src="img/expand.png" onclick="toggleFullScreen(document.body)" class="img-fluid" alt="">
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown"> 
+                    <a id="notifications" class="nav-link" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-bell-o"></i><span class="noti-numb-bg"></span><span class="badge">12</span>
+                    </a>
+                    <ul aria-labelledby="notifications" class="dropdown-menu">
+                        <li>
+                            <a rel="nofollow" href="#" class="dropdown-item nav-link">
+                                <div class="notification">
+                                    <div class="notification-content"><i class="fa fa-envelope bg-red"></i>Bạn có 6 tin nhắn mới</div>
+                                    <div class="notification-time"><small>4 phút trước</small></div>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a rel="nofollow" href="#" class="dropdown-item nav-link">
+                                <div class="notification">
+                                    <div class="notification-content"><i class="fa fa-upload bg-blue"></i>Máy chủ đã khởi động lại</div>
+                                    <div class="notification-time"><small>10 phút trước</small></div>
+                                </div>
+                            </a>
+                        </li>
+                        <li><a rel="nofollow" href="#" class="dropdown-item all-notifications text-center"> <strong>xem tất cả thông báo</strong></a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown"> 
+                    <a id="messages" class="nav-link logout" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-envelope-o"></i><span class="noti-numb-bg"></span><span class="badge">10</span>
+                    </a>
+                    <ul aria-labelledby="messages" class="dropdown-menu">
+                        <li>
+                            <a rel="nofollow" href="#" class="dropdown-item d-flex">
+                                <div class="msg-profile"> <img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
+                                <div class="msg-body">
+                                    <h3 class="h5 msg-nav-h3">Hoàng Nam</h3><span>Đã gửi tin nhắn cho bạn</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li><a rel="nofollow" href="#" class="dropdown-item all-notifications text-center"> <strong>Đọc tất cả tin nhắn</strong></a></li>
+                    </ul>
+                </li> 
+
+                <li class="nav-item dropdown">
+                    <a id="profile" class="nav-link logout" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle" style="height: 30px; width: 30px;">
+                    </a>
+                    <ul aria-labelledby="profile" class="dropdown-menu profile">
+                        <li>
+                            <a rel="nofollow" href="#" class="dropdown-item d-flex">
+                                <div class="msg-profile"> <img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
+                                <div class="msg-body">
+                                    <h3 class="h5">Quản lý</h3><span>quanly@gmail.com</span>
+                                </div>
+                            </a>
+                        </li>
+                        <hr>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ của tôi</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a></li>
+                        <hr>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
+                    </ul>
+                </li>   
+            </ul> 
+        </div>
+    </nav>
+</header>
+
+<!--PAGE CONTENT-->
+    <div class="page-content d-flex align-items-stretch">
+
+        <!--***** SIDE NAVBAR *****-->
+        <nav class="side-navbar">
+            <div class="sidebar-header d-flex align-items-center">
+                <div class="avatar"><img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
+                <div class="title">
+                    <h1 class="h4">Quản lý</h1>
+                </div>
+            </div>
+            <hr>
+            <!-- Sidebar Navidation Menus-->
+            <ul class="list-unstyled">
+                <li class="active"> <a href="index.html">Trang chủ</a></li>
+                <li class="active"> <a href="email.html">Email</a></li>
+                <li class="active"> <a href="tables.html">Bảng</a></li>
+                <li class="active"> <a href="invoice.html">Hóa đơn</a></li>
+        </nav>
+        <div class="content-inner">
+
+<!-- Email-->
+<div class="row" id="emails-cont">
+                <div class="mail-box">
+                    <aside class="sm-side"> 
+                        <div class="inbox-body">
+                            <a href="#myModal" data-toggle="modal" title="Soạn thư" class="btn btn-compose"> Soạn thư </a>
+                            <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" id="myModal" class="modal fade" style="display: none;">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                                            <h4 class="modal-title">Soạn thư mới</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form role="form" class="form-horizontal">
+                                                <div class="row form-group">
+                                                    <label class="col-lg-2 control-label">Đến</label>
+                                                    <div class="col-lg-10">
+                                                        <input type="text" placeholder="Người nhận" id="inputEmail1" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="row form-group">
+                                                    <label class="col-lg-2 control-label">Cc/Bcc</label>
+                                                    <div class="col-lg-10">
+                                                        <input type="text" placeholder="" id="cc" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="row form-group">
+                                                    <label class="col-lg-2 control-label">Tiêu đề</label>
+                                                    <div class="col-lg-10">
+                                                        <input type="text" placeholder="Chủ đề thư" id="inputPassword1" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="row form-group">
+                                                    <label class="col-lg-2 control-label">Nội dung</label>
+                                                    <div class="col-lg-10">
+                                                        <textarea rows="10" cols="30" class="form-control" id="" name=""></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row form-group">
+                                                    <div class="offset-lg-2 col-lg-10">
+                                                        <span class="btn green fileinput-button">
+                                                        <i class="fa fa-plus fa fa-white"></i>
+                                                        <span>Đính kèm</span>
+                                                        <input type="file" name="files[]" multiple="">
+                                                        </span>
+                                                        <button class="btn btn-send ml-3" type="submit">Gửi đi</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <ul class="inbox-nav inbox-divider">
+                            <li class="active">
+                                <a href="#"><i class="fa fa-inbox"></i> Hộp thư đến <span class="label label-danger pull-right">2</span></a>
+                            </li>
+                            <li>
+                                <a href="#"><i class="fa fa-envelope-o"></i> Thư đã gửi</a>
+                            </li>
+                            <li>
+                                <a href="#"><i class="fa fa-bookmark-o"></i> Quan trọng</a>
+                            </li>
+                            <li>
+                                <a href="#"><i class="fa fa-external-link"></i> Thư nháp <span class="label label-info pull-right">30</span></a>
+                            </li>
+                            <li>
+                                <a href="#"><i class="fa fa-trash-o"></i> Thùng rác</a>
+                            </li>
+                        </ul>  
+                    </aside>
+                    <aside class="lg-side"> 
+                        <div class="inbox-body">
+                            <div class="mail-option"> 
+                                <div class="btn-group hidden-phone">
+                                    <a data-toggle="dropdown" href="#" class="btn mini blue" aria-expanded="false">
+                                         <input type="checkbox" class="mail-checkbox mail-group-checkbox"> Tất cả 
+                                         <i class="fa fa-angle-down "></i>
+                                     </a>
+                                    <ul class="dropdown-menu drop-inbox">
+                                        <li><a href="#"><i class="fa fa-pencil"></i> Tất cả</a></li>
+                                        <li><a href="#"><i class="fa fa-ban"></i> Bỏ chọn</a></li>
+                                        <li><a href="#"><i class="fa fa-book"></i> Đã đọc</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="#"><i class="fa fa-trash-o"></i> Chưa đọc</a></li>
+                                    </ul>
+                                </div>
+                                <div class="btn-group">
+                                    <a data-original-title="Làm mới" data-placement="top" data-toggle="dropdown" href="#" class="btn mini tooltips">
+                                     <i class=" fa fa-refresh"></i>
+                                 </a>
+                                </div>
+                                <div class="btn-group hidden-phone">
+                                    <a data-toggle="dropdown" href="#" class="btn mini blue" aria-expanded="false">
+                                     Thêm
+                                     <i class="fa fa-angle-down "></i>
+                                  </a>
+                                    <ul class="dropdown-menu drop-inbox">
+                                        <li><a href="#"><i class="fa fa-pencil"></i> Đánh dấu đã đọc</a></li>
+                                        <li><a href="#"><i class="fa fa-ban"></i> Báo cáo vi phạm</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="#"><i class="fa fa-trash-o"></i> Xóa thư</a></li>
+                                    </ul>
+                                </div>
+                                <div class="btn-group">
+                                    <a data-toggle="dropdown" href="#" class="btn mini blue">
+                                     Di chuyển tới
+                                         <i class="fa fa-angle-down "></i>
+                                    </a>
+                                    <ul class="dropdown-menu drop-inbox">
+                                        <li><a href="#"><i class="fa fa-pencil"></i> Công việc</a></li>
+                                        <li><a href="#"><i class="fa fa-ban"></i> Gia đình</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="#"><i class="fa fa-trash-o"></i> Quảng cáo</a></li>
+                                    </ul>
+                                </div>
+                                <ul class="unstyled inbox-pagination">
+                                    <li><span>1-50 trong số 234</span></li>
+                                    <li>
+                                        <a class="np-btn" href="#"><i class="fa fa-angle-left  pagination-left"></i></a>
+                                    </li>
+                                    <li>
+                                        <a class="np-btn" href="#"><i class="fa fa-angle-right pagination-right"></i></a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <table class="table table-inbox table-hover">
+                                <tbody>
+                                    <tr class="unread">
+                                        <td class="inbox-small-cells">
+                                            <input type="checkbox" class="mail-checkbox">
+                                        </td>
+                                        <td class="inbox-small-cells"><i class="fa fa-star"></i></td>
+                                        <td class="view-message  dont-show">Lớp học PHP</td>
+                                        <td class="view-message ">Đã thêm lớp mới: Lớp đăng nhập nhanh</td>
+                                        <td class="view-message  inbox-small-cells"><i class="fa fa-paperclip"></i></td>
+                                        <td class="view-message  text-right">9:27 SA</td>
+                                    </tr>
+                                    <tr class="unread">
+                                        <td class="inbox-small-cells">
+                                            <input type="checkbox" class="mail-checkbox">
+                                        </td>
+                                        <td class="inbox-small-cells"><i class="fa fa-star"></i></td>
+                                        <td class="view-message dont-show">Quản trị Web Google</td>
+                                        <td class="view-message">Cải thiện sự hiện diện của Website trên tìm kiếm</td>
+                                        <td class="view-message inbox-small-cells"></td>
+                                        <td class="view-message text-right">18 Tháng 3</td>
+                                    </tr>
+                                    </tbody>
+                            </table>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+
+    <!--Global Javascript -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper/popper.min.js"></script>
+    <script src="js/tether.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.cookie.js"></script>
+    <script src="js/jquery.validate.min.js"></script> 
+    <script src="js/chart.min.js"></script> 
+    <script src="js/front.js"></script> 
+    
+    <!--Core Javascript -->
+    <script>
+        new Chart(document.getElementById("myChart4").getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: ["M", "T", "W", "T", "F", "S", "S"],
+            datasets: [{
+              backgroundColor: [
+                "#2ecc71",
+                "#3498db",
+                "#95a5a6",
+                "#9b59b6",
+                "#f1c40f",
+                "#e74c3c",
+                "#34495e"
+              ],
+              data: [12, 19, 3, 17, 28, 24, 7]
+            }]
+          },
+          options: {
+              legend: { display: false },
+              title: {
+                display: true,
+                text: ''
+               } 
+            }
+        });
+    </script>
+    
+</body>
+
+</html>
