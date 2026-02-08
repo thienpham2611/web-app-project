@@ -151,15 +151,44 @@
                         <thead>
                             <tr>
                                 <th>Mã Thiết Bị</th>
-                                <th>Tên Thiết Bị</th>
+                                <th>Tên Mặt Hàng</th>
                                 <th>Khách Hàng</th>
                                 <th class="text-center">Ngày Hết Hạn</th>
                                 <th class="text-center">Tình Trạng</th>
                                 <th class="text-center">Hành Động</th>
                             </tr>
                         </thead>
-                        <tbody id="admin-warranty-list">
-                            <tr><td colspan="6" class="text-center">Đang tải dữ liệu bảo hành...</td></tr>
+                        <tbody>
+                            <tr>
+                                <td><strong>DE-001</strong></td>
+                                <td>Máy chủ Dell PowerEdge</td>
+                                <td>Ngân hàng ACB</td>
+                                <td class="text-center">15/02/2024</td>
+                                <td class="text-center"><span class="text-status-expired">Đã hết hạn</span></td>
+                                <td class="action-col">
+                                    <button class="btn-idt-fixed btn-red">Gia hạn ngay</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>SW-042</strong></td>
+                                <td>Phần mềm kế toán IDT</td>
+                                <td>Cty TNHH Hải Nam</td>
+                                <td class="text-center">25/11/2024</td>
+                                <td class="text-center"><span class="text-status-warning">Sắp hết hạn</span></td>
+                                <td class="action-col">
+                                    <button class="btn-idt-fixed btn-blue">Gửi nhắc nhở</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>DE-105</strong></td>
+                                <td>Switch Cisco 24 Port</td>
+                                <td>Trường ĐH Bách Khoa</td>
+                                <td class="text-center">10/10/2026</td>
+                                <td class="text-center"><span class="text-status-good">Đang bảo hành</span></td>
+                                <td class="action-col">
+                                    <button class="btn-idt-fixed btn-gray">Xem chi tiết</button>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -173,7 +202,7 @@
     <div class="col-md-12">
         <div class="card card-idt-main">
             <div class="card-header-idt">
-                <h4 class="title-idt"><i class="fa fa-history"></i> Theo dõi tiến độ sửa chữa</h4>
+                <h4 class="title-idt"><i class="fa fa-history"></i> Theo dõi tiến độ sửa chữa và dịch vụ</h4>
             </div>
             <div class="card-body no-padding">
                 <div class="table-responsive">
@@ -181,14 +210,39 @@
                         <thead>
                             <tr>
                                 <th>Mã Case</th>
-                                <th>Thiết bị</th>
+                                <th>Thiết bị/Phần mềm</th>
                                 <th>Kỹ thuật viên</th>
-                                <th>Tiến độ</th>
+                                <th>Tiến độ xử lý</th>
                                 <th class="text-center">Trạng thái</th>
                             </tr>
                         </thead>
-                        <tbody id="admin-repair-list">
-                            <tr><td colspan="5" class="text-center">Đang tải dữ liệu sửa chữa...</td></tr>
+                        <tbody>
+                            <tr>
+                                <td><strong>#SC-1024</strong></td>
+                                <td>Server Dell R740</td>
+                                <td>Nguyễn Văn A</td>
+                                <td class="align-middle">
+                                    <div class="progress idt-progress-bar">
+                                        <div class="progress-bar bg-warning" style="width: 65%;"></div>
+                                    </div>
+                                </td>
+                                <td class="action-col">
+                                    <span class="status-btn btn-warning-idt">Đang thay linh kiện</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>#PM-0052</strong></td>
+                                <td>Phần mềm kế toán IDT</td>
+                                <td>Trần Thị B</td>
+                                <td class="align-middle">
+                                    <div class="progress idt-progress-bar">
+                                        <div class="progress-bar bg-info" style="width: 30%;"></div>
+                                    </div>
+                                </td>
+                                <td class="action-col">
+                                    <span class="status-btn btn-info-idt">Đang fix bug</span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -196,143 +250,6 @@
         </div>
     </div>
 </div>
-
-<!--API-->
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    
-    // --- CẤU HÌNH ĐƯỜNG DẪN API (Bên Backend sẽ cung cấp các link này) ---
-    const API_WARRANTY = "api/get_warranty.php"; // Placeholder cho Report 1
-    const API_REPAIRS  = "api/get_repairs.php";  // Placeholder cho Report 3
-
-    // 1. KẾT NỐI REPORT 1 (BẢO HÀNH)
-    fetch(API_WARRANTY)
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.getElementById('admin-warranty-list');
-            tbody.innerHTML = ''; // Xóa dòng "Đang tải"
-
-            data.forEach(item => {
-                // Logic xử lý màu sắc trạng thái dựa trên dữ liệu database
-                let statusClass = item.status === 'active' ? 'text-status-good' : 'text-status-expired';
-                let statusText  = item.status === 'active' ? 'Đang bảo hành' : 'Đã hết hạn';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${item.id}</strong></td>
-                        <td>${item.device_name}</td>
-                        <td>${item.customer_name}</td>
-                        <td class="text-center">${item.warranty_end_date}</td>
-                        <td class="text-center"><span class="${statusClass}">${statusText}</span></td>
-                        <td class="action-col text-center">
-                            <button class="btn-idt-fixed btn-red" onclick="extendWarranty('${item.id}')">Gia hạn</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        })
-        .catch(err => console.error("Lỗi kết nối API Report 1:", err));
-
-
-    // 2. KẾT NỐI REPORT 3 (SỬA CHỮA)
-    fetch(API_REPAIRS)
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.getElementById('admin-repair-list');
-            tbody.innerHTML = ''; // Xóa dòng "Đang tải"
-
-            data.forEach(item => {
-                // Logic hiển thị màu Progress Bar
-                let barColor = 'bg-info';
-                if(item.progress >= 90) barColor = 'bg-success';
-                if(item.progress < 30) barColor = 'bg-danger';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${item.id}</strong></td>
-                        <td>${item.device_name}</td>
-                        <td>${item.technician_name}</td>
-                        <td class="align-middle">
-                            <div class="progress idt-progress-bar">
-                                <div class="progress-bar ${barColor}" style="width: ${item.progress}%;"></div>
-                            </div>
-                            <small>${item.progress}%</small>
-                        </td>
-                        <td class="action-col text-center">
-                            <span class="status-btn btn-info-idt">${item.status}</span>
-                        </td>
-                    </tr>
-                `;
-            });
-        })
-        .catch(err => console.error("Lỗi kết nối API Report 3:", err));
-});
-
-// Hàm mẫu cho nút hành động
-function extendWarranty(id) {
-    alert("Gửi yêu cầu gia hạn cho thiết bị: " + id);
-}
-</script>
-
-<script>
-// JS Load dữ liệu cho Quản lý
-document.addEventListener("DOMContentLoaded", function() {
-    // 1. Load Bảo hành (bảng devices + customers)
-    fetch('api/get_all_devices.php')
-    .then(response => response.json())
-    .then(data => {
-        const tbody = document.getElementById('admin-warranty-list');
-        tbody.innerHTML = '';
-        if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu</td></tr>';
-            return;
-        }
-        data.forEach(item => {
-            let statusClass = item.status === 'active' ? 'text-status-good' : 'text-status-expired';
-            let statusText = item.status === 'active' ? 'Đang bảo hành' : 'Đã hết hạn';
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${item.id}</strong></td>
-                    <td>${item.device_name}</td>
-                    <td>${item.customer_name}</td>
-                    <td class="text-center">${item.warranty_end_date}</td>
-                    <td class="text-center"><span class="${statusClass}">${statusText}</span></td>
-                    <td class="action-col"><button class="btn-idt-fixed btn-red">Gia hạn</button></td>
-                </tr>
-            `;
-        });
-    })
-    .catch(error => console.error('Error fetching warranty data:', error));
-
-    // 2. Load Tiến độ (bảng repair_tickets + users)
-    fetch('api/get_all_tickets.php')
-    .then(response => response.json())
-    .then(data => {
-        const tbody = document.getElementById('admin-repair-list');
-        tbody.innerHTML = '';
-        if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Không có dữ liệu</td></tr>';
-            return;
-        }
-        data.forEach(item => {
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${item.id}</strong></td>
-                    <td>${item.device_name}</td>
-                    <td>${item.technician_name}</td>
-                    <td class="align-middle">
-                        <div class="progress idt-progress-bar">
-                            <div class="progress-bar bg-info" style="width: ${item.progress}%;"></div>
-                        </div>
-                    </td>
-                    <td class="action-col text-center"><span class="status-btn btn-info-idt">${item.status}</span></td>
-                </tr>
-            `;
-        });
-    })
-    .catch(error => console.error('Error fetching repair data:', error));
-});
-</script>
 
     <!--Global Javascript -->
     <script src="js/jquery.min.js"></script>
