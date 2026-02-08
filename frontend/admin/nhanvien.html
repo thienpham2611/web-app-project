@@ -138,57 +138,28 @@
         </nav>
         <div class="content-inner">
 
-<!--REPORT-1-->
-<div class="row" id="report1">
+<!--REPORT-3-->
+<div class="row" id="report3">
     <div class="col-md-12">
-        <div class="card">
+        <div class="card card-idt-main">
             <div class="card-header-idt">
-                <h4 class="title-idt"><i class="fa fa-list"></i> HỆ THỐNG QUẢN LÝ BẢO HÀNH</h4>
+                <h4 class="title-idt"><i class="fa fa-wrench"></i> Danh sách sửa chữa được giao</h4>
             </div>
             <div class="card-body no-padding">
                 <div class="table-responsive">
                     <table class="table idt-table-report table-hover">
                         <thead>
                             <tr>
-                                <th>Mã Thiết Bị</th>
-                                <th>Tên Mặt Hàng</th>
-                                <th>Khách Hàng</th>
-                                <th class="text-center">Ngày Hết Hạn</th>
-                                <th class="text-center">Tình Trạng</th>
-                                <th class="text-center">Hành Động</th>
+                                <th>Mã Case</th>
+                                <th>Thiết bị</th>
+                                <th>Khách hàng</th>
+                                <th>Tiến độ</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th class="text-center">Hành động</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>DE-001</strong></td>
-                                <td>Máy chủ Dell PowerEdge</td>
-                                <td>Ngân hàng ACB</td>
-                                <td class="text-center">15/02/2024</td>
-                                <td class="text-center"><span class="text-status-expired">Đã hết hạn</span></td>
-                                <td class="action-col">
-                                    <button class="btn-idt-fixed btn-red">Gia hạn ngay</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>SW-042</strong></td>
-                                <td>Phần mềm kế toán IDT</td>
-                                <td>Cty TNHH Hải Nam</td>
-                                <td class="text-center">25/11/2024</td>
-                                <td class="text-center"><span class="text-status-warning">Sắp hết hạn</span></td>
-                                <td class="action-col">
-                                    <button class="btn-idt-fixed btn-blue">Gửi nhắc nhở</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>DE-105</strong></td>
-                                <td>Switch Cisco 24 Port</td>
-                                <td>Trường ĐH Bách Khoa</td>
-                                <td class="text-center">10/10/2026</td>
-                                <td class="text-center"><span class="text-status-good">Đang bảo hành</span></td>
-                                <td class="action-col">
-                                    <button class="btn-idt-fixed btn-gray">Xem chi tiết</button>
-                                </td>
-                            </tr>
+                        <tbody id="tech-repair-list">
+                            <tr><td colspan="6" class="text-center">Đang tải danh sách công việc...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -197,59 +168,103 @@
     </div>
 </div>
 
-<!--REPORT-3-->
-<div class="row" id="report3">
-    <div class="col-md-12">
-        <div class="card card-idt-main">
-            <div class="card-header-idt">
-                <h4 class="title-idt"><i class="fa fa-history"></i> Theo dõi tiến độ sửa chữa và dịch vụ</h4>
-            </div>
-            <div class="card-body no-padding">
-                <div class="table-responsive">
-                    <table class="table idt-table-report table-hover">
-                        <thead>
-                            <tr>
-                                <th>Mã Case</th>
-                                <th>Thiết bị/Phần mềm</th>
-                                <th>Kỹ thuật viên</th>
-                                <th>Tiến độ xử lý</th>
-                                <th class="text-center">Trạng thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>#SC-1024</strong></td>
-                                <td>Server Dell R740</td>
-                                <td>Nguyễn Văn A</td>
-                                <td class="align-middle">
-                                    <div class="progress idt-progress-bar">
-                                        <div class="progress-bar bg-warning" style="width: 65%;"></div>
-                                    </div>
-                                </td>
-                                <td class="action-col">
-                                    <span class="status-btn btn-warning-idt">Đang thay linh kiện</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>#PM-0052</strong></td>
-                                <td>Phần mềm kế toán IDT</td>
-                                <td>Trần Thị B</td>
-                                <td class="align-middle">
-                                    <div class="progress idt-progress-bar">
-                                        <div class="progress-bar bg-info" style="width: 30%;"></div>
-                                    </div>
-                                </td>
-                                <td class="action-col">
-                                    <span class="status-btn btn-info-idt">Đang fix bug</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<!--API-->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // --- CẤU HÌNH ĐƯỜNG DẪN API (Bên Backend sẽ xử lý tệp này) ---
+    // API này thường sẽ dựa vào Session (người đang đăng nhập) để trả về đúng ticket của họ
+    const API_MY_TICKETS = 'api/get_my_tickets.php'; 
+
+    fetch(API_MY_TICKETS)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('tech-repair-list');
+            tbody.innerHTML = ''; // Xóa dòng thông báo "Đang tải"
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Bạn hiện chưa có công việc nào được giao.</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                // Xác định màu sắc trạng thái (Cùng style với file CSS của bạn)
+                let statusClass = 'btn-info-idt'; // Mặc định
+                if(item.status === 'Hoàn thành') statusClass = 'btn-success-idt';
+                if(item.status === 'Đang sửa') statusClass = 'btn-warning-idt';
+
+                // Xác định màu thanh tiến độ
+                let progressColor = 'bg-warning';
+                if(item.progress >= 100) progressColor = 'bg-success';
+                if(item.progress < 20) progressColor = 'bg-danger';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.id}</strong></td>
+                        <td>${item.device_name}</td>
+                        <td>${item.customer_name}</td>
+                        <td class="align-middle">
+                            <div class="progress idt-progress-bar">
+                                <div class="progress-bar ${progressColor}" style="width: ${item.progress}%;"></div>
+                            </div>
+                            <small>${item.progress}%</small>
+                        </td>
+                        <td class="text-center">
+                            <span class="status-btn ${statusClass}">${item.status}</span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn-idt-fixed btn-blue" onclick="updateTicket('${item.id}')">
+                                <i class="fa fa-edit"></i> Cập nhật
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => {
+            console.error("Lỗi kết nối API Nhân viên:", err);
+            document.getElementById('tech-repair-list').innerHTML = 
+                '<tr><td colspan="6" class="text-center text-danger">Không thể kết nối máy chủ.</td></tr>';
+        });
+});
+
+// Hàm mẫu xử lý khi nhấn nút Cập nhật
+function updateTicket(ticketId) {
+    // Backend sẽ xử lý việc mở Modal hoặc chuyển hướng trang tại đây
+    console.log("Đang mở cập nhật cho Case: " + ticketId);
+    alert("Chức năng cập nhật tiến độ cho Case: " + ticketId + " đang được xử lý.");
+}
+</script>
+
+
+<script>
+// JS Load dữ liệu riêng cho nhân viên
+document.addEventListener("DOMContentLoaded", function() {
+    // Gọi API lấy ticket theo ID nhân viên (lấy từ Session)
+    fetch('api/get_my_tickets.php') 
+    .then(response => response.json())
+    .then(data => {
+        const tbody = document.getElementById('tech-repair-list');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${item.id}</strong></td>
+                    <td>${item.device_name}</td>
+                    <td>${item.customer_name}</td>
+                    <td class="align-middle">
+                        <div class="progress idt-progress-bar">
+                            <div class="progress-bar bg-warning" style="width: ${item.progress}%;"></div>
+                        </div>
+                    </td>
+                    <td class="action-col"><span class="status-btn btn-warning-idt">${item.status}</span></td>
+                    <td class="action-col"><button class="btn-idt-fixed btn-blue">Cập nhật</button></td>
+                </tr>
+            `;
+        });
+    });
+});
+</script>
 
     <!--Global Javascript -->
     <script src="js/jquery.min.js"></script>
