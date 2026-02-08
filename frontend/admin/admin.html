@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/style.default.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- SIDEBAR -->
+    <nav class="side-navbar">
+        <div class="side-navbar-wrapper">
+            <div class="sidenav-header">
+                <h2>ADMIN</h2>
+            </div>
+            <ul class="list-unstyled">
+                <li class="active"><a href="index.html">Dashboard</a></li>
+                <li><a href="users.html">Quản lý nhân viên</a></li>
+                <li><a href="logs.html">Nhật ký hệ thống</a></li>
+                <li><a href="profile.html">Hồ sơ cá nhân</a></li>
+                <li><a href="#" id="logout-btn">Đăng xuất</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <div class="content-inner">
+
+        <!-- HEADER -->
+        <header class="page-header">
+            <div class="container-fluid">
+                <h2 class="no-margin-bottom">Dashboard quản trị</h2>
+            </div>
+        </header>
+
+        <!-- DASHBOARD -->
+        <section class="dashboard-counts">
+            <div class="container-fluid">
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Tổng nhân viên</h5>
+                                <p id="total-users">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Số Admin</h5>
+                                <p id="total-admins">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Phiên đang hoạt động</h5>
+                                <p id="total-sessions">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<!-- JS -->
+<script src="../js/jquery.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+
+<!-- BẮT BUỘC: chặn user thường -->
+<script src="../js/auth-check-admin.js"></script>
+
+<!-- logout -->
+<script src="../js/front.js"></script>
+
+</body>
+</html>
