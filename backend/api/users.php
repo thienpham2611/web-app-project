@@ -1,33 +1,22 @@
 <?php
 require_once "../config/database.php";
 
+/*
+|--------------------------------------------------------------------------
+| AUTH MIDDLEWARE
+|--------------------------------------------------------------------------
+| Chỉ admin mới được phép quản lý user
+*/
+$requiredRole = 'admin';
+require_once "../middleware/check_auth.php";
+
 header("Content-Type: application/json; charset=UTF-8");
-session_start();
 
-// 1. KIỂM TRA ĐĂNG NHẬP
-
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode([
-        "success" => false,
-        "error" => "Unauthorized"
-    ]);
-    exit;
-}
-
-// 2. CHỈ ADMIN ĐƯỢC QUẢN LÝ USER
-
-if ($_SESSION['role'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode([
-        "success" => false,
-        "error" => "Forbidden"
-    ]);
-    exit;
-}
-
-// 3. ROUTER THEO HTTP METHOD
-
+/*
+|--------------------------------------------------------------------------
+| ROUTER THEO HTTP METHOD
+|--------------------------------------------------------------------------
+*/
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
@@ -53,25 +42,36 @@ switch ($method) {
             "success" => false,
             "error" => "Method not allowed"
         ]);
+        break;
 }
 
-// FUNCTIONS
+/*
+|--------------------------------------------------------------------------
+| FUNCTIONS
+|--------------------------------------------------------------------------
+*/
 
-// ---------- GET: danh sách hoặc 1 user ----------
+/*
+|--------------------------------------------------------------------------
+| GET: danh sách user hoặc 1 user
+|--------------------------------------------------------------------------
+*/
 function handleGet($conn) {
     if (isset($_GET['id'])) {
-        $id = intval($_GET['id']);
-        getUserById($conn, $id);
+        getUserById($conn, intval($_GET['id']));
     } else {
         getAllUsers($conn);
     }
 }
 
 function getAllUsers($conn) {
-    $sql = "SELECT id, username, role, created_at FROM users";
-    $result = mysqli_query($conn, $sql);
+    $sql = "SELECT id, name, email, role, created_at 
+            FROM users 
+            ORDER BY id DESC";
 
+    $result = mysqli_query($conn, $sql);
     $users = [];
+
     while ($row = mysqli_fetch_assoc($result)) {
         $users[] = $row;
     }
@@ -83,13 +83,17 @@ function getAllUsers($conn) {
 }
 
 function getUserById($conn, $id) {
-    $sql = "SELECT id, username, role, created_at FROM users WHERE id = ?";
+    $sql = "SELECT id, name, email, role, created_at 
+            FROM users 
+            WHERE id = ?";
+
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "i", $id);
     mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
 
+    $result = mysqli_stmt_get_result($stmt);
     $user = mysqli_fetch_assoc($result);
+
     if (!$user) {
         http_response_code(404);
         echo json_encode([
@@ -105,19 +109,24 @@ function getUserById($conn, $id) {
     ]);
 }
 
-// ---------- POST: tạo user ----------
+/*
+|--------------------------------------------------------------------------
+| POST: tạo user (ADMIN)
+|--------------------------------------------------------------------------
+*/
 function handlePost($conn) {
     $data = json_decode(file_get_contents("php://input"), true);
 
-    $username = trim($data['username'] ?? '');
+    $name     = trim($data['name'] ?? '');
+    $email    = trim($data['email'] ?? '');
     $password = trim($data['password'] ?? '');
     $role     = trim($data['role'] ?? 'staff');
 
-    if ($username === '' || $password === '') {
+    if ($name === '' || $email === '' || $password === '') {
         http_response_code(400);
         echo json_encode([
             "success" => false,
-            "error" => "Username and password required"
+            "error" => "Name, email and password are required"
         ]);
         return;
     }
@@ -131,25 +140,28 @@ function handlePost($conn) {
         return;
     }
 
-    // check trùng username
-    $checkSql = "SELECT id FROM users WHERE username = ? LIMIT 1";
+    // Check trùng email
+    $checkSql = "SELECT id FROM users WHERE email = ? LIMIT 1";
     $checkStmt = mysqli_prepare($conn, $checkSql);
-    mysqli_stmt_bind_param($checkStmt, "s", $username);
+    mysqli_stmt_bind_param($checkStmt, "s", $email);
     mysqli_stmt_execute($checkStmt);
+
     if (mysqli_fetch_assoc(mysqli_stmt_get_result($checkStmt))) {
         http_response_code(409);
         echo json_encode([
             "success" => false,
-            "error" => "Username already exists"
+            "error" => "Email already exists"
         ]);
         return;
     }
 
     $hash = password_hash($password, PASSWORD_DEFAULT);
 
-    $sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
+    $sql = "INSERT INTO users (name, email, password, role)
+            VALUES (?, ?, ?, ?)";
+
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "sss", $username, $hash, $role);
+    mysqli_stmt_bind_param($stmt, "ssss", $name, $email, $hash, $role);
 
     if (mysqli_stmt_execute($stmt)) {
         http_response_code(201);
@@ -167,7 +179,11 @@ function handlePost($conn) {
     ]);
 }
 
-// ---------- PUT: cập nhật role ----------
+/*
+|--------------------------------------------------------------------------
+| PUT: cập nhật role
+|--------------------------------------------------------------------------
+*/
 function handlePut($conn) {
     $data = json_decode(file_get_contents("php://input"), true);
 
@@ -202,7 +218,11 @@ function handlePut($conn) {
     ]);
 }
 
-// ---------- DELETE: xoá user ----------
+/*
+|--------------------------------------------------------------------------
+| DELETE: xoá user
+|--------------------------------------------------------------------------
+*/
 function handleDelete($conn) {
     if (!isset($_GET['id'])) {
         http_response_code(400);
@@ -214,6 +234,16 @@ function handleDelete($conn) {
     }
 
     $id = intval($_GET['id']);
+
+    // Không cho admin tự xoá chính mình
+    if ($id == $_SESSION['user_id']) {
+        http_response_code(400);
+        echo json_encode([
+            "success" => false,
+            "error" => "Cannot delete your own account"
+        ]);
+        return;
+    }
 
     $sql = "DELETE FROM users WHERE id = ?";
     $stmt = mysqli_prepare($conn, $sql);
