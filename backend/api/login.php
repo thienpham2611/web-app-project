@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode([
         "success" => false,
-        "error" => "Method not allowed"
+        "error" => "Phương thức không được phép"
     ]);
     exit;
 }
@@ -52,7 +52,7 @@ if ($email === '' || $password === '') {
     http_response_code(400);
     echo json_encode([
         "success" => false,
-        "error" => "Email and password are required",
+        "error" => "Email và mật khẩu là bắt buộc",
         "debug" => [
             "content_type" => $_SERVER['CONTENT_TYPE'] ?? null,
             "raw_body" => $raw
@@ -71,7 +71,7 @@ if (!$stmt) {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "error" => "Database prepare failed"
+        "error" => "Lỗi cơ sở dữ liệu"
     ]);
     exit;
 }
@@ -96,7 +96,7 @@ if ($user = mysqli_fetch_assoc($result)) {
         http_response_code(200);
         echo json_encode([
             "success" => true,
-            "message" => "Login successful",
+            "message" => "Đăng nhập thành công",
             "user" => [
                 "id"    => $user['id'],
                 "name"  => $user['name'],
@@ -114,5 +114,5 @@ if ($user = mysqli_fetch_assoc($result)) {
 http_response_code(401);
 echo json_encode([
     "success" => false,
-    "error" => "Invalid email or password"
+    "error" => "Email hoặc mật khẩu không đúng"
 ]);

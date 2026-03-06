@@ -20,7 +20,7 @@ switch ($method) {
     case 'DELETE': handleDelete($conn); break;
     default:
         http_response_code(405);
-        echo json_encode(["success" => false, "error" => "Method not allowed"]);
+        echo json_encode(["success" => false, "error" => "Phương thức không được phép"]);
 }
 
 // ──────────────────────────────────────────
@@ -39,7 +39,7 @@ function handleGet($conn) {
         $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
         if (!$row) {
             http_response_code(404);
-            echo json_encode(["success" => false, "error" => "Device not found"]);
+            echo json_encode(["success" => false, "error" => "Không tìm thấy thiết bị"]);
             return;
         }
         echo json_encode(["success" => true, "data" => $row]);
@@ -100,19 +100,19 @@ function handlePost($conn) {
 
     if ($name === '') {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Device name is required"]);
+        echo json_encode(["success" => false, "error" => "Tên thiết bị là bắt buộc"]);
         return;
     }
 
     if (!in_array($type, ['hardware', 'software'])) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Invalid type"]);
+        echo json_encode(["success" => false, "error" => "Loại thiết bị không hợp lệ"]);
         return;
     }
 
     if (!in_array($status, ['active', 'expired', 'repairing'])) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Invalid status"]);
+        echo json_encode(["success" => false, "error" => "Trạng thái không hợp lệ"]);
         return;
     }
 
@@ -124,10 +124,10 @@ function handlePost($conn) {
 
     if (mysqli_stmt_execute($stmt)) {
         http_response_code(201);
-        echo json_encode(["success" => true, "message" => "Device created", "id" => mysqli_insert_id($conn)]);
+        echo json_encode(["success" => true, "message" => "Tạo thiết bị thành công", "id" => mysqli_insert_id($conn)]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Failed to create device"]);
+        echo json_encode(["success" => false, "error" => "Tạo thiết bị thất bại"]);
     }
 }
 
@@ -148,7 +148,7 @@ function handlePut($conn) {
 
     if ($id <= 0 || $name === '') {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Invalid data"]);
+        echo json_encode(["success" => false, "error" => "Dữ liệu không hợp lệ"]);
         return;
     }
 
@@ -159,10 +159,10 @@ function handlePut($conn) {
         $name, $serial_number, $customer_id, $type, $warranty_start, $warranty_end, $status, $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Device updated"]);
+        echo json_encode(["success" => true, "message" => "Cập nhật thiết bị thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Update failed"]);
+        echo json_encode(["success" => false, "error" => "Cập nhật thất bại"]);
     }
 }
 
@@ -172,14 +172,14 @@ function handlePut($conn) {
 function handleDelete($conn) {
     if (!in_array($_SESSION['role'], ['admin', 'manager'])) {
         http_response_code(403);
-        echo json_encode(["success" => false, "error" => "Forbidden"]);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
         return;
     }
 
     $id = intval($_GET['id'] ?? 0);
     if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Device id required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã thiết bị"]);
         return;
     }
 
@@ -187,9 +187,9 @@ function handleDelete($conn) {
     mysqli_stmt_bind_param($stmt, "i", $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Device deleted"]);
+        echo json_encode(["success" => true, "message" => "Xóa thiết bị thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Delete failed"]);
+        echo json_encode(["success" => false, "error" => "Xóa thất bại"]);
     }
 }

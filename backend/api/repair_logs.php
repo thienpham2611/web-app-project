@@ -19,7 +19,7 @@ switch ($method) {
     case 'DELETE': handleDelete($conn); break;
     default:
         http_response_code(405);
-        echo json_encode(["success" => false, "error" => "Method not allowed"]);
+        echo json_encode(["success" => false, "error" => "Phương thức không được phép"]);
 }
 
 // ──────────────────────────────────────────
@@ -28,7 +28,7 @@ switch ($method) {
 function handleGet($conn) {
     if (empty($_GET['ticket_id'])) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "ticket_id is required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã phiếu sửa chữa"]);
         return;
     }
 
@@ -60,7 +60,7 @@ function handlePost($conn) {
 
     if ($ticket_id <= 0 || $action === '') {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "repair_ticket_id and action are required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã phiếu hoặc nội dung hành động"]);
         return;
     }
 
@@ -71,10 +71,10 @@ function handlePost($conn) {
 
     if (mysqli_stmt_execute($stmt)) {
         http_response_code(201);
-        echo json_encode(["success" => true, "message" => "Log added", "id" => mysqli_insert_id($conn)]);
+        echo json_encode(["success" => true, "message" => "Thêm nhật ký thành công", "id" => mysqli_insert_id($conn)]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Failed to add log"]);
+        echo json_encode(["success" => false, "error" => "Thêm nhật ký thất bại"]);
     }
 }
 
@@ -84,14 +84,14 @@ function handlePost($conn) {
 function handleDelete($conn) {
     if ($_SESSION['role'] !== 'admin') {
         http_response_code(403);
-        echo json_encode(["success" => false, "error" => "Forbidden"]);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
         return;
     }
 
     $id = intval($_GET['id'] ?? 0);
     if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Log id required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã nhật ký"]);
         return;
     }
 
@@ -99,9 +99,9 @@ function handleDelete($conn) {
     mysqli_stmt_bind_param($stmt, "i", $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Log deleted"]);
+        echo json_encode(["success" => true, "message" => "Xóa nhật ký thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Delete failed"]);
+        echo json_encode(["success" => false, "error" => "Xóa thất bại"]);
     }
 }
