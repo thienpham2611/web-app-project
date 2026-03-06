@@ -20,7 +20,7 @@ switch ($method) {
     case 'DELETE': handleDelete($conn); break;
     default:
         http_response_code(405);
-        echo json_encode(["success" => false, "error" => "Method not allowed"]);
+        echo json_encode(["success" => false, "error" => "Phương thức không được phép"]);
 }
 
 // ──────────────────────────────────────────
@@ -52,7 +52,7 @@ function handleGet($conn) {
 function handlePost($conn) {
     if (!in_array($_SESSION['role'], ['admin', 'manager'])) {
         http_response_code(403);
-        echo json_encode(["success" => false, "error" => "Forbidden"]);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
         return;
     }
 
@@ -63,7 +63,7 @@ function handlePost($conn) {
 
     if ($user_id <= 0 || $message === '') {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "user_id and message are required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu người nhận hoặc nội dung thông báo"]);
         return;
     }
 
@@ -73,10 +73,10 @@ function handlePost($conn) {
 
     if (mysqli_stmt_execute($stmt)) {
         http_response_code(201);
-        echo json_encode(["success" => true, "message" => "Notification sent", "id" => mysqli_insert_id($conn)]);
+        echo json_encode(["success" => true, "message" => "Gửi thông báo thành công", "id" => mysqli_insert_id($conn)]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Failed to send notification"]);
+        echo json_encode(["success" => false, "error" => "Gửi thông báo thất bại"]);
     }
 }
 
@@ -93,7 +93,7 @@ function handlePut($conn) {
             "UPDATE notifications SET is_read=1 WHERE user_id=?");
         mysqli_stmt_bind_param($stmt, "i", $user_id);
         mysqli_stmt_execute($stmt);
-        echo json_encode(["success" => true, "message" => "All notifications marked as read"]);
+        echo json_encode(["success" => true, "message" => "Đã đánh dấu tất cả thông báo là đã đọc"]);
         return;
     }
 
@@ -101,7 +101,7 @@ function handlePut($conn) {
     $id = intval($input['id'] ?? 0);
     if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Notification id required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã thông báo"]);
         return;
     }
 
@@ -110,10 +110,10 @@ function handlePut($conn) {
     mysqli_stmt_bind_param($stmt, "ii", $id, $user_id);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Marked as read"]);
+        echo json_encode(["success" => true, "message" => "Đã đánh dấu đã đọc"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Update failed"]);
+        echo json_encode(["success" => false, "error" => "Cập nhật thất bại"]);
     }
 }
 
@@ -126,7 +126,7 @@ function handleDelete($conn) {
 
     if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Notification id required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã thông báo"]);
         return;
     }
 
@@ -139,9 +139,9 @@ function handleDelete($conn) {
     mysqli_stmt_bind_param($stmt, "i", $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Notification deleted"]);
+        echo json_encode(["success" => true, "message" => "Xóa thông báo thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Delete failed"]);
+        echo json_encode(["success" => false, "error" => "Xóa thất bại"]);
     }
 }

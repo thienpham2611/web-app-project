@@ -6,7 +6,7 @@ session_start();
 if (!isset($_SESSION['user_id'])) {
     echo json_encode([
         "success" => true,
-        "message" => "Already logged out"
+        "message" => "Bạn chưa đăng nhập"
     ]);
     exit;
 }
@@ -19,5 +19,5 @@ session_destroy();
 
 echo json_encode([
     "success" => true,
-    "message" => "Logout successful"
+    "message" => "Đăng xuất thành công"
 ]);

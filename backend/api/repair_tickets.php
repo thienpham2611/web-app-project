@@ -20,7 +20,7 @@ switch ($method) {
     case 'DELETE': handleDelete($conn); break;
     default:
         http_response_code(405);
-        echo json_encode(["success" => false, "error" => "Method not allowed"]);
+        echo json_encode(["success" => false, "error" => "Phương thức không được phép"]);
 }
 
 // ──────────────────────────────────────────
@@ -44,7 +44,7 @@ function handleGet($conn) {
         $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
         if (!$row) {
             http_response_code(404);
-            echo json_encode(["success" => false, "error" => "Ticket not found"]);
+            echo json_encode(["success" => false, "error" => "Không tìm thấy phiếu sửa chữa"]);
             return;
         }
         echo json_encode(["success" => true, "data" => $row]);
@@ -113,13 +113,13 @@ function handlePost($conn) {
 
     if ($device_id <= 0 || $customer_id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "device_id and customer_id are required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã thiết bị hoặc mã khách hàng"]);
         return;
     }
 
     if (!in_array($status, ['pending', 'repairing', 'completed', 'cancelled'])) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Invalid status"]);
+        echo json_encode(["success" => false, "error" => "Trạng thái không hợp lệ"]);
         return;
     }
 
@@ -138,10 +138,10 @@ function handlePost($conn) {
         mysqli_stmt_execute($upd);
 
         http_response_code(201);
-        echo json_encode(["success" => true, "message" => "Repair ticket created", "id" => $ticketId]);
+        echo json_encode(["success" => true, "message" => "Tạo phiếu sửa chữa thành công", "id" => $ticketId]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Failed to create ticket"]);
+        echo json_encode(["success" => false, "error" => "Tạo phiếu sửa chữa thất bại"]);
     }
 }
 
@@ -158,7 +158,7 @@ function handlePut($conn) {
 
     if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Ticket id required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã phiếu sửa chữa"]);
         return;
     }
 
@@ -170,7 +170,7 @@ function handlePut($conn) {
     if ($status !== null) {
         if (!in_array($status, ['pending', 'repairing', 'completed', 'cancelled'])) {
             http_response_code(400);
-            echo json_encode(["success" => false, "error" => "Invalid status"]);
+            echo json_encode(["success" => false, "error" => "Trạng thái không hợp lệ"]);
             return;
         }
         $sets[]   = "status = ?";
@@ -190,7 +190,7 @@ function handlePut($conn) {
 
     if (!$sets) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Nothing to update"]);
+        echo json_encode(["success" => false, "error" => "Không có gì để cập nhật"]);
         return;
     }
 
@@ -211,10 +211,10 @@ function handlePut($conn) {
                 mysqli_stmt_execute($devUpd);
             }
         }
-        echo json_encode(["success" => true, "message" => "Ticket updated"]);
+        echo json_encode(["success" => true, "message" => "Cập nhật phiếu sửa chữa thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Update failed"]);
+        echo json_encode(["success" => false, "error" => "Cập nhật thất bại"]);
     }
 }
 
@@ -224,14 +224,14 @@ function handlePut($conn) {
 function handleDelete($conn) {
     if ($_SESSION['role'] !== 'admin') {
         http_response_code(403);
-        echo json_encode(["success" => false, "error" => "Forbidden"]);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
         return;
     }
 
     $id = intval($_GET['id'] ?? 0);
     if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Ticket id required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã phiếu sửa chữa"]);
         return;
     }
 
@@ -239,9 +239,9 @@ function handleDelete($conn) {
     mysqli_stmt_bind_param($stmt, "i", $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Ticket deleted"]);
+        echo json_encode(["success" => true, "message" => "Xóa phiếu sửa chữa thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Delete failed"]);
+        echo json_encode(["success" => false, "error" => "Xóa thất bại"]);
     }
 }

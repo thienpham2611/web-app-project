@@ -19,7 +19,7 @@ switch ($method) {
     case 'DELETE': handleDelete($conn); break;
     default:
         http_response_code(405);
-        echo json_encode(["success" => false, "error" => "Method not allowed"]);
+        echo json_encode(["success" => false, "error" => "Phương thức không được phép"]);
 }
 
 // ──────────────────────────────────────────
@@ -66,7 +66,7 @@ function handlePost($conn) {
 
     if ($device_id <= 0 || $new_end_date === '') {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "device_id and new_end_date are required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã thiết bị hoặc ngày hết hạn mới"]);
         return;
     }
 
@@ -78,7 +78,7 @@ function handlePost($conn) {
 
     if (!$device) {
         http_response_code(404);
-        echo json_encode(["success" => false, "error" => "Device not found"]);
+        echo json_encode(["success" => false, "error" => "Không tìm thấy thiết bị"]);
         return;
     }
 
@@ -91,19 +91,19 @@ function handlePost($conn) {
             "INSERT INTO warranty_extensions (device_id, user_id, old_end_date, new_end_date)
              VALUES (?, ?, ?, ?)");
         mysqli_stmt_bind_param($ins, "iiss", $device_id, $user_id, $old_end_date, $new_end_date);
-        if (!mysqli_stmt_execute($ins)) throw new Exception("Failed to log extension");
+        if (!mysqli_stmt_execute($ins)) throw new Exception("Lưu lịch sử gia hạn thất bại");
 
         // Cập nhật thiết bị
         $upd = mysqli_prepare($conn,
             "UPDATE devices SET warranty_end_date=?, status='active' WHERE id=?");
         mysqli_stmt_bind_param($upd, "si", $new_end_date, $device_id);
-        if (!mysqli_stmt_execute($upd)) throw new Exception("Failed to update device");
+        if (!mysqli_stmt_execute($upd)) throw new Exception("Cập nhật thiết bị thất bại");
 
         mysqli_commit($conn);
         http_response_code(201);
         echo json_encode([
             "success" => true,
-            "message" => "Warranty extended",
+            "message" => "Gia hạn bảo hành thành công",
             "old_end_date" => $old_end_date,
             "new_end_date" => $new_end_date
         ]);
@@ -120,14 +120,14 @@ function handlePost($conn) {
 function handleDelete($conn) {
     if ($_SESSION['role'] !== 'admin') {
         http_response_code(403);
-        echo json_encode(["success" => false, "error" => "Forbidden"]);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
         return;
     }
 
     $id = intval($_GET['id'] ?? 0);
     if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Record id required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã bản ghi"]);
         return;
     }
 
@@ -135,9 +135,9 @@ function handleDelete($conn) {
     mysqli_stmt_bind_param($stmt, "i", $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Record deleted"]);
+        echo json_encode(["success" => true, "message" => "Xóa bản ghi thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Delete failed"]);
+        echo json_encode(["success" => false, "error" => "Xóa thất bại"]);
     }
 }

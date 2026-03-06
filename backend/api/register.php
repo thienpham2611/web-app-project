@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode([
         "success" => false,
-        "error" => "Method not allowed"
+        "error" => "Phương thức không được phép"
     ]);
     exit;
 }
@@ -24,7 +24,7 @@ if ($name === '' || $email === '' || $password === '') {
     http_response_code(400);
     echo json_encode([
         "success" => false,
-        "error" => "Name, email and password are required"
+        "error" => "Họ tên, email và mật khẩu là bắt buộc"
     ]);
     exit;
 }
@@ -33,7 +33,7 @@ if (!in_array($role, ['admin', 'manager', 'staff'])) {
     http_response_code(400);
     echo json_encode([
         "success" => false,
-        "error" => "Invalid role"
+        "error" => "Vai trò không hợp lệ"
     ]);
     exit;
 }
@@ -46,7 +46,7 @@ if (!$checkStmt) {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "error" => "Database error"
+        "error" => "Lỗi cơ sở dữ liệu"
     ]);
     exit;
 }
@@ -59,7 +59,7 @@ if (mysqli_fetch_assoc($checkResult)) {
     http_response_code(409);
     echo json_encode([
         "success" => false,
-        "error" => "Email already exists"
+        "error" => "Email đã tồn tại"
     ]);
     exit;
 }
@@ -76,7 +76,7 @@ if (!$stmt) {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "error" => "Database error"
+        "error" => "Lỗi cơ sở dữ liệu"
     ]);
     exit;
 }
@@ -87,7 +87,7 @@ if (mysqli_stmt_execute($stmt)) {
     http_response_code(201);
     echo json_encode([
         "success" => true,
-        "message" => "User registered successfully"
+        "message" => "Đăng ký tài khoản thành công"
     ]);
     exit;
 }
@@ -96,5 +96,5 @@ if (mysqli_stmt_execute($stmt)) {
 http_response_code(500);
 echo json_encode([
     "success" => false,
-    "error" => "Failed to register user"
+    "error" => "Đăng ký tài khoản thất bại"
 ]);

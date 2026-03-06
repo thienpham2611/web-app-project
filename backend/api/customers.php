@@ -20,7 +20,7 @@ switch ($method) {
     case 'DELETE': handleDelete($conn); break;
     default:
         http_response_code(405);
-        echo json_encode(["success" => false, "error" => "Method not allowed"]);
+        echo json_encode(["success" => false, "error" => "Phương thức không được phép"]);
 }
 
 // ──────────────────────────────────────────
@@ -35,7 +35,7 @@ function handleGet($conn) {
         $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
         if (!$row) {
             http_response_code(404);
-            echo json_encode(["success" => false, "error" => "Customer not found"]);
+            echo json_encode(["success" => false, "error" => "Không tìm thấy khách hàng"]);
             return;
         }
         echo json_encode(["success" => true, "data" => $row]);
@@ -72,7 +72,7 @@ function handlePost($conn) {
 
     if ($name === '') {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Name is required"]);
+        echo json_encode(["success" => false, "error" => "Tên khách hàng là bắt buộc"]);
         return;
     }
 
@@ -82,10 +82,10 @@ function handlePost($conn) {
 
     if (mysqli_stmt_execute($stmt)) {
         http_response_code(201);
-        echo json_encode(["success" => true, "message" => "Customer created", "id" => mysqli_insert_id($conn)]);
+        echo json_encode(["success" => true, "message" => "Tạo khách hàng thành công", "id" => mysqli_insert_id($conn)]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Failed to create customer"]);
+        echo json_encode(["success" => false, "error" => "Tạo khách hàng thất bại"]);
     }
 }
 
@@ -102,7 +102,7 @@ function handlePut($conn) {
 
     if ($id <= 0 || $name === '') {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Invalid data"]);
+        echo json_encode(["success" => false, "error" => "Dữ liệu không hợp lệ"]);
         return;
     }
 
@@ -111,10 +111,10 @@ function handlePut($conn) {
     mysqli_stmt_bind_param($stmt, "ssssi", $name, $phone, $email, $address, $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Customer updated"]);
+        echo json_encode(["success" => true, "message" => "Cập nhật khách hàng thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Update failed"]);
+        echo json_encode(["success" => false, "error" => "Cập nhật thất bại"]);
     }
 }
 
@@ -124,14 +124,14 @@ function handlePut($conn) {
 function handleDelete($conn) {
     if (!in_array($_SESSION['role'], ['admin', 'manager'])) {
         http_response_code(403);
-        echo json_encode(["success" => false, "error" => "Forbidden"]);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
         return;
     }
 
     $id = intval($_GET['id'] ?? 0);
     if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Customer id required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã khách hàng"]);
         return;
     }
 
@@ -139,9 +139,9 @@ function handleDelete($conn) {
     mysqli_stmt_bind_param($stmt, "i", $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Customer deleted"]);
+        echo json_encode(["success" => true, "message" => "Xóa khách hàng thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Delete failed"]);
+        echo json_encode(["success" => false, "error" => "Xóa thất bại"]);
     }
 }

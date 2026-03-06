@@ -20,7 +20,7 @@ switch ($method) {
     case 'DELETE': handleDelete($conn); break;
     default:
         http_response_code(405);
-        echo json_encode(["success" => false, "error" => "Method not allowed"]);
+        echo json_encode(["success" => false, "error" => "Phương thức không được phép"]);
 }
 
 // ──────────────────────────────────────────
@@ -42,7 +42,7 @@ function handleGet($conn) {
 
         if (!$order) {
             http_response_code(404);
-            echo json_encode(["success" => false, "error" => "Order not found"]);
+            echo json_encode(["success" => false, "error" => "Không tìm thấy đơn hàng"]);
             return;
         }
 
@@ -107,13 +107,13 @@ function handlePost($conn) {
 
     if ($customer_id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "customer_id is required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã khách hàng"]);
         return;
     }
 
     if (!in_array($status, ['paid', 'unpaid', 'cancelled'])) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Invalid status"]);
+        echo json_encode(["success" => false, "error" => "Trạng thái không hợp lệ"]);
         return;
     }
 
@@ -131,7 +131,7 @@ function handlePost($conn) {
             "INSERT INTO orders (customer_id, order_date, total_amount, status)
              VALUES (?, ?, ?, ?)");
         mysqli_stmt_bind_param($stmt, "isds", $customer_id, $order_date, $total, $status);
-        if (!mysqli_stmt_execute($stmt)) throw new Exception("Insert order failed");
+        if (!mysqli_stmt_execute($stmt)) throw new Exception("Tạo đơn hàng thất bại");
         $order_id = mysqli_insert_id($conn);
 
         // Insert items
@@ -145,12 +145,12 @@ function handlePost($conn) {
             $stmtI = mysqli_prepare($conn,
                 "INSERT INTO order_items (order_id, device_id, price, quantity) VALUES (?, ?, ?, ?)");
             mysqli_stmt_bind_param($stmtI, "iidi", $order_id, $device_id, $price, $qty);
-            if (!mysqli_stmt_execute($stmtI)) throw new Exception("Insert item failed");
+            if (!mysqli_stmt_execute($stmtI)) throw new Exception("Thêm sản phẩm vào đơn thất bại");
         }
 
         mysqli_commit($conn);
         http_response_code(201);
-        echo json_encode(["success" => true, "message" => "Order created", "id" => $order_id]);
+        echo json_encode(["success" => true, "message" => "Tạo đơn hàng thành công", "id" => $order_id]);
     } catch (Exception $e) {
         mysqli_rollback($conn);
         http_response_code(500);
@@ -169,13 +169,13 @@ function handlePut($conn) {
 
     if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Order id required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã đơn hàng"]);
         return;
     }
 
     if ($status && !in_array($status, ['paid', 'unpaid', 'cancelled'])) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Invalid status"]);
+        echo json_encode(["success" => false, "error" => "Trạng thái không hợp lệ"]);
         return;
     }
 
@@ -189,7 +189,7 @@ function handlePut($conn) {
 
     if (!$sets) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Nothing to update"]);
+        echo json_encode(["success" => false, "error" => "Không có gì để cập nhật"]);
         return;
     }
 
@@ -198,10 +198,10 @@ function handlePut($conn) {
     mysqli_stmt_bind_param($stmt, $types, ...$params);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Order updated"]);
+        echo json_encode(["success" => true, "message" => "Cập nhật đơn hàng thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Update failed"]);
+        echo json_encode(["success" => false, "error" => "Cập nhật thất bại"]);
     }
 }
 
@@ -211,14 +211,14 @@ function handlePut($conn) {
 function handleDelete($conn) {
     if (!in_array($_SESSION['role'], ['admin', 'manager'])) {
         http_response_code(403);
-        echo json_encode(["success" => false, "error" => "Forbidden"]);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
         return;
     }
 
     $id = intval($_GET['id'] ?? 0);
     if ($id <= 0) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Order id required"]);
+        echo json_encode(["success" => false, "error" => "Thiếu mã đơn hàng"]);
         return;
     }
 
@@ -226,9 +226,9 @@ function handleDelete($conn) {
     mysqli_stmt_bind_param($stmt, "i", $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(["success" => true, "message" => "Order deleted"]);
+        echo json_encode(["success" => true, "message" => "Xóa đơn hàng thành công"]);
     } else {
         http_response_code(500);
-        echo json_encode(["success" => false, "error" => "Delete failed"]);
+        echo json_encode(["success" => false, "error" => "Xóa thất bại"]);
     }
 }
