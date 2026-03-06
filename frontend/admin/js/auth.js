@@ -29,13 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // 🔐 PHÂN QUYỀN REDIRECT
             if (role === "admin") {
-                window.location.href = "admin/admin.html";
+                window.location.href = "admin.html";
             } 
             else if (role === "manager") {
-                window.location.href = "admin/quanly.html";
+                window.location.href = "quanly.html";
             } 
             else {
-                window.location.href = "admin/nhanvien.html";
+                window.location.href = "nhanvien.html";
             }
         })
         .catch(err => {
@@ -44,3 +44,4 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
