@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th2 05, 2026 lúc 07:55 PM
+-- Thời gian đã tạo: Th3 07, 2026 lúc 04:29 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -31,11 +31,20 @@ CREATE TABLE `customers` (
   `id` int(11) NOT NULL,
   `name` varchar(150) NOT NULL,
   `phone` varchar(50) DEFAULT NULL,
-  `email` varchar(150) DEFAULT NULL,
+  `email` varchar(150) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `address` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `customers`
+--
+
+INSERT INTO `customers` (`id`, `name`, `phone`, `email`, `password`, `address`, `created_at`, `updated_at`) VALUES
+(1, 'customer1', '0934567890', 'customer1@local.com', '$2y$10$J5lyUr5D3qzG/0OZvSnByuh6B4BWtew1WdCiuIyfuEinZ.z8QtZpa', 'Phan Boi Chau, Thong Nhat, Dong Nai', '2026-03-07 02:42:55', '2026-03-07 02:42:55'),
+(2, 'Lê Đình Bảo Duy', '', 'bpoduy2@gmail.com', '$2y$10$KaLJ4rdsyiar9lbd42LnVeaioeQhBI51kmTDbIyoFU10abkBVZUla', '', '2026-03-07 03:16:39', '2026-03-07 03:16:39');
 
 -- --------------------------------------------------------
 
@@ -182,7 +191,8 @@ CREATE TABLE `warranty_extensions` (
 -- Chỉ mục cho bảng `customers`
 --
 ALTER TABLE `customers`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Chỉ mục cho bảng `devices`
@@ -253,7 +263,7 @@ ALTER TABLE `warranty_extensions`
 -- AUTO_INCREMENT cho bảng `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `devices`
