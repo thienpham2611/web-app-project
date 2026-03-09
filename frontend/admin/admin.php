@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+
+    <!-- global stylesheets -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/font-icon-style.css">
+    <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
+
+    <!-- Core stylesheets -->
+    <link rel="stylesheet" href="css/ui-elements/card.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div class="page">
+
+<body> 
+
+<!--MAIN NAVBAR-->        
+    <header class="header">
+    <nav class="navbar navbar-expand-lg ">
+        <div class="container-fluid ">
+            <div class="navbar-holder d-flex align-items-center justify-content-between">
+                <div class="navbar-header">
+                    <a href="admin.php" class="navbar-brand">
+                        <div class="brand-text brand-big hidden-lg-down">
+                            <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
+                        </div>
+                        <div class="brand-text brand-small">
+                            <img src="img/logo.png" alt="Logo" class="img-fluid">
+                        </div>
+                    </a>
+                    </div>
+            </div> 
+        </div>
+    </nav>
+</header>
+
+<!--PAGE CONTENT-->
+    <div class="page-content d-flex align-items-stretch">
+
+        <!--***** SIDE NAVBAR *****-->
+        <nav class="side-navbar">
+            <div class="sidebar-header d-flex align-items-center">
+                <div class="avatar"><img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
+                <div class="title">
+                    <h1 class="h4">Admin</h1>
+                </div>
+            </div>
+            <hr>
+            <!-- Sidebar Navidation Menus-->
+            <!-- <ul class="list-unstyled">
+                <li class="active"> <a href="admin.php">Trang chủ</a></li>
+                <li class="active"> <a href="email.php">Email</a></li>
+                <li class="active"> <a href="tables.php">Bảng</a></li> -->
+        </nav>
+        <div class="content-inner">
+
+<!--REPORT-1-->
+<div class="row" id="report1">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header-idt">
+                <h4 class="title-idt"><i class="fa fa-list"></i> HỆ THỐNG QUẢN LÝ BẢO HÀNH</h4>
+            </div>
+            <div class="card-body no-padding">
+                <div class="table-responsive">
+                    <table class="table idt-table-report table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mã Thiết Bị</th>
+                                <th>Tên Thiết Bị</th>
+                                <th>Khách Hàng</th>
+                                <th class="text-center">Ngày Hết Hạn</th>
+                                <th class="text-center">Tình Trạng</th>
+                                <th class="text-center">Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-warranty-list">
+                            <tr><td colspan="6" class="text-center">Đang tải dữ liệu bảo hành...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--REPORT-3-->
+<div class="row" id="report3">
+    <div class="col-md-12">
+        <div class="card card-idt-main">
+            <div class="card-header-idt">
+                <h4 class="title-idt"><i class="fa fa-history"></i> Theo dõi tiến độ sửa chữa</h4>
+            </div>
+            <div class="card-body no-padding">
+                <div class="table-responsive">
+                    <table class="table idt-table-report table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mã Case</th>
+                                <th>Thiết bị</th>
+                                <th>Kỹ thuật viên</th>
+                                <th>Tiến độ</th>
+                                <th class="text-center">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-repair-list">
+                            <tr><td colspan="5" class="text-center">Đang tải dữ liệu sửa chữa...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--API-->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // --- CẤU HÌNH ĐƯỜNG DẪN API (Bên Backend sẽ cung cấp các link này) ---
+    const API_WARRANTY = "api/get_warranty.php"; // Placeholder cho Report 1
+    const API_REPAIRS  = "api/get_repairs.php";  // Placeholder cho Report 3
+
+    // 1. KẾT NỐI REPORT 1 (BẢO HÀNH)
+    fetch(API_WARRANTY)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('admin-warranty-list');
+            tbody.innerHTML = ''; // Xóa dòng "Đang tải"
+
+            data.forEach(item => {
+                // Logic xử lý màu sắc trạng thái dựa trên dữ liệu database
+                let statusClass = item.status === 'active' ? 'text-status-good' : 'text-status-expired';
+                let statusText  = item.status === 'active' ? 'Đang bảo hành' : 'Đã hết hạn';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.id}</strong></td>
+                        <td>${item.device_name}</td>
+                        <td>${item.customer_name}</td>
+                        <td class="text-center">${item.warranty_end_date}</td>
+                        <td class="text-center"><span class="${statusClass}">${statusText}</span></td>
+                        <td class="action-col text-center">
+                            <button class="btn-idt-fixed btn-red" onclick="extendWarranty('${item.id}')">Gia hạn</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => console.error("Lỗi kết nối API Report 1:", err));
+
+
+    // 2. KẾT NỐI REPORT 3 (SỬA CHỮA)
+    fetch(API_REPAIRS)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('admin-repair-list');
+            tbody.innerHTML = ''; // Xóa dòng "Đang tải"
+
+            data.forEach(item => {
+                // Logic hiển thị màu Progress Bar
+                let barColor = 'bg-info';
+                if(item.progress >= 90) barColor = 'bg-success';
+                if(item.progress < 30) barColor = 'bg-danger';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.id}</strong></td>
+                        <td>${item.device_name}</td>
+                        <td>${item.technician_name}</td>
+                        <td class="align-middle">
+                            <div class="progress idt-progress-bar">
+                                <div class="progress-bar ${barColor}" style="width: ${item.progress}%;"></div>
+                            </div>
+                            <small>${item.progress}%</small>
+                        </td>
+                        <td class="action-col text-center">
+                            <span class="status-btn btn-info-idt">${item.status}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => console.error("Lỗi kết nối API Report 3:", err));
+});
+
+// Hàm mẫu cho nút hành động
+function extendWarranty(id) {
+    alert("Gửi yêu cầu gia hạn cho thiết bị: " + id);
+}
+</script>
+
+<script>
+// JS Load dữ liệu cho Admin
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Load Bảo hành (bảng devices + customers)
+    fetch('api/get_all_devices.php')
+    .then(response => response.json())
+    .then(data => {
+        const tbody = document.getElementById('admin-warranty-list');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            let statusClass = item.status === 'active' ? 'text-status-good' : 'text-status-expired';
+            let statusText = item.status === 'active' ? 'Đang bảo hành' : 'Đã hết hạn';
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${item.id}</strong></td>
+                    <td>${item.device_name}</td>
+                    <td>${item.customer_name}</td>
+                    <td class="text-center">${item.warranty_end_date}</td>
+                    <td class="text-center"><span class="${statusClass}">${statusText}</span></td>
+                    <td class="action-col"><button class="btn-idt-fixed btn-red">Gia hạn</button></td>
+                </tr>
+            `;
+        });
+    });
+
+    // 2. Load Tiến độ (bảng repair_tickets + users)
+    fetch('api/get_all_tickets.php')
+    .then(response => response.json())
+    .then(data => {
+        const tbody = document.getElementById('admin-repair-list');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${item.id}</strong></td>
+                    <td>${item.device_name}</td>
+                    <td>${item.technician_name}</td>
+                    <td class="align-middle">
+                        <div class="progress idt-progress-bar">
+                            <div class="progress-bar bg-info" style="width: ${item.progress}%;"></div>
+                        </div>
+                    </td>
+                    <td class="action-col"><span class="status-btn btn-info-idt">${item.status}</span></td>
+                </tr>
+            `;
+        });
+    });
+});
+</script>
+
+<!-- JS -->
+<script src="../js/jquery.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+
+<!-- BẮT BUỘC: chặn user thường -->
+<script src="../js/auth-check-admin.js"></script>
+
+<!-- logout -->
+<script src="../js/front.js"></script>
+
+</body>
+</html>

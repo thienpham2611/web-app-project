@@ -1,0 +1,98 @@
+/*REPORT 1: CLEAN & UNIFORM STYLE*/
+#report1 .card-header-idt {
+    background: linear-gradient(to left, #41464b, #212529);
+    color: #fff;
+    padding: 12px 20px;
+}
+
+.idt-table-report {
+    width: 100% !important;
+    border-collapse: collapse;
+}
+
+.idt-table-report thead th {
+    background-color: #198754 !important;
+    color: #fff !important;
+    text-transform: uppercase;
+    font-size: 13px;
+    padding: 12px !important;
+    border: none !important;
+}
+
+.text-status-expired { color: #F44336; font-weight: bold; }
+.text-status-warning { color: #FF9800; font-weight: bold; }
+.text-status-good { color: #4CAF50; font-weight: bold; }
+
+.action-col {
+    width: 150px;
+    text-align: center;
+}
+
+.btn-idt-fixed {
+    width: 120px;
+    height: 32px;
+    line-height: 32px;
+    padding: 0;
+    border: none;
+    color: #fff !important;
+    font-weight: bold;
+    font-size: 11px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-block;
+    border-radius: 2px;
+}
+
+.btn-red { background-color: #F44336; }
+.btn-blue { background-color: #2196f3; }
+.btn-gray { background-color: #757575; }
+
+.btn-idt-fixed:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+ 
+/*REPORT-3*/
+#report3 .card-header-idt {
+    background: linear-gradient(to left, #41464b, #212529);
+    color: #fff;
+    padding: 12px 20px;
+}
+
+#report3 .idt-table-report thead th {
+    background-color: #198754 !important;
+    color: #fff !important;
+    text-transform: uppercase;
+    font-size: 13px !important;
+    padding: 12px !important;
+}
+
+#report3 .idt-table-report tbody td {
+    font-size: 14px !important;
+    padding: 12px !important;
+    vertical-align: middle;
+}
+
+.status-btn {
+    width: 120px;
+    height: 32px;
+    line-height: 32px;
+    display: inline-block;
+    text-align: center;
+    border-radius: 2px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.btn-warning-idt { background-color: #f39c12; }
+.btn-info-idt { background-color: #00c0ef; }
+
+.idt-progress-bar {
+    height: 10px !important;
+    margin-bottom: 0;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+}
