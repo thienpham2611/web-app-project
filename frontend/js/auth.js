@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================================
-    // 1. XỬ LÝ ĐĂNG KÝ KHÁCH HÀNG
+    // XỬ LÝ ĐĂNG KÝ KHÁCH HÀNG
     // ==========================================
     if (registerForm) {
         registerForm.addEventListener("submit", function (e) {
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==========================================
-    // 2. XỬ LÝ ĐĂNG NHẬP KHÁCH HÀNG
+    // XỬ LÝ ĐĂNG NHẬP KHÁCH HÀNG
     // ==========================================
     if (loginForm) {
         loginForm.addEventListener("submit", function (e) {
@@ -82,5 +82,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("Lỗi kết nối đến máy chủ khi đăng nhập.");
             });
         });
+    }
+
+    // ==========================================
+    // TỰ ĐỘNG MỞ MODAL ĐĂNG NHẬP TỪ TRANG KHÁC TỚI
+    // ==========================================
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('show_login') === 'true') {
+        // Thêm khoảng trễ 500ms để đợi trình duyệt load xong giao diện HTML/CSS
+        setTimeout(function() {
+            // Tìm nút Đăng nhập trên thanh Navbar và giả lập cú click chuột
+            const loginNavBtn = document.querySelector('[data-target="#login-modal"]');
+            if (loginNavBtn) {
+                loginNavBtn.click();
+            } else if (window.jQuery) {
+                // Chữa cháy bằng jQuery nếu không tìm thấy nút
+                $('#login-modal').modal('show');
+            }
+            
+            // Xóa chữ "?show_login=true" trên thanh địa chỉ web cho gọn gàng
+            window.history.replaceState(null, null, window.location.pathname);
+            
+        }, 500); 
     }
 });

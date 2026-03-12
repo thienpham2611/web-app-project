@@ -1,23 +1,13 @@
 <?php
-header("Content-Type: application/json; charset=UTF-8");
 session_start();
 
-// Nếu chưa đăng nhập thì cũng coi như logout thành công
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode([
-        "success" => true,
-        "message" => "Bạn chưa đăng nhập"
-    ]);
-    exit;
-}
+// 1. Xóa sạch mọi biến được lưu trong Session (role, id, name...)
+session_unset();
 
-// Xoá toàn bộ session
-$_SESSION = [];
-
-// Huỷ session
+// 2. Phá hủy hoàn toàn Session hiện tại
 session_destroy();
 
-echo json_encode([
-    "success" => true,
-    "message" => "Đăng xuất thành công"
-]);
+// 3. Đá người dùng về thẳng trang đăng nhập của nội bộ
+header("Location: ../../frontend/admin/index.php");
+exit(); // Bắt buộc phải có exit() sau lệnh header
+?>
