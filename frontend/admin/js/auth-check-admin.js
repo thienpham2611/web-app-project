@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(res => {
         if (res.status === 401 || res.status === 403) {
             // Chưa đăng nhập hoặc không có quyền
-            window.location.href = "../index.html";
+            window.location.href = "../index.php";
             return null;
         }
         return res.json();
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Nếu backend có trả role
         if (data.role !== "admin") {
             // Không phải admin → đá ra
-            window.location.href = "../index.html";
+            window.location.href = "../index.php";
         }
 
         // (Optional) Có thể hiển thị info admin
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .catch(err => {
         console.error("Auth check failed", err);
-        window.location.href = "../index.html";
+        window.location.href = "../index.php";
     });
 
 });
