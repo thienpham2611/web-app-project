@@ -1,3 +1,16 @@
+<?php
+session_start();
+
+// Danh sách các quyền hợp lệ của hệ thống nội bộ
+$internal_roles = ['admin', 'manager', 'staff'];
+
+// KIỂM TRA: Nếu chưa có session role HOẶC role không nằm trong danh sách nội bộ
+if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) {
+    // Đá về trang đăng nhập của nội bộ
+    header("Location: index.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -299,9 +312,9 @@
     <script src="js/tether.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.cookie.js"></script>
-    <script src="js/jquery.validate.min.js"></script> 
-    <script src="js/chart.min.js"></script> 
-    <script src="js/front.js"></script> 
+    <script src="js/jquery.validate.min.js"></script>
+    <script src="js/chart.min.js"></script>
+    <script src="js/front.js"></script>
     
     <!--Core Javascript -->
     <script>
@@ -327,7 +340,7 @@
               title: {
                 display: true,
                 text: ''
-               } 
+               }
             }
         });
     </script>

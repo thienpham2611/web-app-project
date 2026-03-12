@@ -1,3 +1,21 @@
+<?php
+session_start();
+
+// Nếu nhân viên đã đăng nhập rồi, tự động chuyển hướng dựa theo chức vụ
+if (isset($_SESSION['role'])) {
+    if ($_SESSION['role'] === 'admin') {
+        header("Location: admin.php");
+        exit();
+    } elseif ($_SESSION['role'] === 'manager') {
+        header("Location: quanly.php");
+        exit();
+    } elseif ($_SESSION['role'] === 'staff') {
+        header("Location: nhanvien.php");
+        exit();
+    }
+}
+// Nếu chưa đăng nhập thì code HTML bên dưới mới được hiển thị
+?>
 <!DOCTYPE html>
 <html>
 
@@ -82,7 +100,7 @@
 
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="js/auth.js"></script> 
+    <script src="js/auth.js"></script>
 </body>
 
 </html>

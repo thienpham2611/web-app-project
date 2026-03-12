@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -39,70 +40,17 @@
           <li class="nav-item"><a class="nav-link" href="index.php">Trang chủ</a></li>
           <li class="nav-item"><a class="nav-link" href="about.php">Giới thiệu</a></li>
           <li class="nav-item"><a class="nav-link" href="services.php">Dịch vụ</a></li>
-          <li class="nav-item"><a href="#" class="nav-link smooth-scroll" data-toggle="modal" data-target="#login-modal">Đăng nhập</a></li>
+          
+          <?php if(isset($_SESSION['customer_id']) && $_SESSION['role'] === 'customer'): ?>
+              <li class="nav-item"><a class="nav-link text-success" href="khachhang.php"><i class="fa fa-user-circle"></i> <strong><?php echo $_SESSION['customer_name']; ?></strong></a></li>
+          <?php else: ?>
+              <li class="nav-item"><a class="nav-link smooth-scroll" href="index.php?show_login=true">Đăng nhập</a></li>
+          <?php endif; ?>
         </ul>
       </div>
     </div>
   </nav>
 </header>
-
-<!--LOGIN OR REGISTER-->
-    <section id="login">
-      <div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
-          <div class="modal-dialog">
-              <div class="modal-content">
-                  <div class="modal-header" align="center">
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span class="fa fa-times" aria-hidden="true"></span>
-                      </button>
-                  </div>
-                  <div id="div-forms">
-                      <form id="login-form">
-                          <h3 class="text-center">đăng nhập</h3>
-                          <div class="modal-body">
-                              <label for="username">Tên người dùng</label> 
-                              <input id="login_username" class="form-control" type="text" placeholder="Nhập tên" required>
-                              <label for="username">Mật khẩu</label> 
-                              <input id="login_password" class="form-control" type="password" placeholder="Nhập mật khẩu" required>
-                              <div class="checkbox">
-                                  <label>
-                                      <input type="checkbox"> ghi nhớ mật khẩu
-                                  </label>
-                              </div>
-                          </div>
-                          <div class="modal-footer text-center">
-                              <div>
-                                  <button type="submit" class="btn btn-general btn-white">Đăng nhập</button>
-                              </div>
-                              <div>
-                                  <button id="login_register_btn" type="button" class="btn btn-link">Đăng ký</button>
-                              </div>
-                          </div>
-                      </form>
-                      <form id="register-form" style="display:none;">
-                          <h3 class="text-center">đăng ký</h3>
-                          <div class="modal-body"> 
-                              <label for="username">Tên người dùng</label> 
-                              <input id="register_username" class="form-control" type="text" placeholder="Nhập tên" required>
-                              <label for="register_email">Địa chỉ email</label> 
-                              <input id="register_email" class="form-control" type="text" placeholder="Nhập email" required>
-                              <label for="register_password">Mật khẩu</label> 
-                              <input id="register_password" class="form-control" type="password" placeholder="Nhập mật khẩu" required>
-                          </div>
-                          <div class="modal-footer">
-                              <div>
-                                  <button type="submit" class="btn btn-general btn-white">Đăng ký</button>
-                              </div>
-                              <div>
-                                  <button id="register_login_btn" type="button" class="btn btn-link">Đăng nhập</button>
-                              </div>
-                          </div>
-                      </form>
-                  </div>
-              </div>
-          </div>
-      </div>
-    </section>
 
 <!--HOME-P-->
     <div id="home-p" class="home-p pages-head2 text-center">

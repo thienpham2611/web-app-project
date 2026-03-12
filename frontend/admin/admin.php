@@ -1,3 +1,22 @@
+<?php
+session_start();
+
+// 1. Chưa đăng nhập -> Ra ngoài cổng
+if (!isset($_SESSION['role'])) {
+    header("Location: index.php");
+    exit();
+}
+// 2. Đi nhầm phòng -> Trả về đúng phòng
+if ($_SESSION['role'] === 'manager') {
+    header("Location: quanly.php");
+    exit();
+}
+if ($_SESSION['role'] === 'staff') {
+    header("Location: nhanvien.php");
+    exit();
+}
+// Nếu lọt qua hết các lệnh trên, nghĩa là role === 'admin', cho phép tải trang
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -36,7 +55,17 @@
                             <img src="img/logo.png" alt="Logo" class="img-fluid">
                         </div>
                     </a>
-                    </div>
+                    <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center mb-0" style="margin-left: auto; gap: 20px;">
+                        <li class="nav-item text-white">
+                            Xin chào, <strong><?php echo isset($_SESSION['name']) ? $_SESSION['name'] : strtoupper($_SESSION['role']); ?></strong>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../../backend/api/logout.php" class="nav-link text-danger font-weight-bold" style="padding: 0;">
+                                <i class="fa fa-sign-out"></i> Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div> 
         </div>
     </nav>
@@ -251,9 +280,6 @@ document.addEventListener("DOMContentLoaded", function() {
 <!-- JS -->
 <script src="../js/jquery.min.js"></script>
 <script src="../js/bootstrap.min.js"></script>
-
-<!-- BẮT BUỘC: chặn user thường -->
-<script src="../js/auth-check-admin.js"></script>
 
 <!-- logout -->
 <script src="../js/front.js"></script>

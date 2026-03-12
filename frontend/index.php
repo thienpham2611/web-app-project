@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -35,7 +36,12 @@
           <li class="nav-item"><a class="nav-link" href="index.php">Trang chủ</a></li>
           <li class="nav-item"><a class="nav-link" href="about.php">Giới thiệu</a></li>
           <li class="nav-item"><a class="nav-link" href="services.php">Dịch vụ</a></li>
-          <li class="nav-item"><a href="#" class="nav-link smooth-scroll" data-toggle="modal" data-target="#login-modal">Đăng nhập</a></li>
+          
+          <?php if(isset($_SESSION['customer_id']) && $_SESSION['role'] === 'customer'): ?>
+              <li class="nav-item"><a class="nav-link text-success" href="khachhang.php"><i class="fa fa-user-circle"></i> <strong><?php echo $_SESSION['customer_name']; ?></strong></a></li>
+          <?php else: ?>
+              <li class="nav-item"><a href="#" class="nav-link smooth-scroll" data-toggle="modal" data-target="#login-modal">Đăng nhập</a></li>
+          <?php endif; ?>
         </ul>
       </div>
     </div>

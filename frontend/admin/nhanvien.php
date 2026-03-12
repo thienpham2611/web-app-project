@@ -1,3 +1,19 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['role'])) {
+    header("Location: index.php");
+    exit();
+}
+if ($_SESSION['role'] === 'admin') {
+    header("Location: admin.php");
+    exit();
+}
+if ($_SESSION['role'] === 'manager') {
+    header("Location: quanly.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -40,7 +56,17 @@
                             <img src="img/logo.png" alt="Logo" class="img-fluid">
                         </div>
                     </a>
-                    </div>
+                    <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center mb-0" style="margin-left: auto; gap: 20px;">
+                        <li class="nav-item text-white">
+                            Xin chào, <strong><?php echo isset($_SESSION['name']) ? $_SESSION['name'] : strtoupper($_SESSION['role']); ?></strong>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../../backend/api/logout.php" class="nav-link text-danger font-weight-bold" style="padding: 0;">
+                                <i class="fa fa-sign-out"></i> Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div> 
         </div>
     </nav>
@@ -194,9 +220,9 @@ document.addEventListener("DOMContentLoaded", function() {
     <script src="js/tether.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.cookie.js"></script>
-    <script src="js/jquery.validate.min.js"></script> 
-    <script src="js/chart.min.js"></script> 
-    <script src="js/front.js"></script> 
+    <script src="js/jquery.validate.min.js"></script>
+    <script src="js/chart.min.js"></script>
+    <script src="js/front.js"></script>
     
     <!--Core Javascript -->
     <script src="js/mychart.js"></script>

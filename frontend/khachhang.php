@@ -24,19 +24,17 @@ $customerName = $_SESSION['customer_name'];
     <title>Hệ thống quản lý sửa chữa & bảo hành thiết bị – phần mềm</title>
     <link rel="shortcut icon" href="img/logo.png">
   
-  <!-- Global Stylesheets -->
   <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,400,700" rel="stylesheet">
   <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="css/animate/animate.min.css">
   <link rel="stylesheet" href="css/owl-carousel/owl.carousel.min.css">
   <link rel="stylesheet" href="css/owl-carousel/owl.theme.default.min.css">
-  <link rel="stylesheet" href="css/style.css">>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body class="bg-light">
 
-<!-- HEADER -->    
 <header>
       <nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
     <div class="container-fluid">
@@ -50,9 +48,6 @@ $customerName = $_SESSION['customer_name'];
 
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
-          <li class="nav-item">
-            <span class="nav-link text-white">Xin chào, <strong><?php echo htmlspecialchars($customerName); ?></strong>!</span>
-          </li>
           <li class="nav-item"><a class="nav-link" href="index.php">Trang chủ</a></li>
           <li class="nav-item"><a class="nav-link" href="about.php">Giới thiệu</a></li>
           <li class="nav-item"><a class="nav-link" href="services.php">Dịch vụ</a></li>
@@ -78,12 +73,11 @@ $customerName = $_SESSION['customer_name'];
   </nav>
 </header>
 
-<!--HOME--->
 <div id="home-p" class="home-p pages-head2 text-center">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1 class="wow fadeInUp" data-wow-delay="0.1s">Xin chào, <span class="text-blue"><strong><?php echo htmlspecialchars($customerName); ?></strong></span></h1>
+                <h1 class="wow fadeInUp" data-wow-delay="0.1s">XIN CHÀO, <span class="text-blue"><strong><?php echo mb_strtoupper(htmlspecialchars($customerName), 'UTF-8'); ?></strong></span></h1>
                 <div class="heading-border-light"></div> <p class="wow fadeInUp" data-wow-delay="0.3s">Chào mừng bạn quay trở lại. Hãy quản lý các thiết bị và yêu cầu của bạn bên dưới.</p>
             </div>
         </div>
@@ -92,7 +86,7 @@ $customerName = $_SESSION['customer_name'];
 <div class="py-5 container mt-5">
     <div class="row">
         <div class="col-md-12 text-center mb-5">
-            <h2>Chào mừng bạn đến với Cổng thông tin Khách hàng</h2>
+            <h2>CHÀO MỪNG BẠN ĐẾN VỚI CỔNG THÔNG TIN KHÁCH HÀNG</h2>
             <p class="text-muted">Tại đây, bạn có thể theo dõi thiết bị, yêu cầu sửa chữa và xem lịch sử bảo hành.</p>
         </div>
     </div>
@@ -208,13 +202,11 @@ $customerName = $_SESSION['customer_name'];
     </div>
 </section>
 
-<!--FOOTER--> 
-    <footer> 
+<footer> 
         <div id="footer-s1" class="footer-s1">
           <div class="footer">
             <div class="container-fluid" style="padding-right:80px;">
               <div class="row" style="margin:0; justify-content:flex-end;">
-                <!-- About Us -->
                 <div class="col-md-3 col-sm-6" style="margin-right:80px;">
                   <div><img src="img/logo.png" alt="" class="img-fluid"></div>
                   <ul class="list-unstyled comp-desc-f">
@@ -222,9 +214,6 @@ $customerName = $_SESSION['customer_name'];
                     chuyên nghiệp, nhanh chóng và uy tín cho khách hàng.</p></li> 
                   </ul><br> 
                 </div>
-                <!-- End About Us -->
-
-                <!-- Recent News -->
                 <div class="col-md-3 col-sm-6" style="margin-right:80px;">
                   <div class="heading-footer"><h2>Số 3/36 Trần Điền - Phường Phương Liệt - Hà Nội</h2></div>
                   <ul class="list-unstyled link-list">
@@ -235,9 +224,6 @@ $customerName = $_SESSION['customer_name'];
                     <li><a class="fa fa-phone" href="index.php"> VPMN: 0282.229.5501/0938.651.659</a><i class="fa fa-angle-right"></i></li> 
                   </ul>
                 </div>
-                <!-- End Recent list -->
-
-                <!-- Latest Tweets -->
                 <div class="col-md-3 col-sm-6" style="margin-right:80px;">
                   <div class="heading-footer"><h2>Hỗ trợ kỹ thuật</h2></div>
                   <address class="address-details-f">
@@ -251,10 +237,8 @@ $customerName = $_SESSION['customer_name'];
                     <li><a href="#" target="_empty"><i class="fa top-social fa-google-plus"></i></a></li> 
                   </ul>
                 </div>
-                <!-- End Latest Tweets -->
-              </div>
-            </div><!--/container -->
-          </div> 
+                </div>
+            </div></div> 
         </div>
 
         <div id="footer-bottom">
@@ -277,7 +261,6 @@ $customerName = $_SESSION['customer_name'];
 <script src="js/popper/popper.min.js"></script>
 <script src="js/bootstrap/bootstrap.min.js"></script>
 <script src="js/wow/wow.min.js"></script>
-<!-- JS TEMPLATE -->
 <script src="js/custom.js"></script>
 <script src="js/auth.js"></script>
 </body>
