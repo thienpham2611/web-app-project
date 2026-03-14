@@ -1,4 +1,19 @@
-<?php session_start(); ?>
+<?php 
+session_start(); 
+// Kiểm tra đăng nhập (True/False)
+$isLoggedIn = (isset($_SESSION['customer_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'customer');
+// Logic cho của nút "Gửi yêu cầu sửa chữa"
+if ($isLoggedIn) {
+    $btnRepairHref = "khachhang.php";
+    $btnRepairAttr = ""; // Không cần gọi Modal
+} else {
+    $btnRepairHref = "#";
+    $btnRepairAttr = 'onclick="alert(\'Vui lòng đăng nhập để sử dụng tính năng yêu cầu sửa chữa và tra cứu bảo hành!\');" data-toggle="modal" data-target="#login-modal"';
+}
+$showLoginAuto = (isset($_GET['show_login']) && $_GET['show_login'] == 'true');
+$navLoginAttr = $showLoginAuto ? 'href="index.php?show_login=true"' : 'href="#" data-toggle="modal" data-target="#login-modal"';
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -36,11 +51,38 @@
           <li class="nav-item"><a class="nav-link" href="index.php">Trang chủ</a></li>
           <li class="nav-item"><a class="nav-link" href="about.php">Giới thiệu</a></li>
           <li class="nav-item"><a class="nav-link" href="services.php">Dịch vụ</a></li>
-          
-          <?php if(isset($_SESSION['customer_id']) && $_SESSION['role'] === 'customer'): ?>
-              <li class="nav-item"><a class="nav-link text-success" href="khachhang.php"><i class="fa fa-user-circle"></i> <strong><?php echo $_SESSION['customer_name']; ?></strong></a></li>
+
+          <?php if(isset($_SESSION['customer_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'customer'): ?>
+              <li class="nav-item">
+                  <a class="nav-link text-success" href="khachhang.php">
+                      <i class="fa fa-user-circle"></i> <strong><?php echo htmlspecialchars($_SESSION['customer_name']); ?></strong>
+                  </a>
+              </li>
+              
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" style="color: #ff9800;">
+                      <i class="fa fa-bell"></i>
+                  </a>
+                  <div class="dropdown-menu dropdown-menu-right shadow" style="width:250px;">
+                      <a class="dropdown-item" href="#">Thiết bị của bạn đã sửa xong</a>
+                      <a class="dropdown-item text-muted small" href="#">Xem tất cả thông báo...</a>
+                  </div>
+              </li>
+
+              <li class="nav-item">
+                  <a class="nav-link text-danger" href="../backend/api/logout_customer.php">
+                      <i class="fa fa-sign-out"></i> Đăng xuất
+                  </a>
+              </li>
+
           <?php else: ?>
-              <li class="nav-item"><a href="#" class="nav-link smooth-scroll" data-toggle="modal" data-target="#login-modal">Đăng nhập</a></li>
+              <li class="nav-item">
+                  <?php if(basename($_SERVER['PHP_SELF']) == 'index.php'): ?>
+                      <a href="#" class="nav-link smooth-scroll" data-toggle="modal" data-target="#login-modal">Đăng nhập</a>
+                  <?php else: ?>
+                      <a class="nav-link smooth-scroll" href="index.php?show_login=true">Đăng nhập</a>
+                  <?php endif; ?>
+              </li>
           <?php endif; ?>
         </ul>
       </div>
@@ -120,7 +162,9 @@
                         <span class="wrap"></span></a></span> </h1>        
                       <h3>Giải pháp quản lý toàn diện quy trình sửa chữa, bảo hành và dịch vụ phần mềm cho doanh nghiệp</h3>
                   </hgroup>
-                  <button class="btn btn-general btn-green wow fadeInUp" role="button">LIÊN HỆ NGAY</button>
+                    <a href="<?php echo $btnRepairHref; ?>" class="btn btn-general btn-green wow fadeInUp" <?php echo $btnRepairAttr; ?>>
+                        GỬI YÊU CẦU SỬA CHỮA
+                    </a>
                 </div>           
             </div> 
         </div> 
@@ -399,45 +443,6 @@
 
 <!--CONTACT HOME-->
 <div class="overlay-contact-h"></div>
-
-<section id="contact-h" class="bg-parallax contact-h-bg">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <div class="contact-h-cont">
-          <h3 class="cl-white">Liên hệ và hỗ trợ hệ thống</h3><br>
-
-          <form>
-            <div class="form-group cl-white">
-              <label for="name">Họ và tên</label>
-              <input type="text" class="form-control" id="name" placeholder="Nhập họ và tên">
-            </div>  
-
-            <div class="form-group cl-white">
-              <label for="email">Email</label>
-              <input type="email" class="form-control" id="email" placeholder="Nhập email">
-            </div>  
-
-            <div class="form-group cl-white">
-              <label for="subject">Tiêu đề</label>
-              <input type="text" class="form-control" id="subject" placeholder="Nhập tiêu đề liên hệ">
-            </div>  
-
-            <div class="form-group cl-white">
-              <label for="message">Nội dung</label>
-              <textarea class="form-control" id="message" rows="3" placeholder="Nhập nội dung yêu cầu hỗ trợ hoặc liên hệ"></textarea>
-            </div>  
-
-            <button class="btn btn-general btn-white" role="button">
-              <i class="fa fa-paper-plane"></i> Gửi yêu cầu
-            </button>
-          </form>
-
-        </div>
-      </div>
-    </div>
-  </div>
-</section> 
 
 <!--NEWS-->
 <section id="comp-offer">
