@@ -1,16 +1,23 @@
 <?php
-// BẮT BUỘC phải gọi session_start() đầu tiên để đọc Session
+// KIỂM TRA BẢO MẬT: Ngăn truy cập lậu hoặc bất thường
 session_start();
-
-// KIỂM TRA BẢO MẬT: Nếu chưa có session customer_id hoặc role không phải customer
 if (!isset($_SESSION['customer_id']) || $_SESSION['role'] !== 'customer') {
-    // Đẩy ngược người dùng về trang chủ (hoặc trang có form đăng nhập)
     header("Location: index.php");
-    exit(); // Dừng thực thi toàn bộ code bên dưới
+    exit();
 }
 
-// Lấy tên khách hàng từ Session để hiển thị
-$customerName = $_SESSION['customer_name'];
+// Gọi file cấu hình database để lấy thông tin của khách hàng
+require_once "../backend/config/database.php"; 
+$customerId = $_SESSION['customer_id'];
+
+$stmt = mysqli_prepare($conn, "SELECT name, email, phone, address FROM customers WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $customerId);
+mysqli_stmt_execute($stmt);
+$customerData = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+
+// Lấy tên khách hàng từ Database và lưu vào Session để hiển thị trên Navbar
+$customerName = $customerData['name'];
+$_SESSION['customer_name'] = $customerName;
 ?>
 
 <!DOCTYPE html>
@@ -48,25 +55,42 @@ $customerName = $_SESSION['customer_name'];
 
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
-          <li class="nav-item"><a class="nav-link" href="index.php">Trang chủ</a></li>
-          <li class="nav-item"><a class="nav-link" href="about.php">Giới thiệu</a></li>
-          <li class="nav-item"><a class="nav-link" href="services.php">Dịch vụ</a></li>
-          <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle text-white position-relative" href="#" data-toggle="dropdown">
-              <i class="fa fa-bell"></i>
-          </a>
+            <li class="nav-item"><a class="nav-link" href="index.php">Trang chủ</a></li>
+            <li class="nav-item"><a class="nav-link" href="about.php">Giới thiệu</a></li>
+            <li class="nav-item"><a class="nav-link" href="services.php">Dịch vụ</a></li>
 
-          <div class="dropdown-menu dropdown-menu-right shadow" style="width:250px;">
-              <a class="dropdown-item" href="#">
-              Thiết bị của bạn đã sửa xong
-              </a>
-          </div>
-          </li>
-          <li class="nav-item">
-          <a class="nav-link text-danger" href="../backend/api/logout_customer.php">
-              <i class="fa fa-sign-out"></i> Đăng xuất
-            </a>
-          </li>
+            <?php if(isset($_SESSION['customer_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'customer'): ?>
+                <li class="nav-item">
+                    <a class="nav-link text-success" href="khachhang.php">
+                        <i class="fa fa-user-circle"></i> <strong><?php echo htmlspecialchars($_SESSION['customer_name']); ?></strong>
+                    </a>
+                </li>
+                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" style="color: #ff9800;">
+                        <i class="fa fa-bell"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow" style="width:250px;">
+                        <a class="dropdown-item" href="#">Thiết bị của bạn đã sửa xong</a>
+                        <a class="dropdown-item text-muted small" href="#">Xem tất cả thông báo...</a>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href="../backend/api/logout_customer.php">
+                        <i class="fa fa-sign-out"></i> Đăng xuất
+                    </a>
+                </li>
+
+            <?php else: ?>
+                <li class="nav-item">
+                    <?php if(basename($_SERVER['PHP_SELF']) == 'index.php'): ?>
+                        <a href="#" class="nav-link smooth-scroll" data-toggle="modal" data-target="#login-modal">Đăng nhập</a>
+                    <?php else: ?>
+                        <a class="nav-link smooth-scroll" href="index.php?show_login=true">Đăng nhập</a>
+                    <?php endif; ?>
+                </li>
+            <?php endif; ?>
         </ul>
       </div>
     </div>
@@ -98,10 +122,15 @@ $customerName = $_SESSION['customer_name'];
                 <div class="customer-stats d-flex align-items-center justify-content-between wow fadeIn">
                     <div>
                         <h5><i class="fa fa-user-circle text-success"></i> Thông tin cá nhân</h5>
-                        <p class="mb-0">Email: Nam@gmail.com</p>
+                        
+                        <p class="mb-0">Họ và tên: <strong><?php echo htmlspecialchars($customerData['name']); ?></strong></p>
+                        
+                        <p class="mb-0">Email: <?php echo htmlspecialchars($customerData['email']); ?></p>
+                        <p class="mb-0">SĐT: <?php echo htmlspecialchars($customerData['phone'] ?: 'Chưa cập nhật'); ?></p>
+                        <p class="mb-0">Địa chỉ: <?php echo htmlspecialchars($customerData['address'] ?: 'Chưa cập nhật'); ?></p>
                     </div>
                     <div>
-                        <button class="btn btn-sm btn-general btn-green">Cập nhật hồ sơ</button>
+                        <button class="btn btn-sm btn-general btn-green" data-toggle="modal" data-target="#profileModal">Cập nhật hồ sơ</button>
                     </div>
                 </div>
             </div>
@@ -201,6 +230,39 @@ $customerName = $_SESSION['customer_name'];
         </div>
     </div>
 </section>
+
+<div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập nhật thông tin cá nhân</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="form-update-profile">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Họ và tên</label>
+                        <input type="text" id="prof_name" class="form-control" value="<?php echo htmlspecialchars($customerData['name']); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="text" id="prof_phone" class="form-control" value="<?php echo htmlspecialchars($customerData['phone'] ?? ''); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ</label>
+                        <textarea id="prof_address" class="form-control" rows="2"><?php echo htmlspecialchars($customerData['address'] ?? ''); ?></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-green">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <footer> 
         <div id="footer-s1" class="footer-s1">

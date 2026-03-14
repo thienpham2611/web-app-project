@@ -106,3 +106,39 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 500); 
     }
 });
+
+// ==========================================
+    // CẬP NHẬT HỒ SƠ KHÁCH HÀNG (chỉ chạy ở khachhang.php)
+    // ==========================================
+    const updateProfileForm = document.getElementById('form-update-profile');
+    if (updateProfileForm) {
+        updateProfileForm.addEventListener('submit', function(e) {
+            e.preventDefault(); 
+
+            const data = {
+                name: document.getElementById('prof_name').value.trim(),
+                phone: document.getElementById('prof_phone').value.trim(),
+                address: document.getElementById('prof_address').value.trim()
+            };
+
+            fetch('../backend/api/update_profile_customer.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload(); 
+                } else {
+                    alert(data.error || "Có lỗi xảy ra");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Lỗi máy chủ!');
+            });
+        });
+    }
