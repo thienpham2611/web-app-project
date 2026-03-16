@@ -23,7 +23,28 @@ if (empty($name) || empty($email) || empty($password) || empty($role)) {
     exit;
 }
 
-// 3. KIỂM TRA TRÙNG LẶP: Xem email này đã có ai dùng chưa
+// 1. Kiểm tra định dạng Regex cơ bản (cú pháp hợp lệ)
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(["success" => false, "error" => "Định dạng email không hợp lệ."]);
+    exit;
+}
+
+// 2. DANH SÁCH TRẮNG: Ép buộc đuôi email nội bộ
+$domain = strtolower(substr(strrchr($email, "@"), 1));
+$allowed_domains = ['gmail.com', 'idtvietnam.vn']; // CHỈ CHO PHÉP 2 ĐUÔI NÀY
+
+if (!in_array($domain, $allowed_domains)) {
+    echo json_encode(["success" => false, "error" => "Tài khoản nội bộ chỉ được dùng email @gmail.com hoặc @idtvietnam.vn!"]);
+    exit;
+}
+
+// 3. Kiểm tra độ dài mật khẩu
+if (strlen($password) < 6) {
+    echo json_encode(["success" => false, "error" => "Mật khẩu phải có ít nhất 6 ký tự!"]);
+    exit;
+}
+
+// 4. KIỂM TRA TRÙNG LẶP: Xem email này đã có ai dùng chưa
 $stmt_check = mysqli_prepare($conn, "SELECT id FROM users WHERE email = ?");
 mysqli_stmt_bind_param($stmt_check, "s", $email);
 mysqli_stmt_execute($stmt_check);
@@ -33,10 +54,10 @@ if (mysqli_stmt_num_rows($stmt_check) > 0) {
     exit;
 }
 
-// 4. BẢO MẬT: Băm (Hash) mật khẩu trước khi lưu vào Database
+// 5. BẢO MẬT: Băm (Hash) mật khẩu trước khi lưu vào Database
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-// 5. THÊM VÀO DATABASE
+// 6. THÊM VÀO DATABASE
 $stmt = mysqli_prepare($conn, "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
 mysqli_stmt_bind_param($stmt, "ssss", $name, $email, $hashed_password, $role);
 

@@ -124,21 +124,30 @@ $navLoginAttr = $showLoginAuto ? 'href="index.php?show_login=true"' : 'href="#" 
                           </div>
                       </form>
                       <form id="register-form" style="display:none;">
-                          <h3 class="text-center">đăng ký</h3>
+                          <h3 class="text-center">Đăng ký</h3>
                           <div class="modal-body"> 
-                              <label for="username">Tên người dùng</label> 
-                              <input id="register_username" class="form-control" type="text" placeholder="Nhập tên" required>
-                              <label for="register_email">Địa chỉ email</label> 
-                              <input id="register_email" class="form-control" type="text" placeholder="Nhập email" required>
-                              <label for="register_password">Mật khẩu</label> 
-                              <input id="register_password" class="form-control" type="password" placeholder="Nhập mật khẩu" required>
+                              
+                              <div id="register-error" class="alert alert-danger d-none text-center" style="font-size: 14px;"></div>
+
+                              <label for="register_username">Tên người dùng <span class="text-danger">*</span></label> 
+                              <input id="register_username" class="form-control" type="text" placeholder="Nhập họ và tên..." required>
+                              
+                              <label for="register_email" class="mt-2">Địa chỉ email <span class="text-danger">*</span></label> 
+                              <input id="register_email" class="form-control" type="text" placeholder="Ví dụ: nguyenvana@gmail.com" required>
+                              
+                              <label for="register_phone" class="mt-2">Số điện thoại</label> 
+                              <input id="register_phone" class="form-control" type="text" placeholder="(Không bắt buộc)">
+
+                              <label for="register_password" class="mt-2">Mật khẩu <span class="text-danger">*</span></label> 
+                              <input id="register_password" class="form-control" type="password" placeholder="Tối thiểu 6 ký tự" required>
                           </div>
-                          <div class="modal-footer">
+                          <div class="modal-footer text-center">
                               <div>
-                                  <button type="submit" class="btn btn-general btn-white">Đăng ký</button>
+                                  <button type="submit" class="btn btn-general btn-green">Tạo tài khoản</button>
                               </div>
-                              <div>
-                                  <button id="register_login_btn" type="button" class="btn btn-link">Đăng nhập</button>
+                              <div class="mt-2">
+                                  <span>Đã có tài khoản? </span>
+                                  <button id="register_login_btn" type="button" class="btn btn-link p-0" style="color: #28a745;">Đăng nhập ngay</button>
                               </div>
                           </div>
                       </form>

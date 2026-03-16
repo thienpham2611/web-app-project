@@ -107,9 +107,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// ==========================================
     // CẬP NHẬT HỒ SƠ KHÁCH HÀNG (chỉ chạy ở khachhang.php)
-    // ==========================================
+
     const updateProfileForm = document.getElementById('form-update-profile');
     if (updateProfileForm) {
         updateProfileForm.addEventListener('submit', function(e) {
@@ -142,3 +141,68 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+
+// Form đăng kí cho khách hàng
+
+const registerForm = document.getElementById("register-form");
+if (registerForm) {
+    registerForm.addEventListener("submit", function (e) {
+        e.preventDefault(); // Ngăn chặn load lại trang
+
+        const name = document.getElementById("register_username").value.trim();
+        const email = document.getElementById("register_email").value.trim();
+        const phone = document.getElementById("register_phone").value.trim();
+        const password = document.getElementById("register_password").value.trim();
+        const errorBox = document.getElementById("register-error");
+
+        // Ẩn lỗi cũ đi trước khi gửi request mới
+        errorBox.classList.add("d-none");
+
+        fetch("../backend/api/register_customer.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name, email, phone, password })
+        })
+        .then(res => res.json()) // Ép hàm fetch đọc file JSON dù API có trả về lỗi 400
+        .then(data => {
+            if (!data.success) {
+                // HIỂN THỊ CHÍNH XÁC CÂU BÁO LỖI TỪ PHP LÊN UI
+                errorBox.textContent = data.error || "Đăng ký thất bại do lỗi không xác định!";
+                errorBox.classList.remove("d-none");
+            } else {
+                // Thành công
+                alert("Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ.");
+                registerForm.reset();
+                
+                // Tự động chuyển qua form đăng nhập
+                document.getElementById("register-form").style.display = "none";
+                document.getElementById("login-form").style.display = "block";
+            }
+        })
+        .catch(err => {
+            console.error("Lỗi Fetch:", err);
+            errorBox.textContent = "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại đường dẫn API!";
+            errorBox.classList.remove("d-none");
+        });
+    });
+}
+
+// Hiệu ứng chuyển đổi giữa 2 form (cho đẹp)
+const btnGoRegister = document.getElementById("login_register_btn");
+const btnGoLogin = document.getElementById("register_login_btn");
+
+if(btnGoRegister) {
+    btnGoRegister.addEventListener("click", function() {
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("register-form").style.display = "block";
+    });
+}
+if(btnGoLogin) {
+    btnGoLogin.addEventListener("click", function() {
+        document.getElementById("register-form").style.display = "none";
+        document.getElementById("login-form").style.display = "block";
+    });
+}
