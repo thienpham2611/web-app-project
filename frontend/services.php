@@ -46,11 +46,38 @@
           <li class="nav-item"><a class="nav-link" href="index.php">Trang chủ</a></li>
           <li class="nav-item"><a class="nav-link" href="about.php">Giới thiệu</a></li>
           <li class="nav-item"><a class="nav-link" href="services.php">Dịch vụ</a></li>
-          
-          <?php if(isset($_SESSION['customer_id']) && $_SESSION['role'] === 'customer'): ?>
-              <li class="nav-item"><a class="nav-link text-success" href="khachhang.php"><i class="fa fa-user-circle"></i> <strong><?php echo $_SESSION['customer_name']; ?></strong></a></li>
+
+          <?php if(isset($_SESSION['customer_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'customer'): ?>
+              <li class="nav-item">
+                  <a class="nav-link text-success" href="khachhang.php">
+                      <i class="fa fa-user-circle"></i> <strong><?php echo htmlspecialchars($_SESSION['customer_name']); ?></strong>
+                  </a>
+              </li>
+              
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" style="color: #ff9800;">
+                      <i class="fa fa-bell"></i>
+                  </a>
+                  <div class="dropdown-menu dropdown-menu-right shadow" style="width:250px;">
+                      <a class="dropdown-item" href="#">Thiết bị của bạn đã sửa xong</a>
+                      <a class="dropdown-item text-muted small" href="#">Xem tất cả thông báo...</a>
+                  </div>
+              </li>
+
+              <li class="nav-item">
+                  <a class="nav-link text-danger" href="../backend/api/logout_customer.php">
+                      <i class="fa fa-sign-out"></i> Đăng xuất
+                  </a>
+              </li>
+
           <?php else: ?>
-              <li class="nav-item"><a class="nav-link smooth-scroll" href="index.php?show_login=true">Đăng nhập</a></li>
+              <li class="nav-item">
+                  <?php if(basename($_SERVER['PHP_SELF']) == 'index.php'): ?>
+                      <a href="#" class="nav-link smooth-scroll" data-toggle="modal" data-target="#login-modal">Đăng nhập</a>
+                  <?php else: ?>
+                      <a class="nav-link smooth-scroll" href="index.php?show_login=true">Đăng nhập</a>
+                  <?php endif; ?>
+              </li>
           <?php endif; ?>
         </ul>
       </div>
