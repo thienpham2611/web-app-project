@@ -74,6 +74,7 @@
     vertical-align: middle;
 }
 
+
 .status-btn {
     width: 120px;
     height: 32px;
@@ -95,4 +96,53 @@
     margin-bottom: 0;
     background-color: #f1f1f1;
     border-radius: 10px;
+}
+
+/* Quản lý tài khoản */
+#user-management .card-header-idt {
+    background: linear-gradient(to left, #41464b, #212529);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#user-management .card-header-idt .title-idt {
+    margin: 0;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.modal-backdrop {
+    z-index: 10400; 
+}
+.modal { 
+    z-index: 10500; 
+}
+
+/* Dùng Flexbox để tự động căn giữa Form hoàn hảo giữa màn hình */
+#createEmployeeModal .modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - 60px);
+    margin: 0 auto;
+}
+
+#createEmployeeModal .modal-content {
+    width: 100%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+#createEmployeeModal .modal-dialog,
+#resetPasswordModal .modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - 60px);
+    margin: 0 auto;
+}
+
+#createEmployeeModal .modal-content,
+#resetPasswordModal .modal-content {
+    width: 100%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
