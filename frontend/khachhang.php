@@ -159,6 +159,12 @@ $customerName = $_SESSION['customer_name'];
             <div class="tab-pane fade" id="pills-repairs" role="tabpanel">
                 <div class="card card-dashboard p-4 bg-white">
                     <h3>Tiến độ sửa chữa thiết bị</h3>
+<div class="text-right mb-3">
+<button class="btn btn-success" data-toggle="modal" data-target="#createRepairModal">
+<i class="fa fa-plus"></i> Tạo yêu cầu sửa chữa
+</button>
+</div>
+
                     <div class="heading-border-light"></div>
                     <table class="table table-hover mt-4">
                         <thead class="bg-light">
@@ -263,5 +269,45 @@ $customerName = $_SESSION['customer_name'];
 <script src="js/wow/wow.min.js"></script>
 <script src="js/custom.js"></script>
 <script src="js/auth.js"></script>
+<div class="modal fade" id="createRepairModal">
+<div class="modal-dialog">
+<div class="modal-content">
+
+<div class="modal-header">
+<h5 class="modal-title">Tạo yêu cầu sửa chữa</h5>
+<button class="close" data-dismiss="modal">&times;</button>
+</div>
+
+<form action="../backend/api/create_repair_ticket.php" method="POST">
+
+<div class="modal-body">
+
+<div class="form-group">
+<label>Thiết bị</label>
+<select name="device_id" class="form-control" required>
+<option value="1">Dell XPS 15</option>
+<option value="2">Máy in HP Laser</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Mô tả lỗi</label>
+<textarea name="description" class="form-control"
+placeholder="Mô tả lỗi thiết bị..." required></textarea>
+</div>
+
+</div>
+
+<div class="modal-footer">
+<button type="submit" class="btn btn-success">Gửi yêu cầu</button>
+<button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+</div>
+
+</form>
+
+</div>
+</div>
+</div>
+
 </body>
 </html>
