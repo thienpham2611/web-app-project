@@ -331,45 +331,98 @@ $_SESSION['customer_name'] = $customerName;
 <script src="js/wow/wow.min.js"></script>
 <script src="js/custom.js"></script>
 <script src="js/auth.js"></script>
-<div class="modal fade" id="createRepairModal">
-<div class="modal-dialog">
-<div class="modal-content">
 
-<div class="modal-header">
-<h5 class="modal-title">Tạo yêu cầu sửa chữa</h5>
-<button class="close" data-dismiss="modal">&times;</button>
+<!-- MODAL TẠO YÊU CẦU SỬA CHỮA - ĐÃ SỬA CHO DEMO -->
+<div class="modal fade" id="createRepairModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tạo yêu cầu sửa chữa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            
+            <form id="repairForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Thiết bị <span class="text-danger">*</span></label>
+                        <select name="device_id" id="device_id" class="form-control" required>
+                            <option value="">-- Chọn thiết bị --</option>
+                            <option value="1">Dell XPS 15</option>
+                            <option value="2">Máy in HP Laser</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mô tả lỗi <span class="text-danger">*</span></label>
+                        <textarea name="description" id="description" class="form-control" 
+                                  rows="4" placeholder="Mô tả chi tiết lỗi thiết bị..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" id="btnGuiYeuCau" class="btn btn-success">
+                        <i class="fa fa-paper-plane"></i> Gửi yêu cầu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+<script>
+$(document).ready(function() {
+    $('#btnGuiYeuCau').on('click', function() {
+        var device_id = $('#device_id').val();
+        var description = $('#description').val().trim();
 
-<form action="../backend/api/create_repair_ticket.php" method="POST">
+        if (!device_id) {
+            alert("Vui lòng chọn thiết bị!");
+            return;
+        }
+        if (!description) {
+            alert("Vui lòng nhập mô tả lỗi!");
+            return;
+        }
 
-<div class="modal-body">
+        var formData = new FormData();
+        formData.append('device_id', device_id);
+        formData.append('description', description);
 
-<div class="form-group">
-<label>Thiết bị</label>
-<select name="device_id" class="form-control" required>
-<option value="1">Dell XPS 15</option>
-<option value="2">Máy in HP Laser</option>
-</select>
-</div>
-
-<div class="form-group">
-<label>Mô tả lỗi</label>
-<textarea name="description" class="form-control"
-placeholder="Mô tả lỗi thiết bị..." required></textarea>
-</div>
-
-</div>
-
-<div class="modal-footer">
-<button type="submit" class="btn btn-success">Gửi yêu cầu</button>
-<button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-</div>
-
-</form>
-
-</div>
-</div>
-</div>
-
+        $.ajax({
+            url: '../backend/api/create_repair_ticket.php',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                console.log(response); // debug
+                try {
+                    var res = (typeof response === 'string') ? JSON.parse(response) : response;
+                    
+                    if (res.success) {
+                        alert(res.message + "\n\nMã phiếu: " + res.ticket_id);
+                        $('#createRepairModal').modal('hide');
+                        // Reset form
+                        $('#repairForm')[0].reset();
+                        // Reload trang để cập nhật bảng (demo)
+                        location.reload();
+                    } else {
+                        alert("Lỗi: " + (res.error || "Không xác định"));
+                    }
+                } catch(e) {
+                    alert("Lỗi xử lý phản hồi từ server.");
+                    console.error(e);
+                }
+            },
+            error: function(xhr) {
+                console.log(xhr.responseText);
+                alert("Không kết nối được server. Lỗi 500 hoặc đường dẫn sai.");
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>

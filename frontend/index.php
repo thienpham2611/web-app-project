@@ -129,14 +129,14 @@ $navLoginAttr = $showLoginAuto ? 'href="index.php?show_login=true"' : 'href="#" 
                               
                               <div id="register-error" class="alert alert-danger d-none text-center" style="font-size: 14px;"></div>
 
-                              <label for="register_username">Tên người dùng <span class="text-danger">*</span></label> 
+                              <label for="register_username">Họ và Tên<span class="text-danger">*</span></label> 
                               <input id="register_username" class="form-control" type="text" placeholder="Nhập họ và tên..." required>
                               
                               <label for="register_email" class="mt-2">Địa chỉ email <span class="text-danger">*</span></label> 
                               <input id="register_email" class="form-control" type="text" placeholder="Ví dụ: nguyenvana@gmail.com" required>
                               
-                              <label for="register_phone" class="mt-2">Số điện thoại</label> 
-                              <input id="register_phone" class="form-control" type="text" placeholder="(Không bắt buộc)">
+                              <label for="register_phone" class="mt-2">Số điện thoại<span class="text-danger">*</span></label> 
+                              <input id="register_phone" class="form-control" type="text" placeholder="" require>
 
                               <label for="register_password" class="mt-2">Mật khẩu <span class="text-danger">*</span></label> 
                               <input id="register_password" class="form-control" type="password" placeholder="Tối thiểu 6 ký tự" required>
