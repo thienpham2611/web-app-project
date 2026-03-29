@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th3 16, 2026 lúc 06:19 AM
+-- Thời gian đã tạo: Th3 29, 2026 lúc 06:52 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -65,6 +65,18 @@ CREATE TABLE `devices` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `devices`
+--
+
+INSERT INTO `devices` (`id`, `name`, `serial_number`, `customer_id`, `type`, `warranty_start_date`, `warranty_end_date`, `status`, `created_at`, `updated_at`) VALUES
+(2, 'Laptop Dell XPS 15', 'IDT-2024-001', 1, 'hardware', '2024-01-01', '2026-12-31', 'active', '2026-03-29 02:20:23', '2026-03-29 02:20:23'),
+(3, 'Phần mềm Quản lý Kho', 'SOFT-8899', 1, 'software', '2025-04-01', '2026-05-15', 'active', '2026-03-29 02:20:23', '2026-03-29 02:20:23'),
+(4, 'Máy in HP Laser', 'HP-009922', 1, 'hardware', '2022-01-01', '2024-01-01', 'expired', '2026-03-29 02:20:23', '2026-03-29 02:20:23'),
+(5, 'MacBook Pro M3', 'MAC-IDT-001', 2, 'hardware', '2025-01-01', '2026-01-01', 'expired', '2026-03-29 04:21:48', '2026-03-29 04:25:35'),
+(6, 'Máy in Canon LBP2900', 'CAN-IDT-002', 2, 'hardware', '2024-05-20', '2025-05-20', 'expired', '2026-03-29 04:21:48', '2026-03-29 04:25:09'),
+(7, 'Màn hình Dell UltraSharp', 'DEL-IDT-003', 2, 'hardware', '2026-03-10', '2027-03-10', 'active', '2026-03-29 04:21:48', '2026-03-29 04:21:48');
+
 -- --------------------------------------------------------
 
 --
@@ -78,36 +90,6 @@ CREATE TABLE `notifications` (
   `message` text DEFAULT NULL,
   `is_read` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `orders`
---
-
-CREATE TABLE `orders` (
-  `id` int(11) NOT NULL,
-  `customer_id` int(11) NOT NULL,
-  `order_date` date DEFAULT NULL,
-  `total_amount` decimal(12,2) DEFAULT NULL,
-  `status` enum('paid','unpaid','cancelled') DEFAULT 'unpaid',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `order_items`
---
-
-CREATE TABLE `order_items` (
-  `id` int(11) NOT NULL,
-  `order_id` int(11) NOT NULL,
-  `device_id` int(11) NOT NULL,
-  `price` decimal(12,2) DEFAULT NULL,
-  `quantity` int(11) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -139,9 +121,21 @@ CREATE TABLE `repair_tickets` (
   `received_date` date DEFAULT NULL,
   `description` text DEFAULT NULL,
   `status` enum('pending','repairing','completed','cancelled') DEFAULT 'pending',
+  `progress` int(3) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `repair_tickets`
+--
+
+INSERT INTO `repair_tickets` (`id`, `device_id`, `customer_id`, `user_id`, `received_date`, `description`, `status`, `progress`, `created_at`, `updated_at`) VALUES
+(3, 4, 1, 6, '2026-03-15', 'Máy thỉnh thoảng bị xanh màn hình, cần kiểm tra RAM và cài lại Win.', 'repairing', 65, '2026-03-29 02:54:07', '2026-03-29 02:54:07'),
+(4, 4, 1, 6, '2026-03-15', 'Máy thỉnh thoảng bị xanh màn hình, cần kiểm tra RAM và cài lại Win.', 'repairing', 65, '2026-03-29 02:55:04', '2026-03-29 02:55:04'),
+(5, 2, 1, NULL, '2026-03-29', 'Bị đơ máy', 'pending', 0, '2026-03-29 03:13:36', '2026-03-29 03:13:36'),
+(6, 3, 1, NULL, '2026-03-29', 'Hay lag', 'pending', 0, '2026-03-29 03:18:06', '2026-03-29 03:18:06'),
+(7, 7, 2, NULL, '2026-03-29', 'Màn hình bị sét đánh cháy khét lèn lẹt', 'pending', 0, '2026-03-29 04:32:48', '2026-03-29 04:32:48');
 
 -- --------------------------------------------------------
 
@@ -181,8 +175,17 @@ CREATE TABLE `warranty_extensions` (
   `user_id` int(11) NOT NULL,
   `old_end_date` date DEFAULT NULL,
   `new_end_date` date DEFAULT NULL,
+  `cost` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `note` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `warranty_extensions`
+--
+
+INSERT INTO `warranty_extensions` (`id`, `device_id`, `user_id`, `old_end_date`, `new_end_date`, `cost`, `note`, `created_at`) VALUES
+(2, 4, 6, '2025-12-31', '2026-12-31', 500000.00, 'Khách hàng mua thêm gói bảo hành mở rộng 1 năm.', '2026-03-29 02:55:04');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -209,21 +212,6 @@ ALTER TABLE `notifications`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_notify_device` (`device_id`),
   ADD KEY `fk_notify_user` (`user_id`);
-
---
--- Chỉ mục cho bảng `orders`
---
-ALTER TABLE `orders`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_orders_customer` (`customer_id`);
-
---
--- Chỉ mục cho bảng `order_items`
---
-ALTER TABLE `order_items`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_orderitem_order` (`order_id`),
-  ADD KEY `fk_orderitem_device` (`device_id`);
 
 --
 -- Chỉ mục cho bảng `repair_logs`
@@ -270,24 +258,12 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT cho bảng `devices`
 --
 ALTER TABLE `devices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT cho bảng `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT cho bảng `orders`
---
-ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT cho bảng `order_items`
---
-ALTER TABLE `order_items`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -300,7 +276,7 @@ ALTER TABLE `repair_logs`
 -- AUTO_INCREMENT cho bảng `repair_tickets`
 --
 ALTER TABLE `repair_tickets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT cho bảng `users`
@@ -312,7 +288,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `warranty_extensions`
 --
 ALTER TABLE `warranty_extensions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
@@ -330,19 +306,6 @@ ALTER TABLE `devices`
 ALTER TABLE `notifications`
   ADD CONSTRAINT `fk_notify_device` FOREIGN KEY (`device_id`) REFERENCES `devices` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_notify_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
---
--- Các ràng buộc cho bảng `orders`
---
-ALTER TABLE `orders`
-  ADD CONSTRAINT `fk_orders_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`);
-
---
--- Các ràng buộc cho bảng `order_items`
---
-ALTER TABLE `order_items`
-  ADD CONSTRAINT `fk_orderitem_device` FOREIGN KEY (`device_id`) REFERENCES `devices` (`id`),
-  ADD CONSTRAINT `fk_orderitem_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `repair_logs`

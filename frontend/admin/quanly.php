@@ -1,18 +1,51 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['role'])) {
-    header("Location: index.php");
+// 1. Kiểm tra bảo mật và phân quyền
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'manager') {
+    if ($_SESSION['role'] === 'admin') header("Location: admin.php");
+    else if ($_SESSION['role'] === 'staff') header("Location: nhanvien.php");
+    else header("Location: index.php");
     exit();
 }
-if ($_SESSION['role'] === 'admin') {
-    header("Location: admin.php");
-    exit();
-}
-if ($_SESSION['role'] === 'staff') {
-    header("Location: nhanvien.php");
-    exit();
-}
+
+// 2. Kết nối database
+require_once "../../backend/config/database.php"; 
+
+$managerId = $_SESSION['user_id'] ?? 0;
+
+// 3. Lấy danh sách phiếu yêu cầu
+$sql_pending = "SELECT rt.id, rt.received_date, rt.description, d.name as device_name, c.name as customer_name, c.phone 
+                FROM repair_tickets rt 
+                JOIN devices d ON rt.device_id = d.id 
+                JOIN customers c ON rt.customer_id = c.id 
+                WHERE rt.status = 'pending' AND rt.user_id IS NULL
+                ORDER BY rt.created_at ASC";
+$result_pending = mysqli_query($conn, $sql_pending);
+$pending_tickets = mysqli_fetch_all($result_pending, MYSQLI_ASSOC);
+
+// 4. Lấy danh sách tất cả thiết bị
+$sql_all_devices = "SELECT d.*, c.name as customer_name 
+                    FROM devices d 
+                    LEFT JOIN customers c ON d.customer_id = c.id 
+                    ORDER BY d.id DESC";
+$result_devices = mysqli_query($conn, $sql_all_devices);
+$all_devices = mysqli_fetch_all($result_devices, MYSQLI_ASSOC);
+
+// 5. Lấy phiếu đang xử lý
+$sql_ongoing = "SELECT rt.*, d.name as device_name, u.name as staff_name 
+                FROM repair_tickets rt 
+                JOIN devices d ON rt.device_id = d.id 
+                LEFT JOIN users u ON rt.user_id = u.id 
+                WHERE rt.status IN ('pending', 'repairing') AND rt.user_id IS NOT NULL
+                ORDER BY rt.updated_at DESC";
+$result_ongoing = mysqli_query($conn, $sql_ongoing);
+$ongoing_tickets = mysqli_fetch_all($result_ongoing, MYSQLI_ASSOC);
+
+// 6. Lấy danh sách nhân viên
+$sql_staff = "SELECT id, name FROM users WHERE role = 'staff'";
+$result_staff = mysqli_query($conn, $sql_staff);
+$staff_list = mysqli_fetch_all($result_staff, MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html>
@@ -92,57 +125,100 @@ if ($_SESSION['role'] === 'staff') {
         </nav>
         <div class="content-inner">
 
-<!--REPORT-1-->
-<div class="row" id="report1">
+<!--Danh sách nhân viên-->
+<div class="row" id="report-pending">
     <div class="col-md-12">
-        <div class="card">
+        <div class="card card-idt-main">
             <div class="card-header-idt">
-                <h4 class="title-idt"><i class="fa fa-list"></i> HỆ THỐNG QUẢN LÝ BẢO HÀNH</h4>
+                <h4 class="title-idt"><i class="fa fa-bell text-warning"></i> YÊU CẦU SỬA CHỮA (CHỜ PHÂN CÔNG)</h4>
             </div>
             <div class="card-body no-padding">
                 <div class="table-responsive">
                     <table class="table idt-table-report table-hover">
                         <thead>
                             <tr>
-                                <th>Mã Thiết Bị</th>
-                                <th>Tên Mặt Hàng</th>
-                                <th>Khách Hàng</th>
+                                <th class="text-center">Mã Phiếu</th>
+                                <th class="text-center">Khách hàng (SĐT)</th>
+                                <th class="text-center">Tên Thiết bị</th>
+                                <th class="text-center">Mô tả lỗi</th>
+                                <th class="text-center">Giao cho Kỹ thuật viên</th>
+                                <th class="text-center">Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(empty($pending_tickets)): ?>
+                                <tr><td colspan="6" class="text-center text-muted py-4">Tuyệt vời! Hiện không có yêu cầu nào đang tồn đọng.</td></tr>
+                            <?php else: ?>
+                                <?php foreach($pending_tickets as $tick): ?>
+                                <tr>
+                                    <td class="text-center"><strong>#TICK-<?= $tick['id'] ?></strong></td>
+                                    <td class="text-center">
+                                        <?= htmlspecialchars($tick['customer_name']) ?><br>
+                                        <small class="text-muted"><i class="fa fa-phone"></i> <?= htmlspecialchars($tick['phone'] ?? 'Không có') ?></small>
+                                    </td>
+                                    <td class="text-center"><?= htmlspecialchars($tick['device_name']) ?></td>
+                                    <td class="text-center"><?= htmlspecialchars($tick['description']) ?></td>
+                                    <td class="text-center">
+                                        <select class="form-control form-control-sm" id="staff_assign_<?= $tick['id'] ?>">
+                                            <option value="">-- Chọn thợ --</option>
+                                            <?php foreach($staff_list as $staff): ?>
+                                                <option value="<?= $staff['id'] ?>"><?= htmlspecialchars($staff['name']) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                    <td class="text-center action-col">
+                                        <button class="btn btn-sm btn-success" onclick="assignTicket(<?= $tick['id'] ?>)">
+                                            <i class="fa fa-check"></i> Chốt
+                                        </button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--REPORT-1-->
+<div class="row" id="report1">
+    <div class="col-md-12">
+        <div class="card card-idt-main">
+            <div class="card-header-idt">
+                <h4 class="title-idt"><i class="fa fa-laptop"></i> HỆ THỐNG QUẢN LÝ THIẾT BỊ & BẢO HÀNH</h4>
+            </div>
+            <div class="card-body no-padding">
+                <div class="table-responsive">
+                    <table class="table idt-table-report table-hover">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Mã Thiết Bị (S/N)</th>
+                                <th class="text-center">Tên Mặt Hàng</th>
+                                <th class="text-center">Khách Hàng</th>
                                 <th class="text-center">Ngày Hết Hạn</th>
                                 <th class="text-center">Tình Trạng</th>
                                 <th class="text-center">Hành Động</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php foreach($all_devices as $dev): 
+                                $end_date = strtotime($dev['warranty_end_date']);
+                                $days_left = ($end_date - time()) / 86400;
+                                $status_class = "text-status-good"; $status_text = "Đang bảo hành";
+                                if($days_left < 0) { $status_class = "text-status-expired"; $status_text = "Đã hết hạn"; }
+                                elseif($days_left <= 30) { $status_class = "text-status-warning"; $status_text = "Sắp hết hạn"; }
+                            ?>
                             <tr>
-                                <td><strong>DE-001</strong></td>
-                                <td>Máy chủ Dell PowerEdge</td>
-                                <td>Ngân hàng ACB</td>
-                                <td class="text-center">15/02/2024</td>
-                                <td class="text-center"><span class="text-status-expired">Đã hết hạn</span></td>
-                                <td class="action-col">
-                                    <button class="btn-idt-fixed btn-red">Gia hạn ngay</button>
+                                <td class="text-center"><strong><?= htmlspecialchars($dev['serial_number']) ?></strong></td>
+                                <td class="text-center"><?= htmlspecialchars($dev['name']) ?></td> <td class="text-center"><?= htmlspecialchars($dev['customer_name'] ?? 'Chưa gán') ?></td> <td class="text-center"><?= date('d/m/Y', $end_date) ?></td>
+                                <td class="text-center"><span class="<?= $status_class ?>"><?= $status_text ?></span></td>
+                                <td class="text-center action-col">
+                                    <button class="btn-idt-fixed btn-blue">Xem chi tiết</button>
                                 </td>
                             </tr>
-                            <tr>
-                                <td><strong>SW-042</strong></td>
-                                <td>Phần mềm kế toán IDT</td>
-                                <td>Cty TNHH Hải Nam</td>
-                                <td class="text-center">25/11/2024</td>
-                                <td class="text-center"><span class="text-status-warning">Sắp hết hạn</span></td>
-                                <td class="action-col">
-                                    <button class="btn-idt-fixed btn-blue">Gửi nhắc nhở</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>DE-105</strong></td>
-                                <td>Switch Cisco 24 Port</td>
-                                <td>Trường ĐH Bách Khoa</td>
-                                <td class="text-center">10/10/2026</td>
-                                <td class="text-center"><span class="text-status-good">Đang bảo hành</span></td>
-                                <td class="action-col">
-                                    <button class="btn-idt-fixed btn-gray">Xem chi tiết</button>
-                                </td>
-                            </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -156,47 +232,41 @@ if ($_SESSION['role'] === 'staff') {
     <div class="col-md-12">
         <div class="card card-idt-main">
             <div class="card-header-idt">
-                <h4 class="title-idt"><i class="fa fa-history"></i> Theo dõi tiến độ sửa chữa và dịch vụ</h4>
+                <h4 class="title-idt"><i class="fa fa-history"></i> THEO DÕI TIẾN ĐỘ SỬA CHỮA VÀ DỊCH VỤ</h4>
             </div>
             <div class="card-body no-padding">
                 <div class="table-responsive">
                     <table class="table idt-table-report table-hover">
                         <thead>
                             <tr>
-                                <th>Mã Case</th>
-                                <th>Thiết bị/Phần mềm</th>
-                                <th>Kỹ thuật viên</th>
-                                <th>Tiến độ xử lý</th>
+                                <th class="text-center">Mã Case</th>
+                                <th class="text-center">Thiết bị/Phần mềm</th>
+                                <th class="text-center">Kỹ thuật viên</th>
+                                <th class="text-center">Tiến độ xử lý</th>
                                 <th class="text-center">Trạng thái</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php foreach($ongoing_tickets as $tick): ?>
                             <tr>
-                                <td><strong>#SC-1024</strong></td>
-                                <td>Server Dell R740</td>
-                                <td>Nguyễn Văn A</td>
+                                <td class="text-center"><strong>#TICK-<?= $tick['id'] ?></strong></td>
+                                <td class="text-center"><?= htmlspecialchars($tick['device_name']) ?></td>
+                                <td class="text-center"><?= htmlspecialchars($tick['staff_name'] ?? 'Chờ phân công') ?></td>
                                 <td class="align-middle">
-                                    <div class="progress idt-progress-bar">
-                                        <div class="progress-bar bg-warning" style="width: 65%;"></div>
+                                    <div class="progress idt-progress-bar" style="margin-bottom: 5px;">
+                                        <div class="progress-bar bg-info" style="width: <?= $tick['progress'] ?>%;"></div>
                                     </div>
+                                    <div class="text-center"><small class="font-weight-bold"><?= $tick['progress'] ?>%</small></div>
                                 </td>
-                                <td class="action-col">
-                                    <span class="status-btn btn-warning-idt">Đang thay linh kiện</span>
+                                <td class="text-center action-col">
+                                    <?php 
+                                        $btn_class = ($tick['status'] == 'repairing') ? 'btn-warning-idt' : 'btn-info-idt';
+                                        $status_txt = ($tick['status'] == 'repairing') ? 'Đang sửa chữa' : 'Chờ xử lý';
+                                    ?>
+                                    <span class="status-btn <?= $btn_class ?>"><?= $status_txt ?></span>
                                 </td>
                             </tr>
-                            <tr>
-                                <td><strong>#PM-0052</strong></td>
-                                <td>Phần mềm kế toán IDT</td>
-                                <td>Trần Thị B</td>
-                                <td class="align-middle">
-                                    <div class="progress idt-progress-bar">
-                                        <div class="progress-bar bg-info" style="width: 30%;"></div>
-                                    </div>
-                                </td>
-                                <td class="action-col">
-                                    <span class="status-btn btn-info-idt">Đang fix bug</span>
-                                </td>
-                            </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -214,9 +284,8 @@ if ($_SESSION['role'] === 'staff') {
     <script src="js/jquery.validate.min.js"></script> 
     <script src="js/chart.min.js"></script> 
     <script src="js/front.js"></script> 
-    
-    <!--Core Javascript -->
     <script src="js/mychart.js"></script>
+    <script src="js/manager_actions.js"></script> </body>
 </body>
 
 </html>

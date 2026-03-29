@@ -206,3 +206,57 @@ if(btnGoLogin) {
         document.getElementById("login-form").style.display = "block";
     });
 }
+
+// ==========================================
+// HÀM BẬT MODAL YÊU CẦU SỬA CHỮA (TỪ KHACHHANG.PHP)
+// ==========================================
+function openRepairModal(deviceId, deviceName) {
+    $('#modal_device_id').val(deviceId);
+    $('#modal_device_name').val(deviceName);
+    $('#modal_description').val(''); // Dọn sạch khung nhập lỗi cũ
+    
+    // Bật Modal lên
+    $('#createRepairModal').modal('show');
+}
+
+// Modal của nút gửi yêu cầu sửa chữa
+$(document).ready(function() {
+    $('#btnGuiYeuCau').on('click', function() {
+        var device_id = $('#modal_device_id').val();
+        var description = $('#modal_description').val().trim();
+
+        if (!description) {
+            alert("Vui lòng nhập mô tả lỗi!");
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('device_id', device_id);
+        formData.append('description', description);
+
+        $.ajax({
+            url: '../backend/api/create_repair_ticket.php',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                try {
+                    var res = (typeof response === 'string') ? JSON.parse(response) : response;
+                    if (res.success) {
+                        alert(res.message + "\n\nMã phiếu: #TICK-" + res.ticket_id);
+                        $('#createRepairModal').modal('hide');
+                        location.reload(); // Tự động load lại trang
+                    } else {
+                        alert("Lỗi: " + (res.error || "Không xác định"));
+                    }
+                } catch(e) {
+                    alert("Lỗi xử lý dữ liệu từ máy chủ.");
+                }
+            },
+            error: function() {
+                alert("Không thể kết nối đến máy chủ.");
+            }
+        });
+    });
+});
