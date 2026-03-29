@@ -1,148 +1,125 @@
-/*REPORT 1: CLEAN & UNIFORM STYLE*/
-#report1 .card-header-idt {
-    background: linear-gradient(to left, #41464b, #212529);
-    color: #fff;
-    padding: 12px 20px;
-}
-
-.idt-table-report {
-    width: 100% !important;
-    border-collapse: collapse;
-}
-
-.idt-table-report thead th {
-    background-color: #198754 !important;
-    color: #fff !important;
-    text-transform: uppercase;
-    font-size: 13px;
-    padding: 12px !important;
-    border: none !important;
-}
-
-.text-status-expired { color: #F44336; font-weight: bold; }
-.text-status-warning { color: #FF9800; font-weight: bold; }
-.text-status-good { color: #4CAF50; font-weight: bold; }
-
-.action-col {
-    width: 150px;
-    text-align: center;
-}
-
-.btn-idt-fixed {
-    width: 120px;
-    height: 32px;
-    line-height: 32px;
-    padding: 0;
+.card-idt-main {
     border: none;
-    color: #fff !important;
-    font-weight: bold;
-    font-size: 11px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s;
-    display: inline-block;
-    border-radius: 2px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    margin-bottom: 30px;
+    background: #fff;
+    overflow: hidden;
 }
 
-.btn-red { background-color: #F44336; }
-.btn-blue { background-color: #2196f3; }
-.btn-gray { background-color: #757575; }
-
-.btn-idt-fixed:hover {
-    filter: brightness(1.1);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
- 
-/*REPORT-3*/
-#report3 .card-header-idt {
-    background: linear-gradient(to left, #41464b, #212529);
-    color: #fff;
-    padding: 12px 20px;
-}
-
-#report3 .idt-table-report thead th {
-    background-color: #198754 !important;
-    color: #fff !important;
-    text-transform: uppercase;
-    font-size: 13px !important;
-    padding: 12px !important;
-}
-
-#report3 .idt-table-report tbody td {
-    font-size: 14px !important;
-    padding: 12px !important;
-    vertical-align: middle;
-}
-
-
-.status-btn {
-    width: 120px;
-    height: 32px;
-    line-height: 32px;
-    display: inline-block;
-    text-align: center;
-    border-radius: 2px;
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: #fff;
-}
-
-.btn-warning-idt { background-color: #f39c12; }
-.btn-info-idt { background-color: #00c0ef; }
-
-.idt-progress-bar {
-    height: 10px !important;
-    margin-bottom: 0;
-    background-color: #f1f1f1;
-    border-radius: 10px;
-}
-
-/* Quản lý tài khoản */
-#user-management .card-header-idt {
-    background: linear-gradient(to left, #41464b, #212529);
-    padding: 12px 20px;
+.card-header-idt {
+    background: linear-gradient(to left, #41464b, #212529) !important;
+    padding: 15px 20px !important;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-#user-management .card-header-idt .title-idt {
+.card-header-idt .title-idt {
     margin: 0;
-    color: #fff;
+    color: #fff !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.modal-backdrop {
-    z-index: 10400; 
-}
-.modal { 
-    z-index: 10500; 
+.card-body.no-padding {
+    padding: 0;
 }
 
-/* Dùng Flexbox để tự động căn giữa Form hoàn hảo giữa màn hình */
-#createEmployeeModal .modal-dialog {
-    display: flex;
-    align-items: center;
-    min-height: calc(100vh - 60px);
+.idt-table-report {
+    width: 100% !important;
+    border-collapse: collapse;
+    margin-bottom: 0;
+}
+
+.idt-table-report thead th {
+    background-color: #198754 !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    padding: 12px 15px !important;
+    border: none !important;
+    text-transform: uppercase;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.idt-table-report tbody td {
+    font-size: 15px !important;
+    padding: 15px !important;
+    vertical-align: middle !important;
+    color: #333;
+    border-top: 1px solid #f1f1f1;
+}
+
+.idt-table-report tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.text-status-expired { color: #dc3545; font-weight: bold; } 
+.text-status-warning { color: #ffc107; font-weight: bold; } 
+.text-status-good    { color: #198754; font-weight: bold; }
+
+.idt-progress-bar {
+    height: 8px !important;
+    max-width: 120px;
+    margin: 5px auto !important;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.action-col {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btn-idt-fixed {
+    width: 110px;
+    height: 32px;
+    line-height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #fff !important;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-blue { background-color: #007bff; }
+.btn-blue:hover { background-color: #0056b3; }
+.btn-red  { background-color: #dc3545; }
+.btn-red:hover  { background-color: #a71d2a; }
+
+.status-btn {
+    padding: 4px 10px;
+    display: inline-block;
+    border-radius: 2px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #fff;
+}
+.btn-warning-idt { background-color: #f39c12; }
+.btn-info-idt    { background-color: #00c0ef; }
+
+.idt-table-report select.form-control-sm {
+    width: 140px !important;
+    height: 30px !important;
+    font-size: 13px !important;
+    padding: 2px 5px;
+    border-radius: 4px;
     margin: 0 auto;
 }
 
-#createEmployeeModal .modal-content {
-    width: 100%;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
+.modal-backdrop { z-index: 1040; }
+.modal { z-index: 1050; }
 
-#createEmployeeModal .modal-dialog,
-#resetPasswordModal .modal-dialog {
-    display: flex;
-    align-items: center;
-    min-height: calc(100vh - 60px);
-    margin: 0 auto;
-}
-
-#createEmployeeModal .modal-content,
-#resetPasswordModal .modal-content {
-    width: 100%;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+#form-create-employee .form-group, 
+#resetPasswordModal .form-group {
+    margin-bottom: 15px;
 }

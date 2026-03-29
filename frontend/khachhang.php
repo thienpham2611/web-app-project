@@ -18,6 +18,33 @@ $customerData = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 // Lấy tên khách hàng từ Database và lưu vào Session để hiển thị trên Navbar
 $customerName = $customerData['name'];
 $_SESSION['customer_name'] = $customerName;
+
+// Lấy danh sách thiết bị và phần mềm
+$sql_dev = "SELECT * FROM devices WHERE customer_id = ? ORDER BY id DESC";
+$stmt_dev = mysqli_prepare($conn, $sql_dev);
+mysqli_stmt_bind_param($stmt_dev, "i", $customerId);
+mysqli_stmt_execute($stmt_dev);
+$devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_dev), MYSQLI_ASSOC);
+
+// Lấy danh sách phiếu sửa chữa
+$sql_tick = "SELECT rt.id, rt.description, rt.status, rt.progress, d.name as device_name 
+             FROM repair_tickets rt 
+             JOIN devices d ON rt.device_id = d.id 
+             WHERE d.customer_id = ? ORDER BY rt.created_at DESC";
+$stmt_tick = mysqli_prepare($conn, $sql_tick);
+mysqli_stmt_bind_param($stmt_tick, "i", $customerId);
+mysqli_stmt_execute($stmt_tick);
+$tickets = mysqli_fetch_all(mysqli_stmt_get_result($stmt_tick), MYSQLI_ASSOC);
+
+// Lấy lịch sử gia hạn
+$sql_ext = "SELECT we.created_at, we.old_end_date, we.new_end_date, we.cost, we.note, d.name as device_name 
+            FROM warranty_extensions we 
+            JOIN devices d ON we.device_id = d.id 
+            WHERE d.customer_id = ? ORDER BY we.created_at DESC";
+$stmt_ext = mysqli_prepare($conn, $sql_ext);
+mysqli_stmt_bind_param($stmt_ext, "i", $customerId);
+mysqli_stmt_execute($stmt_ext);
+$extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -151,88 +178,131 @@ $_SESSION['customer_name'] = $customerName;
         <div class="tab-content" id="pills-tabContent">
             
             <div class="tab-pane fade show active" id="pills-devices" role="tabpanel">
-                <div class="row">
-                    <div class="col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="card card-dashboard p-4 text-center bg-white">
-                            <i class="fa fa-laptop fa-3x text-success mb-3"></i>
-                            <h4>Dell XPS 15</h4>
-                            <p class="text-muted small">S/N: IDT-2024-001</p>
-                            <hr>
-                            <p>Bảo hành đến: <b>31/12/2026</b></p>
-                            <span class="status-badge bg-success-light">Đang hoạt động</span>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.2s">
-                        <div class="card card-dashboard p-4 text-center bg-white">
-                            <i class="fa fa-code fa-3x text-success mb-3"></i>
-                            <h4>Phần mềm QL Kho</h4>
-                            <p class="text-muted small">License: SOFT-8899</p>
-                            <hr>
-                            <p>Bảo hành đến: <b>15/06/2026</b></p>
-                            <span class="status-badge bg-success-light">Hợp lệ</span>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4 wow fadeInUp" data-wow-delay="0.3s">
-                        <div class="card card-dashboard p-4 text-center bg-white border-danger" style="border-top: 2px solid red;">
-                            <i class="fa fa-print fa-3x text-muted mb-3"></i>
-                            <h4>Máy in HP Laser</h4>
-                            <p class="text-muted small">S/N: HP-009922</p>
-                            <hr>
-                            <p>Bảo hành đến: <b>01/01/2024</b></p>
-                            <span class="status-badge bg-warning-light">Hết hạn bảo hành</span>
-                        </div>
-                    </div>
+                <div class="card card-dashboard p-4 bg-white">
+                    <table class="table table-hover mt-2">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Thiết bị / Phần mềm</th>
+                                <th>Ngày mua</th>
+                                <th>Hạn bảo hành</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(empty($devices)): ?>
+                                <tr><td colspan="5" class="text-center text-muted py-4">Bạn chưa có thiết bị hay phần mềm nào.</td></tr>
+                            <?php else: ?>
+                                <?php foreach($devices as $dev): 
+                                    $end_date = strtotime($dev['warranty_end_date']);
+                                    $days_left = ($end_date - time()) / 86400;
+                                    
+                                    $date_class = 'text-success'; $status_text = 'Đang bảo hành'; $badge_class = 'badge-success';
+                                    if ($days_left < 0) {
+                                        $date_class = 'text-danger font-weight-bold'; $status_text = 'Đã hết hạn'; $badge_class = 'badge-danger';
+                                    } elseif ($days_left <= 30) {
+                                        $date_class = 'text-warning font-weight-bold'; $status_text = 'Sắp hết hạn'; $badge_class = 'badge-warning';
+                                    }
+                                ?>
+                                <tr>
+                                    <td>
+                                        <strong><?= htmlspecialchars($dev['name']) ?></strong><br>
+                                        <small class="text-muted">S/N: <?= htmlspecialchars($dev['serial_number']) ?></small>
+                                    </td>
+                                    <td><?= date('d/m/Y', strtotime($dev['warranty_start_date'])) ?></td>
+                                    <td class="<?= $date_class ?>"><?= date('d/m/Y', $end_date) ?></td>
+                                    <td><span class="badge <?= $badge_class ?> p-2"><?= $status_text ?></span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="openRepairModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>')">
+                                            <i class="fa fa-wrench"></i> Yêu cầu sửa
+                                        </button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="pills-repairs" role="tabpanel">
                 <div class="card card-dashboard p-4 bg-white">
-                    <h3>Tiến độ sửa chữa thiết bị</h3>
-<div class="text-right mb-3">
-<button class="btn btn-success" data-toggle="modal" data-target="#createRepairModal">
-<i class="fa fa-plus"></i> Tạo yêu cầu sửa chữa
-</button>
-</div>
-
-                    <div class="heading-border-light"></div>
-                    <table class="table table-hover mt-4">
+                    <table class="table table-hover mt-2">
                         <thead class="bg-light">
                             <tr>
                                 <th>Mã phiếu</th>
                                 <th>Tên thiết bị</th>
-                                <th>Ngày tiếp nhận</th>
+                                <th>Ghi chú lỗi</th>
+                                <th>Tiến độ</th>
                                 <th>Trạng thái</th>
-                                <th>Ghi chú kỹ thuật</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#RT-005</td>
-                                <td>Dell XPS 15</td>
-                                <td>05/02/2026</td>
-                                <td><span class="badge badge-warning">Đang xử lý (60%)</span></td>
-                                <td>Đang thay thế linh kiện bàn phím.</td>
-                            </tr>
-                            <tr>
-                                <td>#RT-002</td>
-                                <td>Máy in HP Laser</td>
-                                <td>15/01/2026</td>
-                                <td><span class="badge badge-success">Đã hoàn tất</span></td>
-                                <td>Đã bàn giao lại cho khách hàng.</td>
-                            </tr>
+                            <?php if(empty($tickets)): ?>
+                                <tr><td colspan="5" class="text-center text-muted py-4">Bạn chưa có phiếu sửa chữa nào.</td></tr>
+                            <?php else: ?>
+                                <?php foreach($tickets as $tick): ?>
+                                <tr>
+                                    <td><strong>#TICK-<?= $tick['id'] ?></strong></td>
+                                    <td><?= htmlspecialchars($tick['device_name']) ?></td>
+                                    <td><?= htmlspecialchars($tick['description'] ?? 'Không có mô tả') ?></td>
+                                    <td class="align-middle">
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-info" style="width: <?= $tick['progress'] ?>%;"></div>
+                                        </div>
+                                        <small class="font-weight-bold"><?= $tick['progress'] ?>%</small>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                            $status_badge = 'badge-secondary'; $status_vi = 'Chờ xử lý';
+                                            if($tick['status'] == 'repairing') { $status_badge = 'badge-warning'; $status_vi = 'Đang sửa chữa'; }
+                                            if($tick['status'] == 'completed') { $status_badge = 'badge-success'; $status_vi = 'Đã hoàn thành'; }
+                                            if($tick['status'] == 'cancelled') { $status_badge = 'badge-danger'; $status_vi = 'Đã hủy'; }
+                                        ?>
+                                        <span class="badge <?= $status_badge ?> p-2"><?= $status_vi ?></span>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="pills-history" role="tabpanel">
-                <div class="card card-dashboard p-4 bg-white text-center">
-                    <img src="img/img/img-2.jpg" class="img-fluid mx-auto mb-3" style="max-width: 200px;">
-                    <p>Bạn chưa có lịch sử gia hạn bảo hành nào gần đây.</p>
-                    <a href="services.php" class="btn btn-general btn-green">Khám phá gói dịch vụ</a>
+                <div class="card card-dashboard p-4 bg-white">
+                    <table class="table table-hover mt-2">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Ngày giao dịch</th>
+                                <th>Tên thiết bị</th>
+                                <th>Thay đổi thời hạn</th>
+                                <th>Chi phí</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(empty($extensions)): ?>
+                                <tr><td colspan="5" class="text-center text-muted py-4">Bạn chưa có lịch sử gia hạn nào.</td></tr>
+                            <?php else: ?>
+                                <?php foreach($extensions as $ext): ?>
+                                <tr>
+                                    <td><?= date('d/m/Y', strtotime($ext['created_at'])) ?></td>
+                                    <td><?= htmlspecialchars($ext['device_name']) ?></td>
+                                    <td>
+                                        <del class="text-muted"><?= date('d/m/Y', strtotime($ext['old_end_date'])) ?></del>
+                                        <i class="fa fa-arrow-right mx-2 text-secondary"></i>
+                                        <strong class="text-success"><?= date('d/m/Y', strtotime($ext['new_end_date'])) ?></strong>
+                                    </td>
+                                    <td><?= number_format($ext['cost'], 0, ',', '.') ?> đ</td>
+                                    <td><?= htmlspecialchars($ext['note']) ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
         </div>
     </div>
 </section>
@@ -332,7 +402,6 @@ $_SESSION['customer_name'] = $customerName;
 <script src="js/custom.js"></script>
 <script src="js/auth.js"></script>
 
-<!-- MODAL TẠO YÊU CẦU SỬA CHỮA - ĐÃ SỬA CHO DEMO -->
 <div class="modal fade" id="createRepairModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -345,19 +414,17 @@ $_SESSION['customer_name'] = $customerName;
             
             <form id="repairForm">
                 <div class="modal-body">
+                    <input type="hidden" id="modal_device_id" name="device_id">
+
                     <div class="form-group">
-                        <label>Thiết bị <span class="text-danger">*</span></label>
-                        <select name="device_id" id="device_id" class="form-control" required>
-                            <option value="">-- Chọn thiết bị --</option>
-                            <option value="1">Dell XPS 15</option>
-                            <option value="2">Máy in HP Laser</option>
-                        </select>
+                        <label>Thiết bị cần sửa</label>
+                        <input type="text" id="modal_device_name" class="form-control" readonly style="background-color: #e9ecef; font-weight: bold;">
                     </div>
 
                     <div class="form-group">
-                        <label>Mô tả lỗi <span class="text-danger">*</span></label>
-                        <textarea name="description" id="description" class="form-control" 
-                                  rows="4" placeholder="Mô tả chi tiết lỗi thiết bị..." required></textarea>
+                        <label>Mô tả chi tiết lỗi <span class="text-danger">*</span></label>
+                        <textarea name="description" id="modal_description" class="form-control" 
+                                  rows="4" placeholder="Ví dụ: Máy dạo này hay bị màn hình xanh, quạt kêu to..." required></textarea>
                     </div>
                 </div>
 
@@ -371,58 +438,6 @@ $_SESSION['customer_name'] = $customerName;
         </div>
     </div>
 </div>
-<script>
-$(document).ready(function() {
-    $('#btnGuiYeuCau').on('click', function() {
-        var device_id = $('#device_id').val();
-        var description = $('#description').val().trim();
 
-        if (!device_id) {
-            alert("Vui lòng chọn thiết bị!");
-            return;
-        }
-        if (!description) {
-            alert("Vui lòng nhập mô tả lỗi!");
-            return;
-        }
-
-        var formData = new FormData();
-        formData.append('device_id', device_id);
-        formData.append('description', description);
-
-        $.ajax({
-            url: '../backend/api/create_repair_ticket.php',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                console.log(response); // debug
-                try {
-                    var res = (typeof response === 'string') ? JSON.parse(response) : response;
-                    
-                    if (res.success) {
-                        alert(res.message + "\n\nMã phiếu: " + res.ticket_id);
-                        $('#createRepairModal').modal('hide');
-                        // Reset form
-                        $('#repairForm')[0].reset();
-                        // Reload trang để cập nhật bảng (demo)
-                        location.reload();
-                    } else {
-                        alert("Lỗi: " + (res.error || "Không xác định"));
-                    }
-                } catch(e) {
-                    alert("Lỗi xử lý phản hồi từ server.");
-                    console.error(e);
-                }
-            },
-            error: function(xhr) {
-                console.log(xhr.responseText);
-                alert("Không kết nối được server. Lỗi 500 hoặc đường dẫn sai.");
-            }
-        });
-    });
-});
-</script>
 </body>
 </html>
