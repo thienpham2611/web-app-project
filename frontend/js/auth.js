@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const password = document.getElementById("register_password").value.trim();
 
             // Nhớ điều chỉnh lại đường dẫn API cho đúng với thư mục máy của bạn
-            fetch("http://localhost/web-app-project/backend/api/register_customer.php", {
+            fetch("../backend/api/register_customer.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, password })
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const email = document.getElementById("login_username").value.trim(); 
             const password = document.getElementById("login_password").value.trim();
 
-            fetch("http://localhost/web-app-project/backend/api/login_customer.php", {
+            fetch("../backend/api/login_customer.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include", // Giữ session PHP

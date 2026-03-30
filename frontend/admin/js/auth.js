@@ -5,43 +5,27 @@ document.addEventListener("DOMContentLoaded", function () {
     form.addEventListener("submit", function (e) {
         e.preventDefault();
 
-        const email = document.getElementById("login_email").value.trim();
+        const email    = document.getElementById("login_email").value.trim();
         const password = document.getElementById("login_password").value.trim();
 
-        fetch("http://localhost/web-app-project/backend/api/login.php", {
+        fetch("../../backend/api/login.php", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include", // 🔴 BẮT BUỘC để giữ session PHP
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
             body: JSON.stringify({ email, password })
         })
         .then(res => res.json())
         .then(data => {
             if (!data.success) {
                 const err = document.getElementById("login-error");
-                err.textContent = data.error || "Đăng nhập thất bại";
-                err.classList.remove("d-none");
+                if (err) { err.textContent = data.error || "Đăng nhập thất bại"; err.classList.remove("d-none"); }
                 return;
             }
-
             const role = data.user.role;
-
-            // 🔐 PHÂN QUYỀN REDIRECT
-            if (role === "admin") {
-                window.location.href = "admin.php";
-            } 
-            else if (role === "manager") {
-                window.location.href = "quanly.php";
-            } 
-            else {
-                window.location.href = "nhanvien.php";
-            }
+            if (role === "admin")        window.location.href = "admin.php";
+            else if (role === "manager") window.location.href = "quanly.php";
+            else                         window.location.href = "nhanvien.php";
         })
-        .catch(err => {
-            console.error(err);
-            alert("Lỗi máy chủ");
-        });
+        .catch(() => alert("Lỗi máy chủ - kiểm tra XAMPP đã chạy chưa."));
     });
 });
-

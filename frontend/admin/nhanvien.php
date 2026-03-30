@@ -116,103 +116,10 @@ if ($_SESSION['role'] === 'manager') {
     </div>
 </div>
 
-<!--API-->
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    
-    // --- CẤU HÌNH ĐƯỜNG DẪN API (Bên Backend sẽ xử lý tệp này) ---
-    // API này thường sẽ dựa vào Session (người đang đăng nhập) để trả về đúng ticket của họ
-    const API_MY_TICKETS = 'api/get_my_tickets.php'; 
-
-    fetch(API_MY_TICKETS)
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.getElementById('tech-repair-list');
-            tbody.innerHTML = ''; // Xóa dòng thông báo "Đang tải"
-
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Bạn hiện chưa có công việc nào được giao.</td></tr>';
-                return;
-            }
-
-            data.forEach(item => {
-                // Xác định màu sắc trạng thái (Cùng style với file CSS của bạn)
-                let statusClass = 'btn-info-idt'; // Mặc định
-                if(item.status === 'Hoàn thành') statusClass = 'btn-success-idt';
-                if(item.status === 'Đang sửa') statusClass = 'btn-warning-idt';
-
-                // Xác định màu thanh tiến độ
-                let progressColor = 'bg-warning';
-                if(item.progress >= 100) progressColor = 'bg-success';
-                if(item.progress < 20) progressColor = 'bg-danger';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${item.id}</strong></td>
-                        <td>${item.device_name}</td>
-                        <td>${item.customer_name}</td>
-                        <td class="align-middle">
-                            <div class="progress idt-progress-bar">
-                                <div class="progress-bar ${progressColor}" style="width: ${item.progress}%;"></div>
-                            </div>
-                            <small>${item.progress}%</small>
-                        </td>
-                        <td class="text-center">
-                            <span class="status-btn ${statusClass}">${item.status}</span>
-                        </td>
-                        <td class="text-center">
-                            <button class="btn-idt-fixed btn-blue" onclick="updateTicket('${item.id}')">
-                                <i class="fa fa-edit"></i> Cập nhật
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        })
-        .catch(err => {
-            console.error("Lỗi kết nối API Nhân viên:", err);
-            document.getElementById('tech-repair-list').innerHTML = 
-                '<tr><td colspan="6" class="text-center text-danger">Không thể kết nối máy chủ.</td></tr>';
-        });
-});
-
-// Hàm mẫu xử lý khi nhấn nút Cập nhật
-function updateTicket(ticketId) {
-    // Backend sẽ xử lý việc mở Modal hoặc chuyển hướng trang tại đây
-    console.log("Đang mở cập nhật cho Case: " + ticketId);
-    alert("Chức năng cập nhật tiến độ cho Case: " + ticketId + " đang được xử lý.");
-}
-</script>
 
 
-<script>
-// JS Load dữ liệu riêng cho nhân viên
-document.addEventListener("DOMContentLoaded", function() {
-    // Gọi API lấy ticket theo ID nhân viên (lấy từ Session)
-    fetch('api/get_my_tickets.php') 
-    .then(response => response.json())
-    .then(data => {
-        const tbody = document.getElementById('tech-repair-list');
-        tbody.innerHTML = '';
-        data.forEach(item => {
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${item.id}</strong></td>
-                    <td>${item.device_name}</td>
-                    <td>${item.customer_name}</td>
-                    <td class="align-middle">
-                        <div class="progress idt-progress-bar">
-                            <div class="progress-bar bg-warning" style="width: ${item.progress}%;"></div>
-                        </div>
-                    </td>
-                    <td class="action-col"><span class="status-btn btn-warning-idt">${item.status}</span></td>
-                    <td class="action-col"><button class="btn-idt-fixed btn-blue">Cập nhật</button></td>
-                </tr>
-            `;
-        });
-    });
-});
-</script>
+
+
 
     <!--Global Javascript -->
     <script src="js/jquery.min.js"></script>
@@ -226,6 +133,70 @@ document.addEventListener("DOMContentLoaded", function() {
     
     <!--Core Javascript -->
     <script src="js/mychart.js"></script>
-</body>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetch('../../backend/api/get_my_tickets.php', {credentials:'include'})
+    .then(r => { if(r.status===401){window.location.href='index.php';return null;} return r.json(); })
+    .then(res => {
+        if (!res) return;
+        const tbody = document.getElementById('tech-repair-list');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (!res.success || !res.data || res.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Bạn hiện chưa có công việc nào được giao.</td></tr>';
+            return;
+        }
+        res.data.forEach(item => {
+            let sc='badge-secondary', st='Chờ xử lý';
+            if(item.status==='repairing'){sc='badge-warning'; st='Đang sửa chữa';}
+            if(item.status==='completed'){sc='badge-success'; st='Đã hoàn tất';}
+
+            const bar = parseInt(item.progress)||0;
+            const barColor = bar>=90?'bg-success':bar<30?'bg-danger':'bg-info';
+
+            tbody.innerHTML += `<tr>
+                <td><strong>#TICK-${item.id}</strong></td>
+                <td>${item.device_name??'—'}<br><small class="text-muted">S/N: ${item.serial_number??'—'}</small></td>
+                <td>${item.customer_name??'—'}<br><small class="text-muted">${item.customer_phone??''}</small></td>
+                <td class="align-middle">
+                    <div class="progress idt-progress-bar" style="margin-bottom:3px;">
+                        <div class="progress-bar ${barColor}" style="width:${bar}%;"></div>
+                    </div>
+                    <small class="font-weight-bold">${bar}%</small>
+                </td>
+                <td class="text-center"><span class="badge ${sc} p-2">${st}</span></td>
+                <td class="text-center">
+                    <button class="btn-idt-fixed btn-blue" onclick="updateTicketStatus(${item.id})">
+                        <i class="fa fa-edit"></i> Cập nhật
+                    </button>
+                </td>
+            </tr>`;
+        });
+    }).catch(err => {
+        console.error(err);
+        document.getElementById('tech-repair-list').innerHTML =
+            '<tr><td colspan="6" class="text-center text-danger">Không thể kết nối máy chủ.</td></tr>';
+    });
+});
+
+function updateTicketStatus(ticketId) {
+    const newStatus = prompt('Nhập trạng thái mới:\n- repairing (đang sửa)\n- completed (hoàn tất)\n- cancelled (hủy)');
+    if (!newStatus) return;
+    const allowed = ['repairing','completed','cancelled'];
+    if (!allowed.includes(newStatus)) { alert('Trạng thái không hợp lệ!'); return; }
+
+    fetch('../../backend/api/repair_tickets.php', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: ticketId, status: newStatus})
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) { alert('✅ Cập nhật thành công!'); location.reload(); }
+        else alert('❌ ' + res.error);
+    }).catch(() => alert('Lỗi kết nối!'));
+}
+</script>
+</body>
 </html>

@@ -213,8 +213,11 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
                                     <td class="<?= $date_class ?>"><?= date('d/m/Y', $end_date) ?></td>
                                     <td><span class="badge <?= $badge_class ?> p-2"><?= $status_text ?></span></td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary" onclick="openRepairModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>')">
+                                        <button class="btn btn-sm btn-outline-primary mr-1" onclick="openRepairModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>')">
                                             <i class="fa fa-wrench"></i> Yêu cầu sửa
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" onclick="openWarrantyModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>')">
+                                            <i class="fa fa-refresh"></i> Gia hạn BH
                                         </button>
                                     </td>
                                 </tr>
@@ -227,6 +230,12 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
 
             <div class="tab-pane fade" id="pills-repairs" role="tabpanel">
                 <div class="card card-dashboard p-4 bg-white">
+                    <h3>Tiến độ sửa chữa thiết bị</h3>
+<div class="text-right mb-3">
+<button class="btn btn-success" data-toggle="modal" data-target="#createRepairModal">
+<i class="fa fa-plus"></i> Tạo yêu cầu sửa chữa
+</button>
+</div>
                     <table class="table table-hover mt-2">
                         <thead class="bg-light">
                             <tr>
@@ -437,6 +446,114 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
             </form>
         </div>
     </div>
+</div>
+
+
+<!-- MODAL YÊU CẦU GIA HẠN BẢO HÀNH -->
+<div class="modal fade" id="warrantyRequestModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-refresh text-success"></i> Yêu cầu gia hạn bảo hành</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="warranty_device_id">
+                <div class="form-group">
+                    <label>Thiết bị</label>
+                    <input type="text" id="warranty_device_name" class="form-control" readonly style="background:#e9ecef;font-weight:bold;">
+                </div>
+                <div class="form-group">
+                    <label>Ghi chú (tuỳ chọn)</label>
+                    <textarea id="warranty_note" class="form-control" rows="3"
+                        placeholder="Ví dụ: Muốn gia hạn thêm 1 năm, liên hệ qua SĐT..."></textarea>
+                </div>
+                <div class="alert alert-info py-2">
+                    <i class="fa fa-info-circle"></i> Yêu cầu sẽ được gửi đến bộ phận kỹ thuật, họ sẽ liên hệ lại với bạn sớm.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-success" id="btnGuiGiaHan">
+                    <i class="fa fa-paper-plane"></i> Gửi yêu cầu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openWarrantyModal(deviceId, deviceName) {
+    document.getElementById('warranty_device_id').value = deviceId;
+    document.getElementById('warranty_device_name').value = deviceName;
+    document.getElementById('warranty_note').value = '';
+    $('#warrantyRequestModal').modal('show');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('btnGuiGiaHan').addEventListener('click', function() {
+        const device_id = document.getElementById('warranty_device_id').value;
+        const note = document.getElementById('warranty_note').value.trim();
+
+        fetch('../backend/api/warranty_request.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ device_id: parseInt(device_id), note })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                alert('✅ ' + res.message);
+                $('#warrantyRequestModal').modal('hide');
+            } else {
+                alert('❌ ' + res.error);
+            }
+        })
+        .catch(() => alert('Lỗi kết nối máy chủ!'));
+    });
+});
+</script>
+
+
+<div class="modal fade" id="createRepairModal">
+<div class="modal-dialog">
+<div class="modal-content">
+
+<div class="modal-header">
+<h5 class="modal-title">Tạo yêu cầu sửa chữa</h5>
+<button class="close" data-dismiss="modal">&times;</button>
+</div>
+
+<form action="../backend/api/create_repair_ticket.php" method="POST">
+
+<div class="modal-body">
+
+<div class="form-group">
+<label>Thiết bị</label>
+<select name="device_id" class="form-control" required>
+<option value="1">Dell XPS 15</option>
+<option value="2">Máy in HP Laser</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Mô tả lỗi</label>
+<textarea name="description" class="form-control"
+placeholder="Mô tả lỗi thiết bị..." required></textarea>
+</div>
+
+</div>
+
+<div class="modal-footer">
+<button type="submit" class="btn btn-success">Gửi yêu cầu</button>
+<button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+</div>
+
+</form>
+
+</div>
+</div>
 </div>
 
 </body>
