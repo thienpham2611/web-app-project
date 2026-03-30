@@ -491,15 +491,15 @@ $all_devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_all), MYSQLI_ASSOC)
                 </button>
             </div>
             
-            <form id="repairForm" action="../backend/api/create_repair_ticket.php" method="POST">
+            <form id="repairForm">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Thiết bị cần sửa <span class="text-danger">*</span></label>
                         <select name="device_id" id="modal_device_id" class="form-control" required>
                             <option value="">-- Chọn thiết bị --</option>
-                            <?php foreach ($all_devices as $device): ?>
-                                <option value="<?php echo $device['id']; ?>">
-                                    <?php echo htmlspecialchars($device['name']); ?>
+                            <?php foreach ($devices as $dev): ?>
+                                <option value="<?= htmlspecialchars($dev['id']) ?>">
+                                    <?= htmlspecialchars($dev['name']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -507,14 +507,13 @@ $all_devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_all), MYSQLI_ASSOC)
 
                     <div class="form-group">
                         <label>Mô tả chi tiết lỗi <span class="text-danger">*</span></label>
-                        <textarea name="description" id="modal_description" class="form-control" 
-                                  rows="4" placeholder="Ví dụ: Máy dạo này hay bị màn hình xanh, quạt kêu to..." required></textarea>
+                        <textarea name="description" id="modal_description" class="form-control" rows="4" required></textarea>
                     </div>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                    <button type="submit" id="btnGuiYeuCau" class="btn btn-success">
+                    <button type="button" id="btnSubmitRepair" onclick="submitRepairTicket()" class="btn btn-success">
                         <i class="fa fa-paper-plane"></i> Gửi yêu cầu
                     </button>
                 </div>
@@ -668,6 +667,59 @@ function submitNewDevice() {
         btn.innerHTML = originalText;
     });
 }
+</script>
+<script>
+let isRepairSubmitting = false;
+
+function submitRepairTicket() {
+    if (isRepairSubmitting) return;
+    isRepairSubmitting = true;
+
+    const btn = document.getElementById('btnSubmitRepair');
+    const originalHTML = btn.innerHTML;
+
+    const data = {
+        device_id: document.getElementById('modal_device_id').value,
+        description: document.getElementById('modal_description').value.trim()
+    };
+
+    if (!data.device_id || !data.description) {
+        alert("Vui lòng chọn thiết bị và nhập mô tả lỗi!");
+        isRepairSubmitting = false;
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang gửi...';
+
+    fetch('../backend/api/create_repair_ticket.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(data),
+        credentials: 'same-origin'
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            alert(`✅ Gửi yêu cầu sửa chữa thành công!\n\nMã phiếu: #TICK-${result.ticket_id}`);
+            $('#createRepairModal').modal('hide');
+            location.reload();
+        } else {
+            alert("Lỗi: " + (result.error || "Không xác định"));
+        }
+    })
+    .catch(() => alert("Lỗi kết nối. Vui lòng thử lại."))
+    .finally(() => {
+        isRepairSubmitting = false;
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    });
+}
+
+// Reset trạng thái khi đóng modal
+$('#createRepairModal').on('hidden.bs.modal', function () {
+    isRepairSubmitting = false;
+});
 </script>
 </body>
 </html>
