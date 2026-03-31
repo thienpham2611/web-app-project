@@ -1,0 +1,13 @@
+# XAMPP
+.htaccess
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Log
+*.log
+
+# Config local
+backend/config/database.local.php

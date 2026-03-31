@@ -1,0 +1,125 @@
+.card-idt-main {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    margin-bottom: 30px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.card-header-idt {
+    background: linear-gradient(to left, #41464b, #212529) !important;
+    padding: 15px 20px !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header-idt .title-idt {
+    margin: 0;
+    color: #fff !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-body.no-padding {
+    padding: 0;
+}
+
+.idt-table-report {
+    width: 100% !important;
+    border-collapse: collapse;
+    margin-bottom: 0;
+}
+
+.idt-table-report thead th {
+    background-color: #198754 !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    padding: 12px 15px !important;
+    border: none !important;
+    text-transform: uppercase;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.idt-table-report tbody td {
+    font-size: 15px !important;
+    padding: 15px !important;
+    vertical-align: middle !important;
+    color: #333;
+    border-top: 1px solid #f1f1f1;
+}
+
+.idt-table-report tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.text-status-expired { color: #dc3545; font-weight: bold; } 
+.text-status-warning { color: #ffc107; font-weight: bold; } 
+.text-status-good    { color: #198754; font-weight: bold; }
+
+.idt-progress-bar {
+    height: 8px !important;
+    max-width: 120px;
+    margin: 5px auto !important;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.action-col {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btn-idt-fixed {
+    width: 110px;
+    height: 32px;
+    line-height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #fff !important;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-blue { background-color: #007bff; }
+.btn-blue:hover { background-color: #0056b3; }
+.btn-red  { background-color: #dc3545; }
+.btn-red:hover  { background-color: #a71d2a; }
+
+.status-btn {
+    padding: 4px 10px;
+    display: inline-block;
+    border-radius: 2px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #fff;
+}
+.btn-warning-idt { background-color: #f39c12; }
+.btn-info-idt    { background-color: #00c0ef; }
+
+.idt-table-report select.form-control-sm {
+    width: 140px !important;
+    height: 30px !important;
+    font-size: 13px !important;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin: 0 auto;
+}
+
+.modal-backdrop { z-index: 1040; }
+.modal { z-index: 1050; }
+
+#form-create-employee .form-group, 
+#resetPasswordModal .form-group {
+    margin-bottom: 15px;
+}
