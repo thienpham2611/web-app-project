@@ -30,7 +30,6 @@ function handleGet($conn) {
     if (isset($_GET['id'])) {
         $id = intval($_GET['id']);
 
-        // Lấy order
         $stmt = mysqli_prepare($conn,
             "SELECT o.*, c.name AS customer_name
              FROM orders o
@@ -46,7 +45,6 @@ function handleGet($conn) {
             return;
         }
 
-        // Lấy items
         $stmtI = mysqli_prepare($conn,
             "SELECT oi.*, d.name AS device_name, d.serial_number
              FROM order_items oi
@@ -54,16 +52,12 @@ function handleGet($conn) {
              WHERE oi.order_id = ?");
         mysqli_stmt_bind_param($stmtI, "i", $id);
         mysqli_stmt_execute($stmtI);
-        $resultI = mysqli_stmt_get_result($stmtI);
-        $items = [];
-        while ($row = mysqli_fetch_assoc($resultI)) $items[] = $row;
-        $order['items'] = $items;
+        $order['items'] = mysqli_fetch_all(mysqli_stmt_get_result($stmtI), MYSQLI_ASSOC);
 
         echo json_encode(["success" => true, "data" => $order]);
         return;
     }
 
-    // Danh sách orders
     $where  = [];
     $params = [];
     $types  = '';
@@ -88,22 +82,26 @@ function handleGet($conn) {
     $stmt = mysqli_prepare($conn, $sql);
     if ($types) mysqli_stmt_bind_param($stmt, $types, ...$params);
     mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $data = [];
-    while ($row = mysqli_fetch_assoc($result)) $data[] = $row;
+    $data = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
     echo json_encode(["success" => true, "data" => $data]);
 }
 
 // ──────────────────────────────────────────
-// POST: tạo đơn hàng (kèm items)
+// POST: tạo đơn hàng (kèm items) — chỉ admin/manager
 // ──────────────────────────────────────────
 function handlePost($conn) {
-    $input = json_decode(file_get_contents("php://input"), true) ?? [];
+    // [FIX 1] Staff không được tạo đơn hàng
+    if (!in_array($_SESSION['role'], ['admin', 'manager'])) {
+        http_response_code(403);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
+        return;
+    }
 
-    $customer_id  = intval($input['customer_id'] ?? 0);
-    $order_date   = $input['order_date'] ?? date('Y-m-d');
-    $status       = $input['status'] ?? 'unpaid';
-    $items        = $input['items'] ?? [];   // [{device_id, price, quantity}]
+    $input       = json_decode(file_get_contents("php://input"), true) ?? [];
+    $customer_id = intval($input['customer_id'] ?? 0);
+    $order_date  = $input['order_date'] ?? date('Y-m-d');
+    $status      = $input['status'] ?? 'unpaid';
+    $items       = $input['items'] ?? [];
 
     if ($customer_id <= 0) {
         http_response_code(400);
@@ -117,30 +115,54 @@ function handlePost($conn) {
         return;
     }
 
+    // [FIX 2] Bắt buộc phải có ít nhất 1 item
+    if (empty($items)) {
+        http_response_code(400);
+        echo json_encode(["success" => false, "error" => "Đơn hàng phải có ít nhất 1 sản phẩm"]);
+        return;
+    }
+
+    // [FIX 3] Validate từng item trước khi insert, báo lỗi rõ nếu sai
+    foreach ($items as $index => $item) {
+        $device_id = intval($item['device_id'] ?? 0);
+        $price     = floatval($item['price'] ?? 0);
+        $qty       = intval($item['quantity'] ?? 0);
+
+        if ($device_id <= 0) {
+            http_response_code(400);
+            echo json_encode(["success" => false, "error" => "Sản phẩm #" . ($index + 1) . " thiếu mã thiết bị"]);
+            return;
+        }
+        if ($price <= 0) {
+            http_response_code(400);
+            echo json_encode(["success" => false, "error" => "Sản phẩm #" . ($index + 1) . " giá không hợp lệ"]);
+            return;
+        }
+        if ($qty <= 0) {
+            http_response_code(400);
+            echo json_encode(["success" => false, "error" => "Sản phẩm #" . ($index + 1) . " số lượng không hợp lệ"]);
+            return;
+        }
+    }
+
     // Tính tổng tiền
     $total = 0;
     foreach ($items as $item) {
-        $total += floatval($item['price'] ?? 0) * intval($item['quantity'] ?? 1);
+        $total += floatval($item['price']) * intval($item['quantity']);
     }
 
     mysqli_begin_transaction($conn);
-
     try {
-        // Insert order
         $stmt = mysqli_prepare($conn,
-            "INSERT INTO orders (customer_id, order_date, total_amount, status)
-             VALUES (?, ?, ?, ?)");
+            "INSERT INTO orders (customer_id, order_date, total_amount, status) VALUES (?, ?, ?, ?)");
         mysqli_stmt_bind_param($stmt, "isds", $customer_id, $order_date, $total, $status);
         if (!mysqli_stmt_execute($stmt)) throw new Exception("Tạo đơn hàng thất bại");
         $order_id = mysqli_insert_id($conn);
 
-        // Insert items
         foreach ($items as $item) {
-            $device_id = intval($item['device_id'] ?? 0);
-            $price     = floatval($item['price'] ?? 0);
-            $qty       = intval($item['quantity'] ?? 1);
-
-            if ($device_id <= 0) continue;
+            $device_id = intval($item['device_id']);
+            $price     = floatval($item['price']);
+            $qty       = intval($item['quantity']);
 
             $stmtI = mysqli_prepare($conn,
                 "INSERT INTO order_items (order_id, device_id, price, quantity) VALUES (?, ?, ?, ?)");
@@ -159,11 +181,17 @@ function handlePost($conn) {
 }
 
 // ──────────────────────────────────────────
-// PUT: cập nhật trạng thái / ngày / tổng tiền
+// PUT: cập nhật trạng thái — chỉ admin/manager
 // ──────────────────────────────────────────
 function handlePut($conn) {
-    $input = json_decode(file_get_contents("php://input"), true) ?? [];
+    // [FIX 1] Staff không được sửa đơn hàng
+    if (!in_array($_SESSION['role'], ['admin', 'manager'])) {
+        http_response_code(403);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
+        return;
+    }
 
+    $input  = json_decode(file_get_contents("php://input"), true) ?? [];
     $id     = intval($input['id'] ?? 0);
     $status = $input['status'] ?? null;
 
@@ -183,9 +211,9 @@ function handlePut($conn) {
     $params = [];
     $types  = '';
 
-    if ($status) { $sets[] = "status=?"; $params[] = $status; $types .= 's'; }
+    if ($status)                       { $sets[] = "status=?";       $params[] = $status;                        $types .= 's'; }
     if (isset($input['total_amount'])) { $sets[] = "total_amount=?"; $params[] = floatval($input['total_amount']); $types .= 'd'; }
-    if (isset($input['order_date']))   { $sets[] = "order_date=?";   $params[] = $input['order_date']; $types .= 's'; }
+    if (isset($input['order_date']))   { $sets[] = "order_date=?";   $params[] = $input['order_date'];            $types .= 's'; }
 
     if (!$sets) {
         http_response_code(400);

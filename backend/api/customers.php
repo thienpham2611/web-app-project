@@ -29,7 +29,7 @@ switch ($method) {
 function handleGet($conn) {
     if (isset($_GET['id'])) {
         $id = intval($_GET['id']);
-        $stmt = mysqli_prepare($conn, "SELECT * FROM customers WHERE id = ?");
+        $stmt = mysqli_prepare($conn, "SELECT id, name, phone, email, address, created_at, updated_at FROM customers WHERE id = ?");
         mysqli_stmt_bind_param($stmt, "i", $id);
         mysqli_stmt_execute($stmt);
         $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
@@ -42,33 +42,41 @@ function handleGet($conn) {
         return;
     }
 
-    // Tìm kiếm theo tên / phone
     $search = trim($_GET['search'] ?? '');
     if ($search !== '') {
         $like = "%$search%";
         $stmt = mysqli_prepare($conn,
-            "SELECT * FROM customers WHERE name LIKE ? OR phone LIKE ? OR email LIKE ? ORDER BY id DESC");
+            "SELECT id, name, phone, email, address, created_at, updated_at
+             FROM customers WHERE name LIKE ? OR phone LIKE ? OR email LIKE ? ORDER BY id DESC");
         mysqli_stmt_bind_param($stmt, "sss", $like, $like, $like);
     } else {
-        $stmt = mysqli_prepare($conn, "SELECT * FROM customers ORDER BY id DESC");
+        $stmt = mysqli_prepare($conn,
+            "SELECT id, name, phone, email, address, created_at, updated_at
+             FROM customers ORDER BY id DESC");
     }
 
     mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $data = [];
-    while ($row = mysqli_fetch_assoc($result)) $data[] = $row;
+    $data = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
     echo json_encode(["success" => true, "data" => $data]);
 }
 
 // ──────────────────────────────────────────
-// POST: tạo mới
+// POST: tạo mới — chỉ admin/manager
 // ──────────────────────────────────────────
 function handlePost($conn) {
-    $input = json_decode(file_get_contents("php://input"), true) ?? $_POST;
+    // [FIX 1] Staff không được tạo khách hàng
+    if (!in_array($_SESSION['role'], ['admin', 'manager'])) {
+        http_response_code(403);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
+        return;
+    }
+
+    $input   = json_decode(file_get_contents("php://input"), true) ?? $_POST;
     $name    = trim($input['name'] ?? '');
     $phone   = trim($input['phone'] ?? '');
     $email   = trim($input['email'] ?? '');
     $address = trim($input['address'] ?? '');
+    $password = trim($input['password'] ?? '');
 
     if ($name === '') {
         http_response_code(400);
@@ -76,9 +84,30 @@ function handlePost($conn) {
         return;
     }
 
+    // [FIX 2] Password bắt buộc khi tạo từ nội bộ, hash bcrypt
+    if ($password === '') {
+        http_response_code(400);
+        echo json_encode(["success" => false, "error" => "Mật khẩu là bắt buộc"]);
+        return;
+    }
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    // [FIX 3] Kiểm tra email trùng trước khi INSERT
+    if ($email !== '') {
+        $chk = mysqli_prepare($conn, "SELECT id FROM customers WHERE email = ?");
+        mysqli_stmt_bind_param($chk, "s", $email);
+        mysqli_stmt_execute($chk);
+        mysqli_stmt_store_result($chk);
+        if (mysqli_stmt_num_rows($chk) > 0) {
+            http_response_code(409);
+            echo json_encode(["success" => false, "error" => "Email đã được sử dụng"]);
+            return;
+        }
+    }
+
     $stmt = mysqli_prepare($conn,
-        "INSERT INTO customers (name, phone, email, address) VALUES (?, ?, ?, ?)");
-    mysqli_stmt_bind_param($stmt, "ssss", $name, $phone, $email, $address);
+        "INSERT INTO customers (name, phone, email, password, address) VALUES (?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "sssss", $name, $phone, $email, $hashedPassword, $address);
 
     if (mysqli_stmt_execute($stmt)) {
         http_response_code(201);
@@ -90,10 +119,17 @@ function handlePost($conn) {
 }
 
 // ──────────────────────────────────────────
-// PUT: cập nhật
+// PUT: cập nhật — chỉ admin/manager
 // ──────────────────────────────────────────
 function handlePut($conn) {
-    $input = json_decode(file_get_contents("php://input"), true) ?? [];
+    // [FIX 1] Staff không được sửa khách hàng
+    if (!in_array($_SESSION['role'], ['admin', 'manager'])) {
+        http_response_code(403);
+        echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
+        return;
+    }
+
+    $input   = json_decode(file_get_contents("php://input"), true) ?? [];
     $id      = intval($input['id'] ?? 0);
     $name    = trim($input['name'] ?? '');
     $phone   = trim($input['phone'] ?? '');
@@ -104,6 +140,19 @@ function handlePut($conn) {
         http_response_code(400);
         echo json_encode(["success" => false, "error" => "Dữ liệu không hợp lệ"]);
         return;
+    }
+
+    // [FIX 3] Kiểm tra email trùng với khách hàng KHÁC trước khi UPDATE
+    if ($email !== '') {
+        $chk = mysqli_prepare($conn, "SELECT id FROM customers WHERE email = ? AND id != ?");
+        mysqli_stmt_bind_param($chk, "si", $email, $id);
+        mysqli_stmt_execute($chk);
+        mysqli_stmt_store_result($chk);
+        if (mysqli_stmt_num_rows($chk) > 0) {
+            http_response_code(409);
+            echo json_encode(["success" => false, "error" => "Email đã được sử dụng bởi khách hàng khác"]);
+            return;
+        }
     }
 
     $stmt = mysqli_prepare($conn,
