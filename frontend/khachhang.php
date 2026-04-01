@@ -25,15 +25,6 @@ $stmt_dev = mysqli_prepare($conn, $sql_dev);
 mysqli_stmt_bind_param($stmt_dev, "i", $customerId);
 mysqli_stmt_execute($stmt_dev);
 $devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_dev), MYSQLI_ASSOC);
-// Thêm thiết bị ################ thật sự là chỗ này còn quá lỗi
-$sql_available = "SELECT * FROM devices 
-                  WHERE customer_id IS NULL OR customer_id != ? 
-                  ORDER BY name ASC";
-$stmt_available = mysqli_prepare($conn, $sql_available);
-mysqli_stmt_bind_param($stmt_available, "i", $customerId);
-mysqli_stmt_execute($stmt_available);
-// $available_devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_available), MYSQLI_ASSOC);
-mysqli_stmt_close($stmt_available);
 
 // Lấy danh sách phiếu sửa chữa
 $sql_tick = "SELECT rt.id, rt.description, rt.status, rt.progress, d.name as device_name 
@@ -54,13 +45,6 @@ $stmt_ext = mysqli_prepare($conn, $sql_ext);
 mysqli_stmt_bind_param($stmt_ext, "i", $customerId);
 mysqli_stmt_execute($stmt_ext);
 $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
-
-// laod từ db
-$sql_all_devices = "SELECT id, name FROM devices ORDER BY name ASC";
-$stmt_all = mysqli_prepare($conn, $sql_all_devices);
-mysqli_stmt_execute($stmt_all);
-$all_devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_all), MYSQLI_ASSOC);
-
 ?>
 
 <!DOCTYPE html>
@@ -109,18 +93,26 @@ $all_devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_all), MYSQLI_ASSOC)
                     </a>
                 </li>
                 
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" style="color: #ff9800;">
+                <li class="nav-item dropdown" id="notification-bell">
+                    <a class="nav-link dropdown-toggle position-relative" href="#" data-toggle="dropdown" style="color: #ff9800;">
                         <i class="fa fa-bell"></i>
+                        <span id="notif-badge" class="badge badge-danger"
+                              style="position:absolute;top:2px;left:18px;font-size:10px;padding:2px 5px;display:none;">0</span>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow" style="width:250px;">
-                        <a class="dropdown-item" href="#">Thiết bị của bạn đã sửa xong</a>
-                        <a class="dropdown-item text-muted small" href="#">Xem tất cả thông báo...</a>
+                    <div class="dropdown-menu dropdown-menu-right shadow p-0" style="width:300px;max-height:350px;overflow-y:auto;">
+                        <div class="px-3 py-2 border-bottom bg-light">
+                            <strong><i class="fa fa-bell text-warning"></i> Thông báo</strong>
+                        </div>
+                        <div id="notif-list">
+                            <div class="text-center text-muted py-3">
+                                <i class="fa fa-spinner fa-spin"></i> Đang tải...
+                            </div>
+                        </div>
                     </div>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link text-danger" href="../backend/api/logout_customer.php">
+                    <a class="nav-link text-danger" href="#" onclick="logoutCustomer(); return false;">
                         <i class="fa fa-sign-out"></i> Đăng xuất
                     </a>
                 </li>
@@ -195,9 +187,6 @@ $all_devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_all), MYSQLI_ASSOC)
             
             <div class="tab-pane fade show active" id="pills-devices" role="tabpanel">
                 <div class="card card-dashboard p-4 bg-white">
-                   <button class="btn btn-success mb-3" data-toggle="modal" data-target="#addNewDeviceModal">
-                        <i class="fa fa-plus-circle"></i> Thêm thiết bị mới
-                    </button>
                     <table class="table table-hover mt-2">
                         <thead class="bg-light">
                             <tr>
@@ -249,12 +238,6 @@ $all_devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_all), MYSQLI_ASSOC)
 
             <div class="tab-pane fade" id="pills-repairs" role="tabpanel">
                 <div class="card card-dashboard p-4 bg-white">
-                    <!-- <h3>Tiến độ sửa chữa thiết bị</h3>
-<div class="text-right mb-3">
-<button class="btn btn-success" data-toggle="modal" data-target="#createRepairModal">
-<i class="fa fa-plus"></i> Tạo yêu cầu sửa chữa
-</button>
-</div> -->
                     <table class="table table-hover mt-2">
                         <thead class="bg-light">
                             <tr>
@@ -430,57 +413,58 @@ $all_devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_all), MYSQLI_ASSOC)
 <script src="js/custom.js"></script>
 <script src="js/auth.js"></script>
 
+<script>
+// ==========================================
+// LOAD THONG BAO DONG CHO KHACH HANG
+// ==========================================
+function loadCustomerNotifications() {
+    fetch('../backend/api/notifications_customer.php', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(r => r.json())
+    .then(result => {
+        var list  = document.getElementById('notif-list');
+        var badge = document.getElementById('notif-badge');
 
-<!-- thêm thiết bị mới -->
-<div class="modal fade" id="addNewDeviceModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">Thêm thiết bị mới</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            
-            <div class="modal-body">
-                <form id="addDeviceForm">
-                    <div class="form-group">
-                        <label>Tên thiết bị / Phần mềm <span class="text-danger">*</span></label>
-                        <input type="text" id="device_name" class="form-control" placeholder="Ví dụ: MacBook Pro M3" required>
-                    </div>
+        if (!result.success || result.data.length === 0) {
+            list.innerHTML = '<div class="text-center text-muted py-3 small">Kh\u00f4ng c\u00f3 th\u00f4ng b\u00e1o n\u00e0o</div>';
+            badge.style.display = 'none';
+            return;
+        }
 
-                    <div class="form-group">
-                        <label>Số serial (S/N) <span class="text-danger">*</span></label>
-                        <input type="text" id="serial_number" class="form-control" placeholder="SN123456789 hoặc MAC-IDT-001" required>
-                    </div>
+        badge.textContent   = result.count > 9 ? '9+' : result.count;
+        badge.style.display = 'inline-block';
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Ngày mua</label>
-                                <input type="date" id="warranty_start_date" class="form-control">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Hạn bảo hành (số ngày)</label>
-                                <input type="number" id="warranty_period" class="form-control" placeholder="365" min="1">
-                            </div>
-                        </div>
-                        </div>
-                </form>
-            </div>
+        var html = '';
+        result.data.forEach(function(n) {
+            var timeHtml = n.time ? '<br><small class="text-muted">' + formatNotifTime(n.time) + '</small>' : '';
+            html += '<a class="dropdown-item py-2 border-bottom" href="' + n.link + '" style="white-space:normal;font-size:13px;">'
+                  + n.message + timeHtml + '</a>';
+        });
+        list.innerHTML = html;
+    })
+    .catch(function() {
+        document.getElementById('notif-list').innerHTML =
+            '<div class="text-center text-danger py-3 small">Kh\u00f4ng th\u1ec3 t\u1ea3i th\u00f4ng b\u00e1o</div>';
+    });
+}
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                <button type="button" id="btnAddDevice" onclick="submitNewDevice()" class="btn btn-success">
-                    <i class="fa fa-save"></i> Thêm thiết bị
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- tạo yêu cầu sữa chữa-->
+function formatNotifTime(datetime) {
+    var d = new Date(datetime);
+    return d.toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadCustomerNotifications();
+
+    var bell = document.getElementById('notification-bell');
+    if (bell) {
+        bell.addEventListener('show.bs.dropdown', loadCustomerNotifications);
+    }
+});
+</script>
+
 <div class="modal fade" id="createRepairModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -493,27 +477,23 @@ $all_devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_all), MYSQLI_ASSOC)
             
             <form id="repairForm">
                 <div class="modal-body">
+                    <input type="hidden" id="modal_device_id" name="device_id">
+
                     <div class="form-group">
-                        <label>Thiết bị cần sửa <span class="text-danger">*</span></label>
-                        <select name="device_id" id="modal_device_id" class="form-control" required>
-                            <option value="">-- Chọn thiết bị --</option>
-                            <?php foreach ($devices as $dev): ?>
-                                <option value="<?= htmlspecialchars($dev['id']) ?>">
-                                    <?= htmlspecialchars($dev['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label>Thiết bị cần sửa</label>
+                        <input type="text" id="modal_device_name" class="form-control" readonly style="background-color: #e9ecef; font-weight: bold;">
                     </div>
 
                     <div class="form-group">
                         <label>Mô tả chi tiết lỗi <span class="text-danger">*</span></label>
-                        <textarea name="description" id="modal_description" class="form-control" rows="4" required></textarea>
+                        <textarea name="description" id="modal_description" class="form-control" 
+                                  rows="4" placeholder="Ví dụ: Máy dạo này hay bị màn hình xanh, quạt kêu to..." required></textarea>
                     </div>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                    <button type="button" id="btnSubmitRepair" onclick="submitRepairTicket()" class="btn btn-success">
+                    <button type="button" id="btnGuiYeuCau" class="btn btn-success">
                         <i class="fa fa-paper-plane"></i> Gửi yêu cầu
                     </button>
                 </div>
@@ -586,139 +566,6 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(() => alert('Lỗi kết nối máy chủ!'));
     });
-});
-</script>
-<script>
-function claimDevice(deviceId) {
-    if (!confirm('Bạn có chắc muốn thêm thiết bị này vào danh sách của mình không?')) return;
-
-    fetch('../backend/api/claim_my_device.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'device_id=' + deviceId
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message || 'Thiết bị đã được thêm thành công!');
-            $('#addMyDeviceModal').modal('hide');
-            location.reload(); // Tải lại trang để cập nhật danh sách thiết bị
-        } else {
-            alert('Lỗi: ' + (data.error || 'Không thể thêm thiết bị'));
-        }
-    })
-    .catch(() => alert('Lỗi kết nối với server'));
-}
-</script>
-<script>
-function submitNewDevice() {
-    const btn = document.getElementById('btnAddDevice');
-    const originalText = btn.innerHTML;
-
-    const data = {
-        name: document.getElementById('device_name').value.trim(),
-        serial_number: document.getElementById('serial_number').value.trim(),
-        warranty_start_date: document.getElementById('warranty_start_date').value || null,
-        warranty_period: parseInt(document.getElementById('warranty_period').value) || 0,
-    };
-
-    if (!data.name || !data.serial_number) {
-        alert('Vui lòng nhập Tên thiết bị và Số serial (S/N)!');
-        return;
-    }
-
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang thêm...';
-
-    // ĐƯỜNG DẪN ĐÚNG NHẤT (từ frontend/ lên backend/)
-    fetch('../backend/api/add_new_device.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams(data),
-        credentials: 'same-origin'
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Server lỗi: ' + response.status + ' - Kiểm tra đường dẫn');
-        }
-        return response.text();   // Dùng .text() trước để debug dễ hơn
-    })
-    .then(text => {
-        console.log("Raw response:", text);   // ← Xem trong Console F12
-        return JSON.parse(text);
-    })
-    .then(result => {
-        if (result.success) {
-            alert(result.message || 'Thiết bị đã được thêm thành công!');
-            $('#addNewDeviceModal').modal('hide');
-            location.reload();
-        } else {
-            alert('Lỗi: ' + (result.error || 'Không xác định'));
-        }
-    })
-    .catch(err => {
-        console.error("Fetch Error:", err);
-        alert('Lỗi kết nối');
-    })
-    .finally(() => {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-    });
-}
-</script>
-<script>
-let isRepairSubmitting = false;
-
-function submitRepairTicket() {
-    if (isRepairSubmitting) return;
-    isRepairSubmitting = true;
-
-    const btn = document.getElementById('btnSubmitRepair');
-    const originalHTML = btn.innerHTML;
-
-    const data = {
-        device_id: document.getElementById('modal_device_id').value,
-        description: document.getElementById('modal_description').value.trim()
-    };
-
-    if (!data.device_id || !data.description) {
-        alert("Vui lòng chọn thiết bị và nhập mô tả lỗi!");
-        isRepairSubmitting = false;
-        return;
-    }
-
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang gửi...';
-
-    fetch('../backend/api/create_repair_ticket.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(data),
-        credentials: 'same-origin'
-    })
-    .then(r => r.json())
-    .then(result => {
-        if (result.success) {
-            alert(`✅ Gửi yêu cầu sửa chữa thành công!\n\nMã phiếu: #TICK-${result.ticket_id}`);
-            $('#createRepairModal').modal('hide');
-            location.reload();
-        } else {
-            alert("Lỗi: " + (result.error || "Không xác định"));
-        }
-    })
-    .catch(() => alert("Lỗi kết nối. Vui lòng thử lại."))
-    .finally(() => {
-        isRepairSubmitting = false;
-        btn.disabled = false;
-        btn.innerHTML = originalHTML;
-    });
-}
-
-// Reset trạng thái khi đóng modal
-$('#createRepairModal').on('hidden.bs.modal', function () {
-    isRepairSubmitting = false;
 });
 </script>
 </body>
