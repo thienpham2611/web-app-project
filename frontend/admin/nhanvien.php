@@ -1,10 +1,12 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['role'])) {
+// [FIX] Whitelist: chỉ cho phép nhân viên nội bộ (staff), chặn customer và role lạ
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     header("Location: index.php");
     exit();
 }
+
 if ($_SESSION['role'] === 'admin') {
     header("Location: admin.php");
     exit();
@@ -13,7 +15,12 @@ if ($_SESSION['role'] === 'manager') {
     header("Location: quanly.php");
     exit();
 }
-?>
+
+// [FIX] Chặn customer và bất kỳ role nào không phải staff
+if ($_SESSION['role'] !== 'staff') {
+    header("Location: index.php");
+    exit();
+}
 <!DOCTYPE html>
 <html>
 
