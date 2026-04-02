@@ -1,9 +1,9 @@
 /**
- * manager_actions.js - Quản lý tập trung toàn bộ logic trang Manager (Quản lý)
+ * manager_actions.js - Logic trang Manager
+ * [FIX] Đổi $.ajax (gửi form-data) sang fetch JSON để đồng bộ với assign_ticket.php
  */
 
 function assignTicket(ticketId) {
-    // Lấy ID của nhân viên được chọn trong dropdown
     var staffId = $('#staff_assign_' + ticketId).val();
 
     if (!staffId) {
@@ -11,30 +11,27 @@ function assignTicket(ticketId) {
         return;
     }
 
-    if (confirm("Xác nhận giao phiếu #TICK-" + ticketId + " cho kỹ thuật viên này?")) {
-        $.ajax({
-            url: '../../backend/api/assign_ticket.php',
-            type: 'POST',
-            data: {
-                ticket_id: ticketId,
-                staff_id: staffId
-            },
-            success: function(response) {
-                try {
-                    var res = (typeof response === 'string') ? JSON.parse(response) : response;
-                    if (res.success) {
-                        alert(res.message);
-                        location.reload();
-                    } else {
-                        alert("Lỗi: " + (res.error || "Không xác định"));
-                    }
-                } catch(e) {
-                    alert("Lỗi xử lý phản hồi từ máy chủ.");
-                }
-            },
-            error: function() {
-                alert("Không kết nối được với máy chủ.");
-            }
-        });
-    }
+    if (!confirm("Xác nhận giao phiếu #TICK-" + ticketId + " cho kỹ thuật viên này?")) return;
+
+    var btn = event.currentTarget;
+    var originalHTML = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>'; }
+
+    fetch('../../backend/api/assign_ticket.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ticket_id: parseInt(ticketId), staff_id: parseInt(staffId) })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            alert(res.message);
+            location.reload();
+        } else {
+            alert("Lỗi: " + (res.error || "Không xác định"));
+        }
+    })
+    .catch(() => alert("Không kết nối được với máy chủ."))
+    .finally(() => { if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; } });
 }
