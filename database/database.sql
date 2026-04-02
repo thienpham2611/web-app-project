@@ -333,3 +333,39 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- ==================== BẢNG ĐƠN HÀNG (Orders) ====================
+CREATE TABLE `orders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `repair_ticket_id` int(11) DEFAULT NULL,
+  `customer_id` int(11) NOT NULL,
+  `device_id` int(11) DEFAULT NULL,
+  `quote_amount` decimal(12,2) NOT NULL DEFAULT 0.00,     -- Báo giá sửa chữa
+  `total_amount` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `status` enum('pending','quoted','confirmed','paid','cancelled') DEFAULT 'pending',
+  `payment_method` varchar(50) DEFAULT NULL,
+  `payment_date` date DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_order_repair` (`repair_ticket_id`),
+  KEY `fk_order_customer` (`customer_id`),
+  KEY `fk_order_device` (`device_id`),
+  CONSTRAINT `fk_order_repair` FOREIGN KEY (`repair_ticket_id`) REFERENCES `repair_tickets` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_order_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`),
+  CONSTRAINT `fk_order_device` FOREIGN KEY (`device_id`) REFERENCES `devices` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ==================== BẢNG HÓA ĐƠN (Invoices) ====================
+CREATE TABLE `invoices` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_id` int(11) NOT NULL,
+  `invoice_number` varchar(50) NOT NULL,
+  `total` decimal(12,2) NOT NULL,
+  `payment_status` enum('unpaid','paid') DEFAULT 'unpaid',
+  `printed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `invoice_number` (`invoice_number`),
+  KEY `fk_invoice_order` (`order_id`),
+  CONSTRAINT `fk_invoice_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
