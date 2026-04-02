@@ -363,9 +363,9 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                     <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#modalBaoGia">
                         <i class="fas fa-file-invoice"></i> Lên báo giá sửa chữa
                     </button>
-                    <button type="button" class="btn btn-info me-2" data-bs-toggle="modal" data-bs-target="#modalTaoDonHang">
+                    <!-- <button type="button" class="btn btn-info me-2" data-bs-toggle="modal" data-bs-target="#modalTaoDonHang">
                         <i class="fas fa-cart-plus"></i> Tạo Đơn hàng (Order)
-                    </button>
+                    </button>  Chỗ này chưa có ý tưởng sẽ xài vào việc gì, ai có ý tưởng nhắn cho @Đình tú đẹp trai siêu cấp vũ trụ nhé-->
                 </div>
             </div>
             <div class="card-body no-padding">
