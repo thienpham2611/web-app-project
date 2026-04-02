@@ -1,18 +1,24 @@
 <?php
 session_start();
-if (!isset($_SESSION['role'])) {
+
+// [FIX] Whitelist: chỉ cho phép role === 'admin', chặn tất cả role khác kể cả customer
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     header("Location: index.php");
     exit();
 }
-if ($_SESSION['role'] === 'manager') {
-    header("Location: quanly.php");
+
+if ($_SESSION['role'] !== 'admin') {
+    // Redirect đúng trang theo role thay vì để lọt qua
+    if ($_SESSION['role'] === 'manager') {
+        header("Location: quanly.php");
+    } elseif ($_SESSION['role'] === 'staff') {
+        header("Location: nhanvien.php");
+    } else {
+        // customer hoặc role lạ → về trang chủ
+        header("Location: index.php");
+    }
     exit();
 }
-if ($_SESSION['role'] === 'staff') {
-    header("Location: nhanvien.php");
-    exit();
-}
-// Nếu lọt qua hết các lệnh trên, nghĩa là role === 'admin', cho phép tải trang
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -72,6 +78,43 @@ if ($_SESSION['role'] === 'staff') {
                 </div>
             </div>
             <hr>
+<ul class="list-unstyled" style="padding: 10px;">
+    <li class="mb-2">
+        <a href="admin.php" class="text-white d-block py-1">
+            <i class="fa fa-dashboard fa-fw"></i> Dashboard
+        </a>
+    </li>
+    <li class="mb-2">
+        <a href="quanly.php" class="text-white d-block py-1">
+            <i class="fa fa-cogs fa-fw"></i> Quản lý
+        </a>
+    </li>
+    <li class="mb-2">
+        <a href="tables.php" class="text-white d-block py-1">
+            <i class="fa fa-table fa-fw"></i> Bảng dữ liệu
+        </a>
+    </li>
+    <li class="mb-2">
+        <a href="invoice.php" class="text-white d-block py-1">
+            <i class="fa fa-file-text fa-fw"></i> Hóa đơn
+        </a>
+    </li>
+    <li class="mb-2">
+        <a href="email.php" class="text-white d-block py-1">
+            <i class="fa fa-envelope fa-fw"></i> Email
+        </a>
+    </li>
+    <li class="mb-2">
+        <a href="profile.php" class="text-white d-block py-1">
+            <i class="fa fa-user fa-fw"></i> Hồ sơ
+        </a>
+    </li>
+    <li class="mb-2">
+        <a href="nhanvien.php" class="text-white d-block py-1">
+            <i class="fa fa-wrench fa-fw"></i> Nhân viên
+        </a>
+    </li>
+</ul>
             </nav>
 
         <div class="content-inner">
@@ -247,7 +290,7 @@ if ($_SESSION['role'] === 'staff') {
 
 <!-- MODAL XEM CHI TIẾT THIẾT BỊ -->
 <div class="modal fade" id="deviceDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document" style="margin-top: 60px; max-height: calc(100vh - 100px);">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="detail-modal-title">Chi tiết thiết bị</h5>
