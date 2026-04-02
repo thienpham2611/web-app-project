@@ -51,6 +51,24 @@ $ongoing_tickets = mysqli_fetch_all($result_ongoing, MYSQLI_ASSOC);
 $sql_staff = "SELECT id, name FROM users WHERE role = 'staff'";
 $result_staff = mysqli_query($conn, $sql_staff);
 $staff_list = mysqli_fetch_all($result_staff, MYSQLI_ASSOC);
+$sql_invoices = "SELECT 
+                    i.id AS invoice_id,
+                    o.id AS order_id,
+                    i.invoice_number,
+                    i.total,
+                    i.payment_status,
+                    i.created_at,
+                    c.name AS customer_name,
+                    c.phone,
+                    d.name AS device_name
+                 FROM invoices i
+                 RIGHT JOIN orders o ON i.order_id = o.id
+                 JOIN customers c ON o.customer_id = c.id
+                 LEFT JOIN devices d ON o.device_id = d.id
+                 ORDER BY i.created_at DESC";
+
+$result_invoices = mysqli_query($conn, $sql_invoices);
+$invoices_list = mysqli_fetch_all($result_invoices, MYSQLI_ASSOC);
 
 // Label hiển thị role
 $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân viên'];
@@ -70,6 +88,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
     <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
     <link rel="stylesheet" href="css/ui-elements/card.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
 </head>
 
 <body>
@@ -233,6 +252,9 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                     <div class="card card-idt-main">
                         <div class="card-header-idt">
                             <h4 class="title-idt"><i class="fa fa-laptop"></i> HỆ THỐNG QUẢN LÝ THIẾT BỊ & BẢO HÀNH</h4>
+                            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalDevice">
+                                <i class="fas fa-plus" aria-hidden="true"></i> Thêm mới thiết bị
+                            </button>
                         </div>
                         <div class="card-body no-padding">
                             <div class="table-responsive">
@@ -275,6 +297,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                     </div>
                 </div>
             </div>
+    
 
             <!-- BẢNG 3: Theo dõi tiến độ sửa chữa -->
             <div class="row" id="report3">
@@ -328,6 +351,78 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                 </div>
             </div>
 
+            <!-- Bảng 4: tạo hóa đơn và lên đơn-->
+            <div class="row" id="report4">
+    <div class="col-md-12">
+        <div class="card card-idt-main">
+            <div class="card-header-idt d-flex justify-content-between align-items-center">
+                <h4 class="title-idt mb-0">
+                    <i class="fa fa-file-text"></i> QUẢN LÝ HÓA ĐƠN
+                </h4>
+                <div>
+                    <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#modalBaoGia">
+                        <i class="fas fa-file-invoice"></i> Lên báo giá sửa chữa
+                    </button>
+                    <button type="button" class="btn btn-info me-2" data-bs-toggle="modal" data-bs-target="#modalTaoDonHang">
+                        <i class="fas fa-cart-plus"></i> Tạo Đơn hàng (Order)
+                    </button>
+                </div>
+            </div>
+            <div class="card-body no-padding">
+                <div class="table-responsive">
+                    <table class="table idt-table-report table-hover">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Số Hóa Đơn</th>
+                                <th class="text-center">Khách hàng (SĐT)</th>
+                                <th class="text-center">Thiết bị / Dịch vụ</th>
+                                <th class="text-center">Tổng tiền</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th class="text-center">Ngày tạo</th>
+                                <th class="text-center">Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($invoices_list)): ?>
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        Chưa có đơn hàng / hóa đơn nào. Hãy tạo đơn hàng trước.
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($invoices_list as $inv): 
+                                    $status_class = ($inv['payment_status'] === 'paid') ? 'text-success' : 'text-warning';
+                                    $status_text  = ($inv['payment_status'] === 'paid') ? 'Đã thanh toán' : 'Chưa thanh toán';
+                                ?>
+                                <tr>
+                                    <td class="text-center"><strong><?= htmlspecialchars($inv['invoice_number'] ?? 'CHƯA CÓ HĐ') ?></strong></td>
+                                    <td class="text-center">
+                                        <?= htmlspecialchars($inv['customer_name']) ?><br>
+                                        <small class="text-muted"><i class="fa fa-phone"></i> <?= htmlspecialchars($inv['phone'] ?? '—') ?></small>
+                                    </td>
+                                    <td class="text-center"><?= htmlspecialchars($inv['device_name'] ?? 'Sửa chữa') ?></td>
+                                    <td class="text-center"><?= number_format($inv['total'] ?? 0, 0) ?> ₫</td>
+                                    <td class="text-center"><span class="<?= $status_class ?>"><?= $status_text ?></span></td>
+                                    <td class="text-center"><?= date('d/m/Y H:i', strtotime($inv['created_at'])) ?></td>
+                                    <td class="text-center action-col">
+                                        <!-- IN BẰNG ORDER ID -->
+                                        <a href="../../backend/api/print_invoice.php?order_id=<?= $inv['order_id'] ?>" 
+                                        target="_blank" 
+                                        class="btn btn-success btn-sm">
+                                            <i class="fa fa-print"></i> In
+                                        </a>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
         </div><!-- end content-inner -->
     </div><!-- end page-content -->
 </div><!-- end page -->
@@ -349,6 +444,61 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalDevice" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalTitle">Thêm mới thiết bị</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formDevice">
+                    <input type="hidden" id="device_id">
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Mã thiết bị (S/N) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="serial_number" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tên mặt hàng <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Khách hàng <span class="text-danger">*</span></label>
+                            <select class="form-select" id="customer_id" required></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ngày hết hạn bảo hành</label>
+                            <input type="date" class="form-control" id="warranty_end_date">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Loại thiết bị</label>
+                            <select class="form-select" id="type">
+                                <option value="hardware">Hardware</option>
+                                <option value="software">Software</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tình trạng</label>
+                            <select class="form-select" id="status">
+                                <option value="active">Đang bảo hành</option>
+                                <option value="expired">Đã hết hạn</option>
+                                <option value="repairing">Đang sửa chữa</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnSaveDevice">💾 Lưu thiết bị</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Scripts — đồng bộ path với admin.php -->
 <script src="../js/jquery/jquery.min.js"></script>
@@ -356,6 +506,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
 <script src="../js/bootstrap/bootstrap.min.js"></script>
 <script src="../js/front.js"></script>
 <script src="js/manager_actions.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 function viewDeviceDetail(id) {
@@ -456,6 +607,207 @@ function assignTicket(ticketId) {
 }
 <?php endif; ?>
 </script>
+<script>
+$(document).ready(function() {
+    // Mở modal → load danh sách khách hàng
+    $('#modalDevice').on('show.bs.modal', function(e) {
+        loadCustomers();
+        const button = $(e.relatedTarget);
+        if (button.data('id')) {
+            // Chế độ Edit
+            loadDeviceData(button.data('id'));
+        } else {
+            // Chế độ Add new
+            $('#modalTitle').text('Thêm mới thiết bị');
+            $('#formDevice')[0].reset();
+            $('#device_id').val('');
+        }
+    });
+
+    function loadCustomers() {
+        $.get('../../backend/api/get_customers.php', function(data) {
+            let html = '<option value="">-- Chọn khách hàng --</option>';
+            data.forEach(c => {
+                html += `<option value="${c.id}">${c.name} (${c.phone || 'Chưa có SĐT'})</option>`;
+            });
+            $('#customer_id').html(html);
+        });
+    }
+
+    function loadDeviceData(id) {
+        $.get('../../backend/api/get_device.php?id=' + id, function(device) {
+            $('#modalTitle').text('Chỉnh sửa thiết bị #' + device.serial_number);
+            $('#device_id').val(device.id);
+            $('#serial_number').val(device.serial_number);
+            $('#name').val(device.name);
+            $('#customer_id').val(device.customer_id);
+            $('#warranty_end_date').val(device.warranty_end_date);
+            $('#type').val(device.type);
+            $('#status').val(device.status);
+        });
+    }
+
+    // Lưu thiết bị (Add & Edit cùng 1 API)
+    $('#btnSaveDevice').click(function() {
+        $.post('../../backend/api/save_device.php', {
+            id: $('#device_id').val(),
+            serial_number: $('#serial_number').val().trim(),
+            name: $('#name').val().trim(),
+            customer_id: $('#customer_id').val(),
+            warranty_end_date: $('#warranty_end_date').val(),
+            type: $('#type').val(),
+            status: $('#status').val()
+        }, function(res) {
+            if (res.success) {
+                alert(res.message);
+                $('#modalDevice').modal('hide');
+                location.reload(); // Hoặc reload DataTable nếu bạn dùng
+            } else {
+                alert('Lỗi: ' + res.message);
+            }
+        }, 'json');
+    });
+});
+</script>
+<!-- MODAL LÊN BÁO GIÁ SỬA CHỮA -->
+<div class="modal fade" id="modalBaoGia" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">Lên báo giá sửa chữa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formBaoGia">
+                    <div class="mb-3">
+                        <label class="form-label">Phiếu sửa chữa</label>
+                        <select class="form-select" id="repair_ticket_id" required></select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Báo giá (VND) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="quote_amount" step="1000" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea class="form-control" id="note_quote" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning" id="btnLuuBaoGia">Lưu báo giá</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL TẠO ĐƠN HÀNG -->
+<div class="modal fade" id="modalTaoDonHang" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Tạo Đơn hàng mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formDonHang">
+                    <input type="hidden" id="order_id">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label>Khách hàng</label>
+                            <select class="form-select" id="customer_id_order" required></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Thiết bị / Phiếu sửa</label>
+                            <select class="form-select" id="repair_ticket_id_order"></select>
+                        </div>
+                        <div class="col-12">
+                            <label>Tổng tiền (VND)</label>
+                            <input type="number" class="form-control" id="total_amount" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-info" id="btnTaoDonHang">Tạo đơn hàng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JAVASCRIPT TÀI CHÍNH (Manager) -->
+<script>
+$(document).ready(function() {
+
+    // Load danh sách khi mở modal
+    $('#modalBaoGia, #modalTaoDonHang').on('show.bs.modal', function() {
+        loadRepairTickets();
+        loadCustomersForOrder();
+    });
+
+    function loadRepairTickets() {
+        $.get('../../backend/api/get_repair_tickets.php', function(data) {
+            let html = '<option value="">-- Chọn phiếu sửa chữa --</option>';
+            data.forEach(t => {
+                html += `<option value="${t.id}">Phiếu #${t.id} - ${t.description.substring(0,30)}...</option>`;
+            });
+            $('#repair_ticket_id, #repair_ticket_id_order').html(html);
+        });
+    }
+
+    function loadCustomersForOrder() {
+        $.get('../../backend/api/get_customers.php', function(data) {
+            let html = '<option value="">-- Chọn khách hàng --</option>';
+            data.forEach(c => {
+                html += `<option value="${c.id}">${c.name} (${c.phone})</option>`;
+            });
+            $('#customer_id_order').html(html);
+        });
+    }
+
+    // Lưu báo giá
+    $('#btnLuuBaoGia').click(function() {
+        $.post('../../backend/api/save_quote.php', {
+            repair_ticket_id: $('#repair_ticket_id').val(),
+            quote_amount: $('#quote_amount').val(),
+            note: $('#note_quote').val()
+        }, function(res) {
+            if (res.success) {
+                alert(res.message);
+                $('#modalBaoGia').modal('hide');
+                location.reload();
+            } else alert(res.message || 'Lỗi');
+        }, 'json');
+    });
+
+    // Tạo đơn hàng
+    $('#btnTaoDonHang').click(function() {
+        $.post('../../backend/api/save_order.php', {
+            repair_ticket_id: $('#repair_ticket_id_order').val(),
+            customer_id: $('#customer_id_order').val(),
+            total_amount: $('#total_amount').val()
+        }, function(res) {
+            if (res.success) {
+                alert(res.message);
+                $('#modalTaoDonHang').modal('hide');
+                location.reload();
+            } else alert(res.message || 'Lỗi');
+        }, 'json');
+    });
+
+    // In hóa đơn (demo – sẽ hoàn thiện thêm sau)
+    window.xuatHoaDon = function() {
+        alert('✅ Đang in hóa đơn... (Manager đã xác nhận thanh toán)\n\nHóa đơn mẫu sẽ mở trong tab mới.');
+        // Sau này sẽ gọi API in PDF
+        window.open('../../backend/api/print_invoice.php', '_blank');
+    };
+});
+</script>
+
+
 
 </body>
 </html>
