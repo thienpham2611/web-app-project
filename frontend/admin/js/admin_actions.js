@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     loadRepairProgress();
 
     // Tự động kiểm tra bảo hành sắp hết hạn
-    fetch('../../backend/api/check_warranty_expiry.php')
+    fetch('../../backend/api/check_warranty_expiry.php', { credentials: 'include' })
         .then(r => r.json())
         .then(r => { if (r.notified > 0) console.log('Tạo ' + r.notified + ' thông báo BH.'); })
         .catch(() => {});
@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
             fetch('../../backend/api/create_user.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({
                     name:     document.getElementById('emp_name').value.trim(),
                     email:    document.getElementById('emp_email').value.trim(),
@@ -45,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
             fetch('../../backend/api/reset_password.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({
                     id:           document.getElementById('reset_emp_id').value,
                     new_password: document.getElementById('reset_new_password').value.trim()
@@ -61,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function loadEmployeeList() {
-    fetch('../../backend/api/get_users.php')
+    fetch('../../backend/api/get_users.php', { credentials: 'include' })
     .then(r => r.json())
     .then(res => {
         const tbody = document.getElementById('admin-user-list');
@@ -88,7 +90,7 @@ function loadEmployeeList() {
 }
 
 function loadWarrantyList() {
-    fetch('../../backend/api/devices.php')
+    fetch('../../backend/api/devices.php', { credentials: 'include' })
     .then(r => { if (r.status===401) return null; return r.json(); })
     .then(res => {
         if (!res) return;
@@ -118,7 +120,7 @@ function loadWarrantyList() {
 }
 
 function loadRepairProgress() {
-    fetch('../../backend/api/repair_tickets.php')
+    fetch('../../backend/api/repair_tickets.php', { credentials: 'include' })
     .then(r => { if (r.status===401) return null; return r.json(); })
     .then(res => {
         if (!res) return;
@@ -151,7 +153,7 @@ function loadRepairProgress() {
 }
 
 function viewDeviceDetail(id) {
-    fetch('../../backend/api/get_device_detail.php?id=' + id)
+    fetch('../../backend/api/get_device_detail.php?id=' + id, { credentials: 'include' })
     .then(r => r.json())
     .then(res => {
         if (!res.success) { alert('Lỗi: ' + res.error); return; }
@@ -206,7 +208,7 @@ function openAssignModal(ticketId, label) {
     document.getElementById('assign_ticket_label').innerText = label;
     const sel = document.getElementById('assign_staff_id');
     sel.innerHTML = '<option value="">-- Đang tải... --</option>';
-    fetch('../../backend/api/get_users.php').then(r=>r.json()).then(res=>{
+    fetch('../../backend/api/get_users.php', { credentials: 'include' }).then(r=>r.json()).then(res=>{
         sel.innerHTML = '<option value="">-- Chọn kỹ thuật viên --</option>';
         (res.data||[]).filter(u=>u.role==='staff'||u.role==='manager')
             .forEach(u=>{ sel.innerHTML+=`<option value="${u.id}">${u.name} (${u.role==='manager'?'Quản lý':'KTV'})</option>`; });
@@ -220,6 +222,7 @@ function submitAssign() {
     if (!staffId) { alert('Vui lòng chọn kỹ thuật viên!'); return; }
     fetch('../../backend/api/assign_ticket.php', {
         method:'POST', headers:{'Content-Type':'application/json'},
+        credentials: 'include',
         body: JSON.stringify({ticket_id:parseInt(ticketId), staff_id:parseInt(staffId)})
     }).then(r=>r.json()).then(res=>{
         if (res.success) { alert('✅ '+res.message); $('#assignStaffModal').modal('hide'); loadRepairProgress(); }
@@ -238,6 +241,7 @@ function deleteUser(id, name) {
     if (!confirm('Xóa tài khoản ['+name+']?')) return;
     fetch('../../backend/api/delete_user.php', {
         method:'POST', headers:{'Content-Type':'application/json'},
+        credentials: 'include',
         body: JSON.stringify({id})
     }).then(r=>r.json()).then(res=>{
         if (res.success) { alert('✅ Đã xóa ['+name+']'); loadEmployeeList(); }
