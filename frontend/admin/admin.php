@@ -57,7 +57,7 @@ if ($_SESSION['role'] !== 'admin') {
                                 Xin chào, <strong><?php echo isset($_SESSION['name']) ? $_SESSION['name'] : strtoupper($_SESSION['role']); ?></strong>
                             </li>
                             <li class="nav-item">
-                                <a href="../../backend/api/logout.php" class="nav-link text-danger font-weight-bold" style="padding: 0;">
+                                <a href="#" id="logoutBtn" class="nav-link text-danger font-weight-bold" style="padding: 0;">
                                     <i class="fa fa-sign-out"></i> Đăng xuất
                                 </a>
                             </li>
@@ -67,6 +67,23 @@ if ($_SESSION['role'] !== 'admin') {
             </div>
         </nav>
     </header>
+    <script>
+document.getElementById("logoutBtn").addEventListener("click", function(e) {
+    e.preventDefault();
+
+    fetch("../../backend/api/logout.php")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message); 
+                window.location.href = "../../frontend/admin/index.php"; 
+            } else {
+                alert("Logout thất bại!");
+            }
+        })
+        .catch(err => console.error(err));
+});
+</script>
 
     <div class="page-content d-flex align-items-stretch">
 
