@@ -1,45 +1,54 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'manager') {
-    http_response_code(401);
-    echo json_encode(["success" => false, "error" => "Chưa đăng nhập hoặc không có quyền Manager"]);
+header("Content-Type: application/json; charset=UTF-8");
+require_once "../config/database.php";
+
+$data = json_decode(file_get_contents("php://input"), true);
+
+$repair_ticket_id = intval($data['repair_ticket_id'] ?? 0);
+$quote_amount     = floatval($data['quote_amount'] ?? 0);
+$note             = $data['note'] ?? '';
+
+if (!$repair_ticket_id || !$quote_amount) {
+    echo json_encode(["success" => false, "message" => "Thiếu dữ liệu"]);
     exit;
 }
 
-require_once __DIR__ . '/../config/database.php';
+// 1. Lưu vào bảng quotes
+$sql_quote = "INSERT INTO quotes (repair_ticket_id, quote_amount, note, created_at)
+              VALUES ($repair_ticket_id, $quote_amount, '$note', NOW())";
+mysqli_query($conn, $sql_quote);
 
-header('Content-Type: application/json; charset=utf-8');
+// 2. Lấy thông tin ticket
+$sql_ticket = "SELECT customer_id, device_id 
+               FROM repair_tickets 
+               WHERE id = $repair_ticket_id 
+               LIMIT 1";
+$res = mysqli_query($conn, $sql_ticket);
+$ticket = mysqli_fetch_assoc($res);
 
-$repair_ticket_id = intval($_POST['repair_ticket_id'] ?? 0);
-$quote_amount     = floatval($_POST['quote_amount'] ?? 0);
-$note             = trim($_POST['note'] ?? '');
-
-if ($repair_ticket_id <= 0 || $quote_amount <= 0) {
-    echo json_encode(["success" => false, "message" => "Phiếu sửa chữa và báo giá là bắt buộc"]);
+if (!$ticket) {
+    echo json_encode(["success" => false, "message" => "Không tìm thấy ticket"]);
     exit;
 }
 
-// Tạo hoặc cập nhật đơn hàng với báo giá
-$stmt = mysqli_prepare($conn, 
-    "INSERT INTO orders 
-     (repair_ticket_id, customer_id, device_id, quote_amount, total_amount, status, created_at, updated_at)
-     SELECT rt.id, rt.customer_id, rt.device_id, ?, ?, 'quoted', NOW(), NOW()
-     FROM repair_tickets rt
-     WHERE rt.id = ?
-     ON DUPLICATE KEY UPDATE 
-         quote_amount = VALUES(quote_amount),
-         total_amount = VALUES(quote_amount),
-         status = 'quoted',
-         updated_at = NOW()");
+$customer_id = $ticket['customer_id'];
+$device_id   = $ticket['device_id'];
 
-mysqli_stmt_bind_param($stmt, "ddi", $quote_amount, $quote_amount, $repair_ticket_id);
+// 3. Tạo ORDER
+$sql_order = "INSERT INTO orders (customer_id, device_id, total_amount, created_at)
+              VALUES ($customer_id, $device_id, $quote_amount, NOW())";
+mysqli_query($conn, $sql_order);
 
-if (mysqli_stmt_execute($stmt)) {
-    echo json_encode(["success" => true, "message" => "Lưu báo giá thành công!"]);
-} else {
-    echo json_encode(["success" => false, "message" => "Lỗi database: " . mysqli_error($conn)]);
-}
+$order_id = mysqli_insert_id($conn);
 
-mysqli_stmt_close($stmt);
-mysqli_close($conn);
-?>
+// 4. Tạo INVOICE
+$invoice_number = 'INV-' . time();
+
+$sql_invoice = "INSERT INTO invoices (order_id, invoice_number, total, payment_status, created_at)
+                VALUES ($order_id, '$invoice_number', $quote_amount, 'paid', NOW())";
+mysqli_query($conn, $sql_invoice);
+
+echo json_encode([
+    "success" => true,
+    "message" => "Báo giá + tạo hóa đơn thành công"
+]);

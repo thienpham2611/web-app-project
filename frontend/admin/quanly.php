@@ -683,6 +683,16 @@ $(document).ready(function() {
                         <label class="form-label">Phiếu sửa chữa</label>
                         <select class="form-select" id="repair_ticket_id" required></select>
                     </div>
+                    <div class="row mt-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Khách hàng</label>
+                        <input type="text" class="form-control" id="customer_name_display" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Thiết bị</label>
+                        <input type="text" class="form-control" id="device_name_display" readonly>
+                    </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <label class="form-label">Báo giá (VND) <span class="text-danger">*</span></label>
@@ -767,22 +777,46 @@ $(document).ready(function() {
             $('#customer_id_order').html(html);
         });
     }
+    $('#repair_ticket_id').on('change', function() {
+    const ticketId = $(this).val();
 
+    if (!ticketId) {
+        $('#customer_name_display').val('');
+        $('#device_name_display').val('');
+        return;
+    }
+
+    $.get('../../backend/api/get_repair_ticket_detail.php?id=' + ticketId, function(res) {
+        if (res.success) {
+            $('#customer_name_display').val(res.data.customer_name);
+            $('#device_name_display').val(res.data.device_name);
+        } else {
+            alert('Lỗi: ' + res.message);
+        }
+    }, 'json');
+});
     // Lưu báo giá
     $('#btnLuuBaoGia').click(function() {
-        $.post('../../backend/api/save_quote.php', {
+    fetch('../../backend/api/save_quote.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
             repair_ticket_id: $('#repair_ticket_id').val(),
             quote_amount: $('#quote_amount').val(),
             note: $('#note_quote').val()
-        }, function(res) {
-            if (res.success) {
-                alert(res.message);
-                $('#modalBaoGia').modal('hide');
-                location.reload();
-            } else alert(res.message || 'Lỗi');
-        }, 'json');
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            alert(res.message);
+            $('#modalBaoGia').modal('hide');
+            location.reload();
+        } else {
+            alert(res.message);
+        }
     });
-
+});
     // Tạo đơn hàng
     $('#btnTaoDonHang').click(function() {
         $.post('../../backend/api/save_order.php', {
