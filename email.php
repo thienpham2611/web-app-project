@@ -122,7 +122,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
                         <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ của tôi</a></li>
                         <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a></li>
                         <hr>
-                        <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
+                        <li><a rel="nofollow" href="#" onclick="logoutStaff(); return false;" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
                     </ul>
                 </li>   
             </ul> 
@@ -346,6 +346,17 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
         });
     </script>
     
+<script>
+function logoutStaff() {
+    fetch("../../backend/api/logout.php", {
+        method: "GET", credentials: "include",
+        headers: { "Accept": "application/json" }
+    })
+    .then(r => r.json())
+    .then(() => { window.location.href = "../../frontend/admin/index.php"; })
+    .catch(() => { window.location.href = "../../frontend/admin/index.php"; });
+}
+</script>
 </body>
 
 </html>

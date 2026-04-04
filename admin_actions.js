@@ -248,3 +248,26 @@ function deleteUser(id, name) {
         else alert('❌ '+res.error);
     }).catch(()=>alert('Lỗi kết nối!'));
 }
+
+// ==========================================
+// ĐĂNG XUẤT NHÂN VIÊN NỘI BỘ
+// ==========================================
+function logoutStaff() {
+    fetch('../../backend/api/logout.php', {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            window.location.href = '../../frontend/admin/index.php';
+        } else {
+            alert('Lỗi đăng xuất');
+        }
+    })
+    .catch(() => {
+        // Fallback nếu lỗi mạng
+        window.location.href = '../../frontend/admin/index.php';
+    });
+}
