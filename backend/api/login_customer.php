@@ -1,4 +1,5 @@
 <?php
+session_name('CUSTOMER_SESSION');
 session_start();
 require_once "../config/database.php";
 
@@ -14,12 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Nếu đang có session nhân viên nội bộ → không cho đăng nhập khách hàng
-if (isset($_SESSION['user_id']) && in_array($_SESSION['role'] ?? '', ['admin','manager','staff'])) {
-    http_response_code(403);
-    echo json_encode(["success" => false, "error" => "Vui lòng đăng xuất tài khoản nội bộ trước"]);
-    exit;
-}
+// Session nhân viên (STAFF_SESSION) và khách hàng (CUSTOMER_SESSION) hoàn toàn độc lập
 
 $input = json_decode(file_get_contents("php://input"), true) ?? $_POST;
 $email    = trim($input['email'] ?? '');

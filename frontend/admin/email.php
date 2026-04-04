@@ -1,4 +1,5 @@
 <?php
+session_name('STAFF_SESSION');
 session_start();
 
 // Danh sách các quyền hợp lệ của hệ thống nội bộ

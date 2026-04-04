@@ -1,4 +1,5 @@
 <?php
+session_name('STAFF_SESSION');
 session_start();
 
 // [FIX] Auth guard — cho phép cả 3 roles nội bộ, chặn customer và người chưa đăng nhập
