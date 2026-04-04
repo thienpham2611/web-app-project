@@ -1,4 +1,5 @@
 <?php 
+session_name('CUSTOMER_SESSION');
 session_start(); 
 // Kiểm tra đăng nhập (True/False)
 $isLoggedIn = (isset($_SESSION['customer_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'customer');
@@ -70,7 +71,7 @@ $navLoginAttr = $showLoginAuto ? 'href="index.php?show_login=true"' : 'href="#" 
               </li>
 
               <li class="nav-item">
-                  <a class="nav-link text-danger" href="../backend/api/logout_customer.php">
+                  <a class="nav-link text-danger" href="#" onclick="logoutCustomer(); return false;">
                       <i class="fa fa-sign-out"></i> Đăng xuất
                   </a>
               </li>
