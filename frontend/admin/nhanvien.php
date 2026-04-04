@@ -22,6 +22,7 @@ if ($_SESSION['role'] !== 'staff') {
     header("Location: index.php");
     exit();
 }
+?>
 <!DOCTYPE html>
 <html>
 
@@ -69,7 +70,7 @@ if ($_SESSION['role'] !== 'staff') {
                             Xin chào, <strong><?php echo isset($_SESSION['name']) ? $_SESSION['name'] : strtoupper($_SESSION['role']); ?></strong>
                         </li>
                         <li class="nav-item">
-                            <a href="../../backend/api/logout.php" class="nav-link text-danger font-weight-bold" style="padding: 0;">
+                            <a href="#" onclick="logoutStaff(); return false;" class="nav-link text-danger font-weight-bold" style="padding: 0;">
                                 <i class="fa fa-sign-out"></i> Đăng xuất
                             </a>
                         </li>
@@ -204,6 +205,17 @@ function updateTicketStatus(ticketId) {
         if (res.success) { alert('✅ Cập nhật thành công!'); location.reload(); }
         else alert('❌ ' + res.error);
     }).catch(() => alert('Lỗi kết nối!'));
+}
+</script>
+<script>
+function logoutStaff() {
+    fetch("../../backend/api/logout.php", {
+        method: "GET", credentials: "include",
+        headers: { "Accept": "application/json" }
+    })
+    .then(r => r.json())
+    .then(() => { window.location.href = "index.php"; })
+    .catch(() => { window.location.href = "index.php"; });
 }
 </script>
 </body>

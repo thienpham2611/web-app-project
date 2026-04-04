@@ -1,4 +1,6 @@
 <?php
+session_name('STAFF_SESSION');
+session_start();
 require_once "../config/database.php";
 
 $requiredRoles = ['admin', 'manager', 'staff'];
