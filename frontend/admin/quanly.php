@@ -115,7 +115,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                                 <small class="text-muted ml-1">(<?= $roleLabel[$currentRole] ?? $currentRole ?>)</small>
                             </li>
                             <li class="nav-item">
-                                <a href="../../backend/api/logout.php" class="nav-link text-danger font-weight-bold" style="padding: 0;">
+                                <a href="#" id="logoutBtn" class="nav-link text-danger font-weight-bold" style="padding: 0;">
                                     <i class="fa fa-sign-out"></i> Đăng xuất
                                 </a>
                             </li>
@@ -841,7 +841,23 @@ $(document).ready(function() {
     };
 });
 </script>
+<script>
+document.getElementById("logoutBtn").addEventListener("click", function(e) {
+    e.preventDefault();
 
+    fetch("../../backend/api/logout.php")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message); 
+                window.location.href = "../../frontend/admin/index.php"; 
+            } else {
+                alert("Logout thất bại!");
+            }
+        })
+        .catch(err => console.error(err));
+});
+</script>
 
 
 </body>
