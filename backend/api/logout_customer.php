@@ -1,4 +1,5 @@
 <?php
+session_name('CUSTOMER_SESSION');
 session_start();
 
 // Xóa toàn bộ session khách hàng

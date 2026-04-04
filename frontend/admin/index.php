@@ -1,4 +1,5 @@
 <?php
+session_name('STAFF_SESSION');
 session_start();
 
 // Nếu nhân viên đã đăng nhập rồi, tự động chuyển hướng dựa theo chức vụ

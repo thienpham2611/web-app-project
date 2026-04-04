@@ -1,8 +1,9 @@
 <?php
+session_name('STAFF_SESSION');
 session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'manager') {
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'manager'])) {
     http_response_code(401);
-    echo json_encode(["success" => false, "error" => "Chưa đăng nhập hoặc không có quyền Manager"]);
+    echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
     exit;
 }
 

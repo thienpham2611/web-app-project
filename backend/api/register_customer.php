@@ -1,4 +1,6 @@
 <?php
+session_name('CUSTOMER_SESSION');
+session_start();
 require_once "../config/database.php";
 
 // Thiết lập Header

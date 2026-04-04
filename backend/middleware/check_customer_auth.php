@@ -4,6 +4,7 @@
  * Session khách hàng dùng key 'customer_id' + role='customer'
  * Hoàn toàn tách biệt với session nhân viên nội bộ
  */
+session_name('CUSTOMER_SESSION');
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 

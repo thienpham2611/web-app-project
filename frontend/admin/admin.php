@@ -1,4 +1,5 @@
 <?php
+session_name('STAFF_SESSION');
 session_start();
 
 // [FIX] Whitelist: chỉ cho phép role === 'admin', chặn tất cả role khác kể cả customer

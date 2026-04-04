@@ -87,7 +87,8 @@ if ($user = mysqli_fetch_assoc($result)) {
 
     if (password_verify($password, $user['password'])) {
 
-        session_start();
+        session_name('STAFF_SESSION');
+session_start();
         session_regenerate_id(true);
 
         $_SESSION['user_id'] = $user['id'];

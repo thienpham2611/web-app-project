@@ -1,5 +1,6 @@
 <?php
 // KIỂM TRA BẢO MẬT: Ngăn truy cập lậu hoặc bất thường
+session_name('CUSTOMER_SESSION');
 session_start();
 if (!isset($_SESSION['customer_id']) || $_SESSION['role'] !== 'customer') {
     header("Location: index.php");

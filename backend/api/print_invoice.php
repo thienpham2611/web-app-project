@@ -1,8 +1,9 @@
 <?php
+session_name('STAFF_SESSION');
 session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'manager') {
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'manager'])) {
     http_response_code(401);
-    die("Không có quyền Manager");
+    http_response_code(403); echo json_encode(["error" => "Không có quyền"]); exit;
 }
 
 require_once __DIR__ . '/../config/database.php';
