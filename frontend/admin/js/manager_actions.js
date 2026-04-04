@@ -41,7 +41,8 @@ function assignTicket(ticketId) {
 // ==========================================
 function logoutStaff() {
     fetch("../../backend/api/logout.php", {
-        method: "GET", credentials: "include",
+        method: "GET",
+        credentials: "include",
         headers: { "Accept": "application/json" }
     })
     .then(r => r.json())

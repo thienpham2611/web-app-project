@@ -1,4 +1,6 @@
 <?php
+session_name('STAFF_SESSION');
+session_start();
 require_once "../config/database.php";
 
 $requiredRoles = ['admin', 'manager', 'staff'];
@@ -186,6 +188,19 @@ function handlePut($conn) {
         $sets[]   = "description = ?";
         $params[] = $description;
         $types   .= 's';
+    }
+
+    // Cập nhật tiến độ (progress 0-100)
+    if (array_key_exists('progress', $input)) {
+        $progress = max(0, min(100, intval($input['progress'])));
+        // Nếu completed → tự set 100%
+        if ($status === 'completed') $progress = 100;
+        $sets[]   = "progress = ?";
+        $params[] = $progress;
+        $types   .= 'i';
+    } elseif ($status === 'completed') {
+        // Nếu chỉ đổi status thành completed mà không gửi progress → set 100%
+        $sets[]   = "progress = 100";
     }
 
     if (!$sets) {

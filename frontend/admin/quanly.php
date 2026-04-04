@@ -89,6 +89,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
     <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
     <link rel="stylesheet" href="css/ui-elements/card.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
 </head>
 
 <body>
@@ -114,7 +115,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                                 <small class="text-muted ml-1">(<?= $roleLabel[$currentRole] ?? $currentRole ?>)</small>
                             </li>
                             <li class="nav-item">
-                                <a href="#" onclick="logoutStaff(); return false;" class="nav-link text-danger font-weight-bold" style="padding: 0;">
+                                <a href="#" id="logoutBtn" class="nav-link text-danger font-weight-bold" style="padding: 0;">
                                     <i class="fa fa-sign-out"></i> Đăng xuất
                                 </a>
                             </li>
@@ -141,40 +142,40 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
             <hr>
             <ul class="list-unstyled" style="padding: 10px;">
                 <li class="mb-2">
-                    <a href="quanly.php" class="text-white d-block py-1">
+                    <a href="quanly.php" class="text-black d-block py-1">
                         <i class="fa fa-dashboard fa-fw"></i> Dashboard
                     </a>
                 </li>
                 <?php if ($currentRole === 'admin'): ?>
                 <li class="mb-2">
-                    <a href="admin.php" class="text-white d-block py-1">
+                    <a href="admin.php" class="text-black d-block py-1">
                         <i class="fa fa-shield fa-fw"></i> Trang Admin
                     </a>
                 </li>
                 <?php endif; ?>
                 <li class="mb-2">
-                    <a href="tables.php" class="text-white d-block py-1">
+                    <a href="tables.php" class="text-black d-block py-1">
                         <i class="fa fa-table fa-fw"></i> Bảng dữ liệu
                     </a>
                 </li>
                 <li class="mb-2">
-                    <a href="invoice.php" class="text-white d-block py-1">
+                    <a href="invoice.php" class="text-black d-block py-1">
                         <i class="fa fa-file-text fa-fw"></i> Hóa đơn
                     </a>
                 </li>
                 <li class="mb-2">
-                    <a href="email.php" class="text-white d-block py-1">
+                    <a href="email.php" class="text-black d-block py-1">
                         <i class="fa fa-envelope fa-fw"></i> Email
                     </a>
                 </li>
                 <li class="mb-2">
-                    <a href="profile.php" class="text-white d-block py-1">
+                    <a href="profile.php" class="text-black d-block py-1">
                         <i class="fa fa-user fa-fw"></i> Hồ sơ
                     </a>
                 </li>
                 <?php if ($currentRole === 'staff'): ?>
                 <li class="mb-2">
-                    <a href="nhanvien.php" class="text-white d-block py-1">
+                    <a href="nhanvien.php" class="text-black d-block py-1">
                         <i class="fa fa-wrench fa-fw"></i> Trang Nhân viên
                     </a>
                 </li>
@@ -284,8 +285,8 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                                             <td class="text-center"><?= $end_date ? date('d/m/Y', $end_date) : '—' ?></td>
                                             <td class="text-center"><span class="<?= $status_class ?>"><?= $status_text ?></span></td>
                                             <td class="text-center action-col">
-                                                <button class="btn-idt-fixed btn-blue" onclick="viewDeviceDetail(<?= $dev['id'] ?>)">
-                                                    <i class="fa fa-search"></i> Xem chi tiết
+                                                <button class="btn btn-sm btn-outline-info" onclick="viewDeviceDetail(<?= $dev['id'] ?>)">
+                                                    <i class="fa fa-search"></i> Chi tiết
                                                 </button>
                                             </td>
                                         </tr>
@@ -445,7 +446,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
     </div>
 </div>
 <div class="modal fade" id="modalDevice" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="margin-top: 70px;">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title" id="modalTitle">Thêm mới thiết bị</h5>
@@ -504,7 +505,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
 <script src="../js/jquery/jquery.min.js"></script>
 <script src="../js/popper/popper.min.js"></script>
 <script src="../js/bootstrap/bootstrap.min.js"></script>
-<script src="js/front.js"></script>
+<script src="../js/front.js"></script>
 <script src="js/manager_actions.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -671,7 +672,7 @@ $(document).ready(function() {
 </script>
 <!-- MODAL LÊN BÁO GIÁ SỬA CHỮA -->
 <div class="modal fade" id="modalBaoGia" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="margin-top: 70px;">
         <div class="modal-content">
             <div class="modal-header bg-warning text-dark">
                 <h5 class="modal-title">Lên báo giá sửa chữa</h5>
@@ -715,7 +716,7 @@ $(document).ready(function() {
 
 <!-- MODAL TẠO ĐƠN HÀNG -->
 <div class="modal fade" id="modalTaoDonHang" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="margin-top: 70px;">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
                 <h5 class="modal-title">Tạo Đơn hàng mới</h5>
@@ -840,7 +841,23 @@ $(document).ready(function() {
     };
 });
 </script>
+<script>
+document.getElementById("logoutBtn").addEventListener("click", function(e) {
+    e.preventDefault();
 
+    fetch("../../backend/api/logout.php")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message); 
+                window.location.href = "../../frontend/admin/index.php"; 
+            } else {
+                alert("Logout thất bại!");
+            }
+        })
+        .catch(err => console.error(err));
+});
+</script>
 
 
 </body>

@@ -147,7 +147,12 @@ if (updateProfileForm) {
 // ==========================================
 // HÀM BẬT MODAL YÊU CẦU SỬA CHỮA (TỪ KHACHHANG.PHP)
 // ==========================================
-function openRepairModal(deviceId, deviceName) {
+function openRepairModal(deviceId, deviceName, isExpired) {
+    if (isExpired) {
+        alert('Thiết bị đã hết thời gian bảo hành. Chức năng này không thực hiện được!');
+        return false;
+    }
+    // Nếu chưa hết hạn thì mở Modal bình thường
     $('#modal_device_id').val(deviceId);
     $('#modal_device_name').val(deviceName);
     $('#modal_description').val('');
@@ -189,6 +194,21 @@ $(document).ready(function() {
 });
 
 // ==========================================
+// HÀM BẬT MODAL GIA HẠN BẢO HÀNH (TỪ KHACHHANG.PHP)
+// ==========================================
+function openWarrantyModal(deviceId, deviceName, isExpired) {
+    // Nếu chưa hết hạn (isExpired = false) => Chặn
+    if (!isExpired) {
+        alert('Thiết bị đang trong thời gian bảo hành, không thể thực hiện hành động này!');
+        return false;
+    }
+    document.getElementById('warranty_device_id').value = deviceId;
+    document.getElementById('warranty_device_name').value = deviceName;
+    document.getElementById('warranty_note').value = '';
+    $('#warrantyRequestModal').modal('show');
+}
+
+// ==========================================
 // ĐĂNG XUẤT KHÁCH HÀNG
 // ==========================================
 function logoutCustomer() {
@@ -203,3 +223,48 @@ function logoutCustomer() {
     })
     .catch(() => { window.location.href = 'index.php'; });
 }
+
+function loadCustomerNotifications() {
+    fetch('../backend/api/notifications_customer.php', { method: 'GET', credentials: 'include' })
+    .then(r => r.json())
+    .then(result => {
+        var list = document.getElementById('notif-list');
+        var badge = document.getElementById('notif-badge');
+        if (!list || !badge) return;
+
+        if (!result.success || result.data.length === 0) {
+            list.innerHTML = '<div class="text-center text-muted py-4"><i class="fa fa-bell-slash fa-2x mb-2 d-block"></i><small>Không có thông báo nào</small></div>';
+            badge.style.display = 'none';
+            return;
+        }
+
+        badge.textContent = result.count > 9 ? '9+' : result.count;
+        badge.style.display = 'inline-block';
+
+        var typeConfig = {
+            'repair':  { bg: '#e8f5e9', border: '#4caf50', icon: 'fa-wrench',       color: '#2e7d32' },
+            'warranty':{ bg: '#fff8e1', border: '#ff9800', icon: 'fa-shield',        color: '#e65100' },
+            'expired': { bg: '#ffebee', border: '#f44336', icon: 'fa-exclamation-circle', color: '#c62828' }
+        };
+
+        list.innerHTML = result.data.map(n => {
+            var cfg = typeConfig[n.type] || { bg: '#f5f5f5', border: '#9e9e9e', icon: 'fa-bell', color: '#555' };
+            var timeHtml = n.time ? '<div style="font-size:11px;color:#999;margin-top:3px;"><i class="fa fa-clock-o"></i> ' + formatNotifTime(n.time) + '</div>' : '';
+            return '<a class="dropdown-item" href="' + n.link + '" style="white-space:normal;padding:10px 14px;border-left:3px solid ' + cfg.border + ';background:' + cfg.bg + ';margin-bottom:2px;display:block;">'
+                + '<div style="display:flex;align-items:flex-start;gap:8px;">'
+                +   '<i class="fa ' + cfg.icon + ' mt-1" style="color:' + cfg.color + ';min-width:16px;font-size:14px;"></i>'
+                +   '<div style="flex:1;font-size:12.5px;line-height:1.4;color:#333;">' + n.message + timeHtml + '</div>'
+                + '</div>'
+                + '</a>';
+        }).join('');
+    })
+    .catch(() => {
+        var list = document.getElementById('notif-list');
+        if (list) list.innerHTML = '<div class="text-center text-muted py-3 small"><i class="fa fa-wifi"></i> Không thể tải thông báo</div>';
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    loadCustomerNotifications();
+    var bell = document.getElementById('notification-bell');
+    if (bell) { bell.addEventListener('show.bs.dropdown', loadCustomerNotifications); }
+});

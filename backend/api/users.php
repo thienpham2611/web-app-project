@@ -1,5 +1,4 @@
 <?php
-session_name('STAFF_SESSION');
 session_start(); // [FIX] Phải có session_start() trước khi dùng $_SESSION
 require_once "../config/database.php";
 
