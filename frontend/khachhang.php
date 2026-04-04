@@ -222,10 +222,16 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
                                     <td class="<?= $date_class ?>"><?= date('d/m/Y', $end_date) ?></td>
                                     <td><span class="badge <?= $badge_class ?> p-2"><?= $status_text ?></span></td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary mr-1" onclick="openRepairModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>')">
+                                        <?php 
+                                            $is_expired_js = ($days_left < 0) ? 'true' : 'false'; 
+                                            $btn_repair_class = ($days_left < 0) ? 'btn-outline-secondary' : 'btn-outline-primary';
+                                        ?>
+                                        <button class="btn btn-sm <?= $btn_repair_class ?> mr-1" 
+                                                onclick="openRepairModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>', <?= $is_expired_js ?>)">
                                             <i class="fa fa-wrench"></i> Yêu cầu sửa
                                         </button>
-                                        <button class="btn btn-sm btn-outline-success" onclick="openWarrantyModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>')">
+                                        <button class="btn btn-sm btn-outline-success" 
+                                                onclick="openWarrantyModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>', <?= $is_expired_js ?>)">
                                             <i class="fa fa-refresh"></i> Gia hạn BH
                                         </button>
                                     </td>
@@ -538,13 +544,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script>
-function openWarrantyModal(deviceId, deviceName) {
-    document.getElementById('warranty_device_id').value = deviceId;
-    document.getElementById('warranty_device_name').value = deviceName;
-    document.getElementById('warranty_note').value = '';
-    $('#warrantyRequestModal').modal('show');
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnGuiGiaHan').addEventListener('click', function() {
         const device_id = document.getElementById('warranty_device_id').value;

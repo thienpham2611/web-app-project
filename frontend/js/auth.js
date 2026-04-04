@@ -147,7 +147,12 @@ if (updateProfileForm) {
 // ==========================================
 // HÀM BẬT MODAL YÊU CẦU SỬA CHỮA (TỪ KHACHHANG.PHP)
 // ==========================================
-function openRepairModal(deviceId, deviceName) {
+function openRepairModal(deviceId, deviceName, isExpired) {
+    if (isExpired) {
+        alert('Thiết bị đã hết thời gian bảo hành. Chức năng này không thực hiện được!');
+        return false;
+    }
+    // Nếu chưa hết hạn thì mở Modal bình thường
     $('#modal_device_id').val(deviceId);
     $('#modal_device_name').val(deviceName);
     $('#modal_description').val('');
@@ -187,6 +192,21 @@ $(document).ready(function() {
         });
     });
 });
+
+// ==========================================
+// HÀM BẬT MODAL GIA HẠN BẢO HÀNH (TỪ KHACHHANG.PHP)
+// ==========================================
+function openWarrantyModal(deviceId, deviceName, isExpired) {
+    // Nếu chưa hết hạn (isExpired = false) => Chặn
+    if (!isExpired) {
+        alert('Thiết bị đang trong thời gian bảo hành, không thể thực hiện hành động này!');
+        return false;
+    }
+    document.getElementById('warranty_device_id').value = deviceId;
+    document.getElementById('warranty_device_name').value = deviceName;
+    document.getElementById('warranty_note').value = '';
+    $('#warrantyRequestModal').modal('show');
+}
 
 // ==========================================
 // ĐĂNG XUẤT KHÁCH HÀNG

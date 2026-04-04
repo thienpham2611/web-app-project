@@ -1,4 +1,4 @@
-<?php session_start(); ?>
+<?php session_name('CUSTOMER_SESSION'); session_start(); ?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -59,7 +59,7 @@
               </li>
 
               <li class="nav-item">
-                  <a class="nav-link text-danger" href="../backend/api/logout_customer.php">
+                  <a class="nav-link text-danger" href="#" onclick="logoutCustomer(); return false;">
                       <i class="fa fa-sign-out"></i> Đăng xuất
                   </a>
               </li>
@@ -357,6 +357,7 @@
     <script src="js/bootstrap/bootstrap.min.js"></script>
     <script src="js/wow/wow.min.js"></script>
     <script src="js/owl-carousel/owl.carousel.min.js"></script>
+    <script src="js/auth.js"></script>
 
     <!-- Plugin JavaScript -->
     <script src="js/jquery-easing/jquery.easing.min.js"></script> 
