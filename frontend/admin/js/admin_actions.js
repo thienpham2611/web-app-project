@@ -120,7 +120,7 @@ function loadWarrantyList() {
 }
 
 function loadRepairProgress() {
-    fetch('../../backend/api/repair_tickets.php', { credentials: 'include' })
+    fetch('../../backend/api/get_repair_tickets.php', { credentials: 'include' })
     .then(r => { if (r.status===401) return null; return r.json(); })
     .then(res => {
         if (!res) return;
