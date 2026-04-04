@@ -421,42 +421,6 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
 <script src="js/auth.js"></script>
 
 <script>
-// ==========================================
-// LOAD THONG BAO DONG CHO KHACH HANG
-// ==========================================
-function loadCustomerNotifications() {
-    fetch('../backend/api/notifications_customer.php', {
-        method: 'GET',
-        credentials: 'include'
-    })
-    .then(r => r.json())
-    .then(result => {
-        var list  = document.getElementById('notif-list');
-        var badge = document.getElementById('notif-badge');
-
-        if (!result.success || result.data.length === 0) {
-            list.innerHTML = '<div class="text-center text-muted py-3 small">Kh\u00f4ng c\u00f3 th\u00f4ng b\u00e1o n\u00e0o</div>';
-            badge.style.display = 'none';
-            return;
-        }
-
-        badge.textContent   = result.count > 9 ? '9+' : result.count;
-        badge.style.display = 'inline-block';
-
-        var html = '';
-        result.data.forEach(function(n) {
-            var timeHtml = n.time ? '<br><small class="text-muted">' + formatNotifTime(n.time) + '</small>' : '';
-            html += '<a class="dropdown-item py-2 border-bottom" href="' + n.link + '" style="white-space:normal;font-size:13px;">'
-                  + n.message + timeHtml + '</a>';
-        });
-        list.innerHTML = html;
-    })
-    .catch(function() {
-        document.getElementById('notif-list').innerHTML =
-            '<div class="text-center text-danger py-3 small">Kh\u00f4ng th\u1ec3 t\u1ea3i th\u00f4ng b\u00e1o</div>';
-    });
-}
-
 function formatNotifTime(datetime) {
     var d = new Date(datetime);
     return d.toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
