@@ -223,3 +223,26 @@ function logoutCustomer() {
     })
     .catch(() => { window.location.href = 'index.php'; });
 }
+
+function loadCustomerNotifications() {
+    fetch('../backend/api/notifications_customer.php', { method: 'GET', credentials: 'include' })
+    .then(r => r.json())
+    .then(result => {
+        var list = document.getElementById('notif-list');
+        var badge = document.getElementById('notif-badge');
+        if (!list || !badge) return;
+        if (!result.success || result.data.length === 0) {
+            list.innerHTML = '<div class="text-center text-muted py-3 small">Không có thông báo</div>';
+            badge.style.display = 'none';
+            return;
+        }
+        badge.textContent = result.count > 9 ? '9+' : result.count;
+        badge.style.display = 'inline-block';
+        list.innerHTML = result.data.map(n => `<a class="dropdown-item py-2 border-bottom" href="${n.link}" style="white-space:normal;font-size:13px;">${n.message}</a>`).join('');
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    loadCustomerNotifications();
+    var bell = document.getElementById('notification-bell');
+    if (bell) { bell.addEventListener('show.bs.dropdown', loadCustomerNotifications); }
+});

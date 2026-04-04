@@ -54,13 +54,16 @@
                   </a>
               </li>
               
-              <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" style="color: #ff9800;">
+              <li class="nav-item dropdown" id="notification-bell">
+                  <a class="nav-link dropdown-toggle position-relative" href="#" data-toggle="dropdown" style="color: #ff9800;">
                       <i class="fa fa-bell"></i>
+                      <span id="notif-badge" class="badge badge-danger" style="position:absolute;top:2px;left:18px;font-size:10px;padding:2px 5px;display:none;">0</span>
                   </a>
-                  <div class="dropdown-menu dropdown-menu-right shadow" style="width:250px;">
-                      <a class="dropdown-item" href="#">Thiết bị của bạn đã sửa xong</a>
-                      <a class="dropdown-item text-muted small" href="#">Xem tất cả thông báo...</a>
+                  <div class="dropdown-menu dropdown-menu-right shadow p-0" style="width:300px;max-height:350px;overflow-y:auto;">
+                      <div class="px-3 py-2 border-bottom bg-light"><strong><i class="fa fa-bell text-warning"></i> Thông báo</strong></div>
+                      <div id="notif-list">
+                          <div class="text-center text-muted py-3 small"><i class="fa fa-spinner fa-spin"></i> Đang tải...</div>
+                      </div>
                   </div>
               </li>
 
