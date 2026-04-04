@@ -1,0 +1,31 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("login-form");
+    if (!form) return;
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const email    = document.getElementById("login_email").value.trim();
+        const password = document.getElementById("login_password").value.trim();
+
+        fetch("../../backend/api/login.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email, password })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                const err = document.getElementById("login-error");
+                if (err) { err.textContent = data.error || "Đăng nhập thất bại"; err.classList.remove("d-none"); }
+                return;
+            }
+            const role = data.user.role;
+            if (role === "admin")        window.location.href = "admin.php";
+            else if (role === "manager") window.location.href = "quanly.php";
+            else                         window.location.href = "nhanvien.php";
+        })
+        .catch(() => alert("Lỗi máy chủ - kiểm tra XAMPP đã chạy chưa."));
+    });
+});
