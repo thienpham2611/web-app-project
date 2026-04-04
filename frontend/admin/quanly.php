@@ -142,40 +142,40 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
             <hr>
             <ul class="list-unstyled" style="padding: 10px;">
                 <li class="mb-2">
-                    <a href="quanly.php" class="text-white d-block py-1">
+                    <a href="quanly.php" class="text-black d-block py-1">
                         <i class="fa fa-dashboard fa-fw"></i> Dashboard
                     </a>
                 </li>
                 <?php if ($currentRole === 'admin'): ?>
                 <li class="mb-2">
-                    <a href="admin.php" class="text-white d-block py-1">
+                    <a href="admin.php" class="text-black d-block py-1">
                         <i class="fa fa-shield fa-fw"></i> Trang Admin
                     </a>
                 </li>
                 <?php endif; ?>
                 <li class="mb-2">
-                    <a href="tables.php" class="text-white d-block py-1">
+                    <a href="tables.php" class="text-black d-block py-1">
                         <i class="fa fa-table fa-fw"></i> Bảng dữ liệu
                     </a>
                 </li>
                 <li class="mb-2">
-                    <a href="invoice.php" class="text-white d-block py-1">
+                    <a href="invoice.php" class="text-black d-block py-1">
                         <i class="fa fa-file-text fa-fw"></i> Hóa đơn
                     </a>
                 </li>
                 <li class="mb-2">
-                    <a href="email.php" class="text-white d-block py-1">
+                    <a href="email.php" class="text-black d-block py-1">
                         <i class="fa fa-envelope fa-fw"></i> Email
                     </a>
                 </li>
                 <li class="mb-2">
-                    <a href="profile.php" class="text-white d-block py-1">
+                    <a href="profile.php" class="text-black d-block py-1">
                         <i class="fa fa-user fa-fw"></i> Hồ sơ
                     </a>
                 </li>
                 <?php if ($currentRole === 'staff'): ?>
                 <li class="mb-2">
-                    <a href="nhanvien.php" class="text-white d-block py-1">
+                    <a href="nhanvien.php" class="text-black d-block py-1">
                         <i class="fa fa-wrench fa-fw"></i> Trang Nhân viên
                     </a>
                 </li>

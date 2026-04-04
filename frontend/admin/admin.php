@@ -98,37 +98,37 @@ document.getElementById("logoutBtn").addEventListener("click", function(e) {
             <hr>
 <ul class="list-unstyled" style="padding: 10px;">
     <li class="mb-2">
-        <a href="admin.php" class="text-white d-block py-1">
+        <a href="admin.php" class="text-black d-block py-1">
             <i class="fa fa-dashboard fa-fw"></i> Dashboard
         </a>
     </li>
     <li class="mb-2">
-        <a href="quanly.php" class="text-white d-block py-1">
+        <a href="quanly.php" class="text-black d-block py-1">
             <i class="fa fa-cogs fa-fw"></i> Quản lý
         </a>
     </li>
     <li class="mb-2">
-        <a href="tables.php" class="text-white d-block py-1">
+        <a href="tables.php" class="text-black d-block py-1">
             <i class="fa fa-table fa-fw"></i> Bảng dữ liệu
         </a>
     </li>
     <li class="mb-2">
-        <a href="invoice.php" class="text-white d-block py-1">
+        <a href="invoice.php" class="text-black d-block py-1">
             <i class="fa fa-file-text fa-fw"></i> Hóa đơn
         </a>
     </li>
     <li class="mb-2">
-        <a href="email.php" class="text-white d-block py-1">
+        <a href="email.php" class="text-black d-block py-1">
             <i class="fa fa-envelope fa-fw"></i> Email
         </a>
     </li>
     <li class="mb-2">
-        <a href="profile.php" class="text-white d-block py-1">
+        <a href="profile.php" class="text-black d-block py-1">
             <i class="fa fa-user fa-fw"></i> Hồ sơ
         </a>
     </li>
     <li class="mb-2">
-        <a href="nhanvien.php" class="text-white d-block py-1">
+        <a href="nhanvien.php" class="text-black d-block py-1">
             <i class="fa fa-wrench fa-fw"></i> Nhân viên
         </a>
     </li>
