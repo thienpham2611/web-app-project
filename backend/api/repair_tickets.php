@@ -2,16 +2,25 @@
 session_name('STAFF_SESSION');
 session_start();
 require_once "../config/database.php";
+// CẤU HÌNH CORS CHUẨN (Giải quyết lỗi kết nối/CORS khi dùng Credentials)
+header("Content-Type: application/json; charset=UTF-8");
 
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+    header("Access-Control-Allow-Credentials: true");
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+}
+
+// XỬ LÝ YÊU CẦU KIỂM TRA (OPTIONS) CỦA TRÌNH DUYỆT
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+// KIỂM TRA QUYỀN TRUY CẬP
 $requiredRoles = ['admin', 'manager', 'staff'];
 require_once "../middleware/check_auth.php";
-
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -155,6 +164,7 @@ function handlePut($conn) {
 
     $id          = intval($input['id'] ?? 0);
     $status      = $input['status'] ?? null;
+    $progress    = isset($input['progress']) ? intval($input['progress']) : null; // ✅ ĐÃ THÊM: Nhận tiến độ
     $user_id     = array_key_exists('user_id', $input) ? (intval($input['user_id']) ?: null) : 'UNCHANGED';
     $description = array_key_exists('description', $input) ? trim($input['description']) : null;
 
@@ -164,7 +174,6 @@ function handlePut($conn) {
         return;
     }
 
-    // Build dynamic update
     $sets   = [];
     $params = [];
     $types  = '';
@@ -179,6 +188,14 @@ function handlePut($conn) {
         $params[] = $status;
         $types   .= 's';
     }
+
+    // ✅ ĐÃ THÊM: Logic cập nhật cột progress vào SQL
+    if ($progress !== null) {
+        $sets[]   = "progress = ?";
+        $params[] = $progress;
+        $types   .= 'i';
+    }
+
     if ($user_id !== 'UNCHANGED') {
         $sets[]   = "user_id = ?";
         $params[] = $user_id;
@@ -200,10 +217,18 @@ function handlePut($conn) {
     $types   .= 'i';
 
     $stmt = mysqli_prepare($conn, "UPDATE repair_tickets SET " . implode(", ", $sets) . " WHERE id=?");
-    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    
+    // --- ĐOẠN NÀY ĐÃ ĐƯỢC SỬA LỖI DƯ DẤU NGOẶC VÀ TRÙNG LẶP ---
+    $bind_names[] = $types;
+    for ($i = 0; $i < count($params); $i++) {
+        $bind_name = 'bind' . $i;
+        $$bind_name = $params[$i];
+        $bind_names[] = &$$bind_name;
+    }
+    call_user_func_array(array($stmt, 'bind_param'), $bind_names);
+    // -----------------------------------------------------------
 
     if (mysqli_stmt_execute($stmt)) {
-        // Nếu completed → cập nhật device active; nếu cancelled → active
         if (in_array($status, ['completed', 'cancelled'])) {
             $row = mysqli_fetch_assoc(mysqli_query($conn,
                 "SELECT device_id FROM repair_tickets WHERE id=$id"));
