@@ -123,3 +123,23 @@
 #resetPasswordModal .form-group {
     margin-bottom: 15px;
 }
+
+.modal-dialog-scrollable .modal-content {
+    max-height: 90vh; /* Giới hạn chiều cao tối đa là 90% màn hình */
+    overflow: hidden; /* Ẩn phần thừa ra ngoài khung content */
+}
+
+.modal-dialog-scrollable .modal-body {
+    overflow-y: auto; /* Chỉ cho phép cuộn bên trong phần body */
+    padding: 20px;
+}
+
+/* Đưa lớp nền đen mờ lên trên Navbar */
+.modal-backdrop {
+    z-index: 10490 !important;
+}
+
+/* Đưa khung Modal lên vị trí cao nhất */
+.modal {
+    z-index: 10500 !important;
+}

@@ -4,8 +4,12 @@
  * Session dùng key 'user_id' + role IN ('admin','manager','staff')
  * Hoàn toàn tách biệt với session khách hàng
  */
-session_name('STAFF_SESSION');
-session_start();
+// 🟢 CHỈ CHẠY SESSION NẾU CHƯA CÓ FILE NÀO CHẠY TRƯỚC ĐÓ
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('STAFF_SESSION');
+    session_start();
+}
+
 header("Content-Type: application/json; charset=UTF-8");
 
 // Chưa đăng nhập

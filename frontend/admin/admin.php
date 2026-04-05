@@ -308,11 +308,13 @@ document.getElementById("logoutBtn").addEventListener("click", function(e) {
 
 <!-- MODAL XEM CHI TIẾT THIẾT BỊ -->
 <div class="modal fade" id="deviceDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document" style="margin-top: 60px; max-height: calc(100vh - 100px);">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="detail-modal-title">Chi tiết thiết bị</h5>
-                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body" id="detail-body">
                 <div class="text-center py-4"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
