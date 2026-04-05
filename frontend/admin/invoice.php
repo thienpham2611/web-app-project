@@ -308,11 +308,6 @@ function logoutStaff() {
     .then(() => { window.location.href = "index.php"; })
     .catch(() => { window.location.href = "index.php"; });
 }
-    })
-    .then(r => r.json())
-    .then(() => { window.location.href = "../../frontend/admin/index.php"; })
-    .catch(() => { window.location.href = "../../frontend/admin/index.php"; });
-}
 </script>
 </body>
 

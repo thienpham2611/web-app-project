@@ -502,12 +502,12 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
 </div>
 
 <!-- Scripts — đồng bộ path với admin.php -->
-<script src="../js/jquery/jquery.min.js"></script>
-<script src="../js/popper/popper.min.js"></script>
-<script src="../js/bootstrap/bootstrap.min.js"></script>
-<script src="../js/front.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/popper/popper.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.cookie.js"></script>
+<script src="js/front.js"></script>
 <script src="js/manager_actions.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 function viewDeviceDetail(id) {

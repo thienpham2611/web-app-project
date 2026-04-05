@@ -193,7 +193,7 @@ if ($_SESSION['role'] !== 'admin') {
                                             <th>Mã Phiếu</th>
                                             <th>Thiết Bị</th>
                                             <th>Kỹ Thuật Viên</th>
-                                            <th>Mô Tả</th>
+                                            <th>Ngày Hết Hạn</th>
                                             <th class="text-center">Trạng Thái</th>
                                             <th class="text-center">Bổ Nhiệm</th>
                                         </tr>
@@ -282,12 +282,12 @@ if ($_SESSION['role'] !== 'admin') {
 
 
 
-<script src="../js/jquery/jquery.min.js"></script>
-    <script src="../js/popper/popper.min.js"></script>
-    <script src="../js/bootstrap/bootstrap.min.js"></script>
-    <script src="../js/front.js"></script>
-
-    <script src="js/admin_actions.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/popper/popper.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.cookie.js"></script>
+<script src="js/front.js"></script>
+<script src="js/admin_actions.js"></script>
 
 <!-- MODAL XEM CHI TIẾT THIẾT BỊ -->
 <div class="modal fade" id="deviceDetailModal" tabindex="-1" role="dialog" aria-hidden="true">

@@ -189,7 +189,7 @@ $stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt2));
                         </div>
                         <nav class="nav text-center prof-nav">
                             <ul class="list-unstyled">
-                                <li><a href="../../backend/api/logout.php" class="text-danger"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
+                                <li><a href="#" onclick="logoutStaff(); return false;" style="color:#dc3545;"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
                             </ul>
                         </nav>
                     </div>
