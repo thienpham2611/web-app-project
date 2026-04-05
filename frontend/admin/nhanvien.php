@@ -176,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 </td>
                 <td class="text-center"><span class="badge ${sc} p-2">${st}</span></td>
                 <td class="text-center">
-                    <button class="btn-idt-fixed btn-blue" onclick="updateTicketStatus(${item.id})">
+                    <button class="btn btn-sm btn-success" onclick="openUpdateModal(${item.id}, ${item.progress}, '${item.status}')">
                         <i class="fa fa-edit"></i> Cập nhật
                     </button>
                 </td>
@@ -189,22 +189,48 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-function updateTicketStatus(ticketId) {
-    const newStatus = prompt('Nhập trạng thái mới:\n- repairing (đang sửa)\n- completed (hoàn tất)\n- cancelled (hủy)');
-    if (!newStatus) return;
-    const allowed = ['repairing','completed','cancelled'];
-    if (!allowed.includes(newStatus)) { alert('Trạng thái không hợp lệ!'); return; }
+function openUpdateModal(ticketId, currentProgress, currentStatus) {
+    document.getElementById('update_ticket_id').value = ticketId;
+    document.getElementById('update_status').value = currentStatus;
+    document.getElementById('update_progress').value = currentProgress;
+    document.getElementById('update_progress_display').textContent = currentProgress + '%';
+    
+    // Nếu completed thì set 100%
+    if (currentStatus === 'completed') {
+        document.getElementById('update_progress').value = 100;
+        document.getElementById('update_progress_display').textContent = '100%';
+    }
+    
+    $('#updateTicketModal').modal('show');
+}
+
+function submitUpdateTicket() {
+    const ticketId = document.getElementById('update_ticket_id').value;
+    let status   = document.getElementById('update_status').value;
+    let progress = parseInt(document.getElementById('update_progress').value);
+
+    // Nếu completed → tự set 100%
+    if (status === 'completed') progress = 100;
+    // Nếu đang sửa mà set 100% → giữ repairing (không auto complete)
+    
+    const btn = document.getElementById('btn-submit-update');
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
 
     fetch('../../backend/api/repair_tickets.php', {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id: ticketId, status: newStatus})
+        credentials: 'include',
+        body: JSON.stringify({ id: parseInt(ticketId), status: status, progress: progress })
     })
     .then(r => r.json())
     .then(res => {
-        if (res.success) { alert('✅ Cập nhật thành công!'); location.reload(); }
+        if (res.success) { $('#updateTicketModal').modal('hide'); location.reload(); }
         else alert('❌ ' + res.error);
-    }).catch(() => alert('Lỗi kết nối!'));
+    })
+    .catch(() => alert('Lỗi kết nối!'))
+    .finally(() => { btn.disabled = false; btn.innerHTML = orig; });
 }
 </script>
 <script>
@@ -218,5 +244,68 @@ function logoutStaff() {
     .catch(() => { window.location.href = "index.php"; });
 }
 </script>
+
+<!-- MODAL CẬP NHẬT TIẾN ĐỘ -->
+<div class="modal fade" id="updateTicketModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="margin-top: 70px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-edit"></i> Cập nhật tiến độ phiếu</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="update_ticket_id">
+
+                <div class="form-group">
+                    <label>Trạng thái</label>
+                    <select id="update_status" class="form-control" onchange="onStatusChange(this.value)">
+                        <option value="repairing">Đang sửa chữa</option>
+                        <option value="completed">Hoàn tất</option>
+                        <option value="cancelled">Hủy</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="progress-group">
+                    <label>Tiến độ: <strong id="update_progress_display">0%</strong></label>
+                    <input type="range" id="update_progress" class="form-control-range"
+                           min="0" max="100" step="5" value="0"
+                           oninput="document.getElementById('update_progress_display').textContent = this.value + '%'">
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">0%</small>
+                        <small class="text-muted">50%</small>
+                        <small class="text-muted">100%</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" id="btn-submit-update" class="btn btn-success" onclick="submitUpdateTicket()">
+                    <i class="fa fa-save"></i> Lưu cập nhật
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function onStatusChange(status) {
+    const progressGroup = document.getElementById('progress-group');
+    const progressInput = document.getElementById('update_progress');
+    const progressDisplay = document.getElementById('update_progress_display');
+    if (status === 'completed') {
+        progressInput.value = 100;
+        progressDisplay.textContent = '100%';
+        progressGroup.style.opacity = '0.5';
+        progressInput.disabled = true;
+    } else if (status === 'cancelled') {
+        progressGroup.style.opacity = '0.5';
+        progressInput.disabled = true;
+    } else {
+        progressGroup.style.opacity = '1';
+        progressInput.disabled = false;
+    }
+}
+</script>
+
 </body>
 </html>

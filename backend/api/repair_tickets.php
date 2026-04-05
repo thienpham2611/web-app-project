@@ -190,6 +190,19 @@ function handlePut($conn) {
         $types   .= 's';
     }
 
+    // Cập nhật tiến độ (progress 0-100)
+    if (array_key_exists('progress', $input)) {
+        $progress = max(0, min(100, intval($input['progress'])));
+        // Nếu completed → tự set 100%
+        if ($status === 'completed') $progress = 100;
+        $sets[]   = "progress = ?";
+        $params[] = $progress;
+        $types   .= 'i';
+    } elseif ($status === 'completed') {
+        // Nếu chỉ đổi status thành completed mà không gửi progress → set 100%
+        $sets[]   = "progress = 100";
+    }
+
     if (!$sets) {
         http_response_code(400);
         echo json_encode(["success" => false, "error" => "Không có gì để cập nhật"]);

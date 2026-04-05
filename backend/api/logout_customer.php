@@ -1,16 +1,20 @@
 <?php
 session_name('CUSTOMER_SESSION');
 session_start();
-
-// Xóa toàn bộ session khách hàng
 session_unset();
 session_destroy();
 
-header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Credentials: true");
 
-echo json_encode([
-    "success" => true,
-    "message" => "Đăng xuất thành công"
-]);
+// Nếu truy cập thẳng trên trình duyệt → redirect về trang chủ
+$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) ||
+          (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false);
+
+if ($isAjax) {
+    header("Content-Type: application/json; charset=UTF-8");
+    echo json_encode(["success" => true, "message" => "Đăng xuất thành công"], JSON_UNESCAPED_UNICODE);
+} else {
+    header("Location: ../../frontend/index.php");
+    exit();
+}

@@ -7,6 +7,7 @@
  * Endpoint: GET /backend/api/check_warranty_expiry.php
  * Phân quyền: admin, manager (hoặc cron job nội bộ)
  */
+session_name('STAFF_SESSION');
 session_start();
 require_once "../config/database.php";
 

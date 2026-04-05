@@ -1,17 +1,3 @@
-<?php
-session_name('STAFF_SESSION');
-session_start();
-
-// Danh sách các quyền hợp lệ của hệ thống nội bộ
-$internal_roles = ['admin', 'manager', 'staff'];
-
-// KIỂM TRA: Nếu chưa có session role HOẶC role không nằm trong danh sách nội bộ
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) {
-    // Đá về trang đăng nhập của nội bộ
-    header("Location: index.php");
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html>
 
@@ -119,10 +105,10 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
                             </a>
                         </li>
                         <hr>
-                        <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ của tôi</a></li>
-                        <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ của tôi</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a></li>
                         <hr>
-                        <li><a rel="nofollow" href="#" onclick="logoutStaff(); return false;" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
                     </ul>
                 </li>   
             </ul> 
@@ -144,9 +130,9 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
             <hr>
             <!-- Sidebar Navidation Menus-->
             <ul class="list-unstyled">
-                <li class="active"> <a href="quanly.php">Trang chủ</a></li>
-                <li class="active"> <a href="email.php">Email</a></li>
-                <li class="active"> <a href="tables.php">Bảng</a></li>
+                <li class="active"> <a href="quanly.html">Trang chủ</a></li>
+                <li class="active"> <a href="email.html">Email</a></li>
+                <li class="active"> <a href="tables.html">Bảng</a></li>
         </nav>
         <div class="content-inner">
 
@@ -313,9 +299,9 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
     <script src="js/tether.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.cookie.js"></script>
-    <script src="js/jquery.validate.min.js"></script>
-    <script src="js/chart.min.js"></script>
-    <script src="js/front.js"></script>
+    <script src="js/jquery.validate.min.js"></script> 
+    <script src="js/chart.min.js"></script> 
+    <script src="js/front.js"></script> 
     
     <!--Core Javascript -->
     <script>
@@ -341,27 +327,11 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
               title: {
                 display: true,
                 text: ''
-               }
+               } 
             }
         });
     </script>
     
-<script>
-function logoutStaff() {
-    fetch("../../backend/api/logout.php", {
-        method: "GET", credentials: "include",
-        headers: { "Accept": "application/json" }
-    })
-    .then(r => r.json())
-    .then(() => { window.location.href = "index.php"; })
-    .catch(() => { window.location.href = "index.php"; });
-}
-    })
-    .then(r => r.json())
-    .then(() => { window.location.href = "../../frontend/admin/index.php"; })
-    .catch(() => { window.location.href = "../../frontend/admin/index.php"; });
-}
-</script>
 </body>
 
 </html>

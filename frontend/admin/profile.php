@@ -87,7 +87,7 @@ $stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt2));
                                 <small class="text-muted ml-1">(<?= $roleLabel[$currentRole] ?? $currentRole ?>)</small>
                             </li>
                             <li class="nav-item">
-                                <a href="../../backend/api/logout.php" class="nav-link text-danger font-weight-bold" style="padding: 0;">
+                                <a href="#" onclick="logoutStaff(); return false;" class="nav-link text-danger font-weight-bold" style="padding: 0;">
                                     <i class="fa fa-sign-out"></i> Đăng xuất
                                 </a>
                             </li>
@@ -419,5 +419,21 @@ function changePassword() {
 }
 </script>
 
+<script>
+function logoutStaff() {
+    fetch("../../backend/api/logout.php", {
+        method: "GET", credentials: "include",
+        headers: { "Accept": "application/json" }
+    })
+    .then(r => r.json())
+    .then(() => { window.location.href = "index.php"; })
+    .catch(() => { window.location.href = "index.php"; });
+}
+    })
+    .then(r => r.json())
+    .then(() => { window.location.href = "../../frontend/admin/index.php"; })
+    .catch(() => { window.location.href = "../../frontend/admin/index.php"; });
+}
+</script>
 </body>
 </html>

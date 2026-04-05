@@ -222,16 +222,10 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
                                     <td class="<?= $date_class ?>"><?= date('d/m/Y', $end_date) ?></td>
                                     <td><span class="badge <?= $badge_class ?> p-2"><?= $status_text ?></span></td>
                                     <td>
-                                        <?php 
-                                            $is_expired_js = ($days_left < 0) ? 'true' : 'false'; 
-                                            $btn_repair_class = ($days_left < 0) ? 'btn-outline-secondary' : 'btn-outline-primary';
-                                        ?>
-                                        <button class="btn btn-sm <?= $btn_repair_class ?> mr-1" 
-                                                onclick="openRepairModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>', <?= $is_expired_js ?>)">
+                                        <button class="btn btn-sm btn-outline-primary mr-1" onclick="openRepairModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>')">
                                             <i class="fa fa-wrench"></i> Yêu cầu sửa
                                         </button>
-                                        <button class="btn btn-sm btn-outline-success" 
-                                                onclick="openWarrantyModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>', <?= $is_expired_js ?>)">
+                                        <button class="btn btn-sm btn-outline-success" onclick="openWarrantyModal(<?= $dev['id'] ?>, '<?= htmlspecialchars($dev['name']) ?>')">
                                             <i class="fa fa-refresh"></i> Gia hạn BH
                                         </button>
                                     </td>
@@ -421,6 +415,42 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
 <script src="js/auth.js"></script>
 
 <script>
+// ==========================================
+// LOAD THONG BAO DONG CHO KHACH HANG
+// ==========================================
+function loadCustomerNotifications() {
+    fetch('../backend/api/notifications_customer.php', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(r => r.json())
+    .then(result => {
+        var list  = document.getElementById('notif-list');
+        var badge = document.getElementById('notif-badge');
+
+        if (!result.success || result.data.length === 0) {
+            list.innerHTML = '<div class="text-center text-muted py-3 small">Kh\u00f4ng c\u00f3 th\u00f4ng b\u00e1o n\u00e0o</div>';
+            badge.style.display = 'none';
+            return;
+        }
+
+        badge.textContent   = result.count > 9 ? '9+' : result.count;
+        badge.style.display = 'inline-block';
+
+        var html = '';
+        result.data.forEach(function(n) {
+            var timeHtml = n.time ? '<br><small class="text-muted">' + formatNotifTime(n.time) + '</small>' : '';
+            html += '<a class="dropdown-item py-2 border-bottom" href="' + n.link + '" style="white-space:normal;font-size:13px;">'
+                  + n.message + timeHtml + '</a>';
+        });
+        list.innerHTML = html;
+    })
+    .catch(function() {
+        document.getElementById('notif-list').innerHTML =
+            '<div class="text-center text-danger py-3 small">Kh\u00f4ng th\u1ec3 t\u1ea3i th\u00f4ng b\u00e1o</div>';
+    });
+}
+
 function formatNotifTime(datetime) {
     var d = new Date(datetime);
     return d.toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
@@ -508,6 +538,13 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script>
+function openWarrantyModal(deviceId, deviceName) {
+    document.getElementById('warranty_device_id').value = deviceId;
+    document.getElementById('warranty_device_name').value = deviceName;
+    document.getElementById('warranty_note').value = '';
+    $('#warrantyRequestModal').modal('show');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnGuiGiaHan').addEventListener('click', function() {
         const device_id = document.getElementById('warranty_device_id').value;

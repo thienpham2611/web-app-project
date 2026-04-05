@@ -1,17 +1,3 @@
-<?php
-session_name('STAFF_SESSION');
-session_start();
-
-// Danh sách các quyền hợp lệ của hệ thống nội bộ
-$internal_roles = ['admin', 'manager', 'staff'];
-
-// KIỂM TRA: Nếu chưa có session role HOẶC role không nằm trong danh sách nội bộ
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) {
-    // Đá về trang đăng nhập của nội bộ
-    header("Location: index.php");
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html>
 
@@ -34,6 +20,8 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
     <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
 
     <!-- Core stylesheets -->
+    <link rel="stylesheet" href="css/ui-elements/card.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body> 
@@ -44,7 +32,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
         <div class="container-fluid ">
             <div class="navbar-holder d-flex align-items-center justify-content-between">
                 <div class="navbar-header">
-                    <a href="#" class="navbar-brand">
+                    <a href="nhanvien.html" class="navbar-brand">
                         <div class="brand-text brand-big hidden-lg-down">
                             <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
                         </div>
@@ -118,10 +106,10 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
                             </a>
                         </li>
                         <hr>
-                        <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ của tôi</a></li>
-                        <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ của tôi</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a></li>
                         <hr>
-                        <li><a rel="nofollow" href="#" onclick="logoutStaff(); return false;" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
                     </ul>
                 </li>   
             </ul> 
@@ -137,103 +125,145 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
             <div class="sidebar-header d-flex align-items-center">
                 <div class="avatar"><img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
                 <div class="title">
-                    <h1 class="h4">Quản lý</h1>
+                    <h1 class="h4">Nhân viên</h1>
                 </div>
             </div>
             <hr>
             <!-- Sidebar Navidation Menus-->
             <ul class="list-unstyled">
-                <li class="active"> <a href="quanly.php">Trang chủ</a></li>
-                <li class="active"> <a href="email.php">Email</a></li>
-                <li class="active"> <a href="tables.php">Bảng</a></li>
+                <li class="active"> <a href="nhanvien.html">Trang chủ</a></li>
+                <li class="active"> <a href="email.html">Email</a></li>
+                <li class="active"> <a href="tables.html">Bảng</a></li>
         </nav>
         <div class="content-inner">
 
-        <div class="content-inner chart-cont">
-
-            <!--***** CONTENT *****-->     
-<div class="row">
+<!--REPORT-3-->
+<div class="row" id="report3">
     <div class="col-md-12">
-        <div class="card p-3 shadow-sm">
-            <h3 class="mb-4 text-primary"><i class="fa fa-list"></i> Danh sách Thiết bị & Phần mềm Đang Quản lý</h3>
-            
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="bg-dark text-white">
-                        <tr>
-                            <th>Mã Thiết bị</th>
-                            <th>Tên Mặt hàng</th>
-                            <th>Khách hàng</th>
-                            <th>Ngày Hết hạn</th>
-                            <th class="text-center">Tình trạng</th>
-                            <th class="text-center">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="table-danger">
-                            <td><strong>DE-001</strong></td>
-                            <td>Máy chủ Dell PowerEdge</td>
-                            <td>Ngân hàng ACB</td>
-                            <td>15/02/2024</td>
-                            <td class="text-center">
-                                <span class="badge badge-pill badge-danger">ĐÃ HẾT HẠN</span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-danger"><i class="fa fa-refresh"></i> Gia hạn ngay</button>
-                            </td>
-                        </tr>
-
-                        <tr class="table-warning">
-                            <td><strong>SW-042</strong></td>
-                            <td>Phần mềm kế toán IDT</td>
-                            <td>Công ty TNHH Hải Nam</td>
-                            <td>25/11/2024</td>
-                            <td class="text-center">
-                                <span class="badge badge-pill badge-warning text-dark">SẮP HẾT HẠN</span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-warning"><i class="fa fa-bell"></i> Gửi nhắc nhở</button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td><strong>DE-105</strong></td>
-                            <td>Switch Cisco 24 Port</td>
-                            <td>Trường ĐH Bách Khoa</td>
-                            <td>10/10/2026</td>
-                            <td class="text-center">
-                                <span class="badge badge-pill badge-info">ĐANG BẢO HÀNH</span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary"><i class="fa fa-eye"></i> Xem chi tiết</button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td><strong>LP-200</strong></td>
-                            <td>Laptop ThinkPad X1</td>
-                            <td>FPT Software</td>
-                            <td>12/12/2025</td>
-                            <td class="text-center">
-                                <span class="badge badge-pill badge-success">HOẠT ĐỘNG</span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-secondary"><i class="fa fa-edit"></i> Cập nhật</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="card card-idt-main">
+            <div class="card-header-idt">
+                <h4 class="title-idt"><i class="fa fa-wrench"></i> Danh sách sửa chữa được giao</h4>
             </div>
-
-            <div class="mt-3 p-3 bg-light border-left border-primary">
-                <small class="text-muted">
-                    <i class="fa fa-info-circle"></i> <strong>Lưu ý dành cho Trưởng ban:</strong> 
-                    Hệ thống tự động đánh dấu màu đỏ cho các thiết bị đã quá hạn. Nhân viên phụ trách sẽ nhận được thông báo qua Email để tiến hành làm dịch vụ gia hạn bảo hành cho khách hàng.
-                </small>
+            <div class="card-body no-padding">
+                <div class="table-responsive">
+                    <table class="table idt-table-report table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mã Case</th>
+                                <th>Thiết bị</th>
+                                <th>Khách hàng</th>
+                                <th>Tiến độ</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tech-repair-list">
+                            <tr><td colspan="6" class="text-center">Đang tải danh sách công việc...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!--API-->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // --- CẤU HÌNH ĐƯỜNG DẪN API (Bên Backend sẽ xử lý tệp này) ---
+    // API này thường sẽ dựa vào Session (người đang đăng nhập) để trả về đúng ticket của họ
+    const API_MY_TICKETS = 'api/get_my_tickets.php'; 
+
+    fetch(API_MY_TICKETS)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('tech-repair-list');
+            tbody.innerHTML = ''; // Xóa dòng thông báo "Đang tải"
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Bạn hiện chưa có công việc nào được giao.</td></tr>';
+                return;
+            }
+
+            data.forEach(item => {
+                // Xác định màu sắc trạng thái (Cùng style với file CSS của bạn)
+                let statusClass = 'btn-info-idt'; // Mặc định
+                if(item.status === 'Hoàn thành') statusClass = 'btn-success-idt';
+                if(item.status === 'Đang sửa') statusClass = 'btn-warning-idt';
+
+                // Xác định màu thanh tiến độ
+                let progressColor = 'bg-warning';
+                if(item.progress >= 100) progressColor = 'bg-success';
+                if(item.progress < 20) progressColor = 'bg-danger';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.id}</strong></td>
+                        <td>${item.device_name}</td>
+                        <td>${item.customer_name}</td>
+                        <td class="align-middle">
+                            <div class="progress idt-progress-bar">
+                                <div class="progress-bar ${progressColor}" style="width: ${item.progress}%;"></div>
+                            </div>
+                            <small>${item.progress}%</small>
+                        </td>
+                        <td class="text-center">
+                            <span class="status-btn ${statusClass}">${item.status}</span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn-idt-fixed btn-blue" onclick="updateTicket('${item.id}')">
+                                <i class="fa fa-edit"></i> Cập nhật
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => {
+            console.error("Lỗi kết nối API Nhân viên:", err);
+            document.getElementById('tech-repair-list').innerHTML = 
+                '<tr><td colspan="6" class="text-center text-danger">Không thể kết nối máy chủ.</td></tr>';
+        });
+});
+
+// Hàm mẫu xử lý khi nhấn nút Cập nhật
+function updateTicket(ticketId) {
+    // Backend sẽ xử lý việc mở Modal hoặc chuyển hướng trang tại đây
+    console.log("Đang mở cập nhật cho Case: " + ticketId);
+    alert("Chức năng cập nhật tiến độ cho Case: " + ticketId + " đang được xử lý.");
+}
+</script>
+
+
+<script>
+// JS Load dữ liệu riêng cho nhân viên
+document.addEventListener("DOMContentLoaded", function() {
+    // Gọi API lấy ticket theo ID nhân viên (lấy từ Session)
+    fetch('api/get_my_tickets.php') 
+    .then(response => response.json())
+    .then(data => {
+        const tbody = document.getElementById('tech-repair-list');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${item.id}</strong></td>
+                    <td>${item.device_name}</td>
+                    <td>${item.customer_name}</td>
+                    <td class="align-middle">
+                        <div class="progress idt-progress-bar">
+                            <div class="progress-bar bg-warning" style="width: ${item.progress}%;"></div>
+                        </div>
+                    </td>
+                    <td class="action-col"><span class="status-btn btn-warning-idt">${item.status}</span></td>
+                    <td class="action-col"><button class="btn-idt-fixed btn-blue">Cập nhật</button></td>
+                </tr>
+            `;
+        });
+    });
+});
+</script>
 
     <!--Global Javascript -->
     <script src="js/jquery.min.js"></script>
@@ -246,49 +276,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
     <script src="js/front.js"></script> 
     
     <!--Core Javascript -->
-    <script>
-        new Chart(document.getElementById("myChart-nav").getContext('2d'), {
-          type: 'doughnut',
-          data: {
-            labels: ["M", "T", "W", "T", "F", "S", "S"],
-            datasets: [{
-              backgroundColor: [
-                "#2ecc71",
-                "#3498db",
-                "#95a5a6",
-                "#9b59b6",
-                "#f1c40f",
-                "#e74c3c",
-                "#34495e"
-              ],
-              data: [12, 19, 3, 17, 28, 24, 7]
-            }]
-          },
-          options: {
-              legend: { display: false },
-              title: {
-                display: true,
-                text: ''
-               } 
-            }
-        });
-    </script> 
-<script>
-function logoutStaff() {
-    fetch("../../backend/api/logout.php", {
-        method: "GET", credentials: "include",
-        headers: { "Accept": "application/json" }
-    })
-    .then(r => r.json())
-    .then(() => { window.location.href = "index.php"; })
-    .catch(() => { window.location.href = "index.php"; });
-}
-    })
-    .then(r => r.json())
-    .then(() => { window.location.href = "../../frontend/admin/index.php"; })
-    .catch(() => { window.location.href = "../../frontend/admin/index.php"; });
-}
-</script>
+    <script src="js/mychart.js"></script>
 </body>
 
 </html>

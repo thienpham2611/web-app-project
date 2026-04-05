@@ -1,17 +1,3 @@
-<?php
-session_name('STAFF_SESSION');
-session_start();
-
-// Danh sách các quyền hợp lệ của hệ thống nội bộ
-$internal_roles = ['admin', 'manager', 'staff'];
-
-// KIỂM TRA: Nếu chưa có session role HOẶC role không nằm trong danh sách nội bộ
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) {
-    // Đá về trang đăng nhập của nội bộ
-    header("Location: index.php");
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html>
 
@@ -34,6 +20,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
     <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
 
     <!-- Core stylesheets -->
+    <link rel="stylesheet" href="css/apps/invoice.css"> 
 </head>
 
 <body> 
@@ -44,7 +31,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
         <div class="container-fluid ">
             <div class="navbar-holder d-flex align-items-center justify-content-between">
                 <div class="navbar-header">
-                    <a href="#" class="navbar-brand">
+                    <a href="index.html" class="navbar-brand">
                         <div class="brand-text brand-big hidden-lg-down">
                             <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
                         </div>
@@ -118,10 +105,10 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
                             </a>
                         </li>
                         <hr>
-                        <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ của tôi</a></li>
-                        <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ của tôi</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a></li>
                         <hr>
-                        <li><a rel="nofollow" href="#" onclick="logoutStaff(); return false;" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
+                        <li><a rel="nofollow" href="profile.html" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
                     </ul>
                 </li>   
             </ul> 
@@ -143,93 +130,117 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
             <hr>
             <!-- Sidebar Navidation Menus-->
             <ul class="list-unstyled">
-                <li class="active"> <a href="quanly.php">Trang chủ</a></li>
-                <li class="active"> <a href="email.php">Email</a></li>
-                <li class="active"> <a href="tables.php">Bảng</a></li>
+                <li class="active"> <a href="index.html">Trang chủ</a></li>
+                <li class="active"> <a href="email.html">Email</a></li>
+                <li class="active"> <a href="tables.html">Bảng</a></li>
+                <li class="active"> <a href="invoice.html">Hóa đơn</a></li>
         </nav>
-        <div class="content-inner">
-
-        <div class="content-inner chart-cont">
 
             <!--***** CONTENT *****-->     
-<div class="row">
-    <div class="col-md-12">
-        <div class="card p-3 shadow-sm">
-            <h3 class="mb-4 text-primary"><i class="fa fa-list"></i> Danh sách Thiết bị & Phần mềm Đang Quản lý</h3>
-            
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="bg-dark text-white">
-                        <tr>
-                            <th>Mã Thiết bị</th>
-                            <th>Tên Mặt hàng</th>
-                            <th>Khách hàng</th>
-                            <th>Ngày Hết hạn</th>
-                            <th class="text-center">Tình trạng</th>
-                            <th class="text-center">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="table-danger">
-                            <td><strong>DE-001</strong></td>
-                            <td>Máy chủ Dell PowerEdge</td>
-                            <td>Ngân hàng ACB</td>
-                            <td>15/02/2024</td>
-                            <td class="text-center">
-                                <span class="badge badge-pill badge-danger">ĐÃ HẾT HẠN</span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-danger"><i class="fa fa-refresh"></i> Gia hạn ngay</button>
-                            </td>
-                        </tr>
-
-                        <tr class="table-warning">
-                            <td><strong>SW-042</strong></td>
-                            <td>Phần mềm kế toán IDT</td>
-                            <td>Công ty TNHH Hải Nam</td>
-                            <td>25/11/2024</td>
-                            <td class="text-center">
-                                <span class="badge badge-pill badge-warning text-dark">SẮP HẾT HẠN</span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-warning"><i class="fa fa-bell"></i> Gửi nhắc nhở</button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td><strong>DE-105</strong></td>
-                            <td>Switch Cisco 24 Port</td>
-                            <td>Trường ĐH Bách Khoa</td>
-                            <td>10/10/2026</td>
-                            <td class="text-center">
-                                <span class="badge badge-pill badge-info">ĐANG BẢO HÀNH</span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary"><i class="fa fa-eye"></i> Xem chi tiết</button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td><strong>LP-200</strong></td>
-                            <td>Laptop ThinkPad X1</td>
-                            <td>FPT Software</td>
-                            <td>12/12/2025</td>
-                            <td class="text-center">
-                                <span class="badge badge-pill badge-success">HOẠT ĐỘNG</span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-secondary"><i class="fa fa-edit"></i> Cập nhật</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+<div class="container-fluid">
+    <div class="card p-4 shadow-sm">
+        <div class="row align-items-center mb-4">
+            <div class="col-sm-6">
+                <img src="img/logo.png" alt="Logo" style="max-width: 200px;">
             </div>
+            <div class="col-sm-6 text-sm-right mt-3 mt-sm-0">
+                <h2 class="text-uppercase font-weight-bold">Hóa Đơn</h2>
+                <p class="mb-0">Mã đơn hàng: <strong>#12345</strong></p>
+                <p>Ngày đặt: 07/03/2026</p>
+            </div>
+        </div>
 
-            <div class="mt-3 p-3 bg-light border-left border-primary">
-                <small class="text-muted">
-                    <i class="fa fa-info-circle"></i> <strong>Lưu ý dành cho Trưởng ban:</strong> 
-                    Hệ thống tự động đánh dấu màu đỏ cho các thiết bị đã quá hạn. Nhân viên phụ trách sẽ nhận được thông báo qua Email để tiến hành làm dịch vụ gia hạn bảo hành cho khách hàng.
-                </small>
+        <hr>
+
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <h5 class="text-primary font-weight-bold">Hóa đơn gửi đến:</h5>
+                <address class="border-left pl-3">
+                    <strong>Nguyễn Văn A</strong><br>
+                    Số 123 Đường Lê Lợi, Quận 1<br>
+                    TP. Hồ Chí Minh, Việt Nam<br>
+                    Email: nguyenvana@email.com
+                </address>
+            </div>
+            <div class="col-md-6 text-md-right">
+                <h5 class="text-primary font-weight-bold">Địa chỉ giao hàng:</h5>
+                <address class="border-right pr-3 d-inline-block text-left text-md-right">
+                    <strong>Trần Thị B</strong><br>
+                    Số 456 Đường Nguyễn Huệ, Quận 1<br>
+                    TP. Hồ Chí Minh, Việt Nam<br>
+                    Hạn thanh toán: Khi nhận hàng
+                </address>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <p><strong>Phương thức thanh toán:</strong> Visa (**** 4242)</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th>Sản phẩm / Linh kiện</th>
+                                <th class="text-center">Đơn giá</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-right">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Màn hình BS-200</td>
+                                <td class="text-center">250.000đ</td>
+                                <td class="text-center">1</td>
+                                <td class="text-right">250.000đ</td>
+                            </tr>
+                            <tr>
+                                <td>Pin BS-400</td>
+                                <td class="text-center">150.000đ</td>
+                                <td class="text-center">3</td>
+                                <td class="text-right">450.000đ</td>
+                            </tr>
+                            <tr>
+                                <td>Mainboard BS-1000</td>
+                                <td class="text-center">2.000.000đ</td>
+                                <td class="text-center">1</td>
+                                <td class="text-right">2.000.000đ</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" class="border-0"></td>
+                                <td class="text-center font-weight-bold">Tạm tính:</td>
+                                <td class="text-right">2.700.000đ</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="border-0"></td>
+                                <td class="text-center font-weight-bold">Phí vận chuyển:</td>
+                                <td class="text-right">30.000đ</td>
+                            </tr>
+                            <tr class="h4">
+                                <td colspan="2" class="border-0"></td>
+                                <td class="text-center font-weight-bold text-danger">TỔNG CỘNG:</td>
+                                <td class="text-right font-weight-bold text-danger">2.730.000đ</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 text-right">
+                <button onclick="window.print();" class="btn btn-outline-primary btn-lg mr-2">
+                    <i class="fa fa-print"></i> In Hóa Đơn
+                </button>
+                <button class="btn btn-success btn-lg px-5">
+                    Xác nhận Hóa Đơn
+                </button>
             </div>
         </div>
     </div>
@@ -273,22 +284,6 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
             }
         });
     </script> 
-<script>
-function logoutStaff() {
-    fetch("../../backend/api/logout.php", {
-        method: "GET", credentials: "include",
-        headers: { "Accept": "application/json" }
-    })
-    .then(r => r.json())
-    .then(() => { window.location.href = "index.php"; })
-    .catch(() => { window.location.href = "index.php"; });
-}
-    })
-    .then(r => r.json())
-    .then(() => { window.location.href = "../../frontend/admin/index.php"; })
-    .catch(() => { window.location.href = "../../frontend/admin/index.php"; });
-}
-</script>
 </body>
 
 </html>

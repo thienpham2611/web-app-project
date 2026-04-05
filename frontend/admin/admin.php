@@ -58,7 +58,7 @@ if ($_SESSION['role'] !== 'admin') {
                                 Xin chào, <strong><?php echo isset($_SESSION['name']) ? $_SESSION['name'] : strtoupper($_SESSION['role']); ?></strong>
                             </li>
                             <li class="nav-item">
-                                <a href="#" id="logoutBtn" class="nav-link text-danger font-weight-bold" style="padding: 0;">
+                                <a href="#" onclick="logoutStaff(); return false;" class="nav-link text-danger font-weight-bold" style="padding: 0;">
                                     <i class="fa fa-sign-out"></i> Đăng xuất
                                 </a>
                             </li>
@@ -68,23 +68,6 @@ if ($_SESSION['role'] !== 'admin') {
             </div>
         </nav>
     </header>
-    <script>
-document.getElementById("logoutBtn").addEventListener("click", function(e) {
-    e.preventDefault();
-
-    fetch("../../backend/api/logout.php")
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message); 
-                window.location.href = "../../frontend/admin/index.php"; 
-            } else {
-                alert("Logout thất bại!");
-            }
-        })
-        .catch(err => console.error(err));
-});
-</script>
 
     <div class="page-content d-flex align-items-stretch">
 
@@ -178,12 +161,12 @@ document.getElementById("logoutBtn").addEventListener("click", function(e) {
                                 <table class="table idt-table-report table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Mã Thiết Bị</th>
+                                            <th>Mã TB</th>
                                             <th>Tên Thiết Bị</th>
                                             <th>Khách Hàng</th>
-                                            <th>Mô Tả (S/N)</th>
+                                            <th>Ngày Hết Hạn</th>
                                             <th class="text-center">Tình Trạng</th>
-                                            <th class="text-center">Xem Chi Tiết</th>
+                                            <th class="text-center">Hành Động</th>
                                         </tr>
                                     </thead>
                                     <tbody id="admin-warranty-list">
@@ -226,7 +209,7 @@ document.getElementById("logoutBtn").addEventListener("click", function(e) {
             </div>
 
             </div> </div> </div> <div class="modal fade" id="createEmployeeModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog" role="document" style="margin-top: 70px;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Cấp tài khoản nhân sự mới</h5>
@@ -268,7 +251,7 @@ document.getElementById("logoutBtn").addEventListener("click", function(e) {
     </div>
 
     <div class="modal fade" id="resetPasswordModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog" role="document" style="margin-top: 70px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Cấp lại mật khẩu</h5>
@@ -326,7 +309,7 @@ document.getElementById("logoutBtn").addEventListener("click", function(e) {
 
 <!-- MODAL BỔ NHIỆM KỸ THUẬT VIÊN -->
 <div class="modal fade" id="assignStaffModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog" role="document" style="margin-top: 70px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fa fa-user-plus"></i> Bổ nhiệm kỹ thuật viên</h5>

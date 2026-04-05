@@ -1,5 +1,6 @@
 <?php
 ini_set('session.cookie_path', '/');
+session_name('CUSTOMER_SESSION');
 session_start();
 
 header('Content-Type: application/json; charset=utf-8');

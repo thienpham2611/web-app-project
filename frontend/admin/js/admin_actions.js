@@ -74,16 +74,26 @@ function loadEmployeeList() {
             return;
         }
         res.data.forEach(u => {
-            const badge = u.role === 'admin' ? '<span class="badge badge-danger">Quản trị viên</span>'
-                        : u.role === 'manager' ? '<span class="badge badge-warning">Quản lý</span>'
-                        : '<span class="badge badge-info">Kỹ thuật viên</span>';
+            const roleMap = {
+                admin:   { badge: 'badge-danger',  label: 'Quản trị viên', icon: 'fa-shield' },
+                manager: { badge: 'badge-warning',  label: 'Quản lý',       icon: 'fa-briefcase' },
+                staff:   { badge: 'badge-info',     label: 'Kỹ thuật viên', icon: 'fa-wrench' }
+            };
+            const r = roleMap[u.role] || { badge: 'badge-secondary', label: u.role, icon: 'fa-user' };
             tbody.innerHTML += `<tr>
-                <td><strong>${u.name}</strong></td>
-                <td>${u.email}</td>
-                <td class="text-center">${badge}</td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:34px;height:34px;border-radius:50%;background:#e9ecef;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa ${r.icon} text-muted"></i>
+                        </div>
+                        <strong>${u.name}</strong>
+                    </div>
+                </td>
+                <td class="text-muted">${u.email}</td>
+                <td class="text-center"><span class="badge ${r.badge} px-2 py-1">${r.label}</span></td>
                 <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary" onclick="openResetPasswordModal(${u.id},'${u.name}')"><i class="fa fa-key"></i></button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${u.id},'${u.name}')"><i class="fa fa-trash"></i></button>
+                    <button class="btn btn-sm btn-outline-primary mr-1" title="Đổi mật khẩu" onclick="openResetPasswordModal(${u.id},'${u.name}')"><i class="fa fa-key"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" title="Xóa tài khoản" onclick="deleteUser(${u.id},'${u.name}')"><i class="fa fa-trash"></i></button>
                 </td></tr>`;
         });
     }).catch(err => console.error('Lỗi get_users:', err));
@@ -102,17 +112,28 @@ function loadWarrantyList() {
             return;
         }
         res.data.forEach(item => {
-            const sc = item.status==='active' ? 'text-status-good' : item.status==='repairing' ? 'text-warning' : 'text-status-expired';
-            const st = item.status==='active' ? 'Đang bảo hành' : item.status==='repairing' ? 'Đang sửa' : 'Hết hạn';
+            const statusMap = {
+                active:    { cls: 'badge-success',   label: 'Đang bảo hành', icon: 'fa-check-circle' },
+                repairing: { cls: 'badge-warning',   label: 'Đang sửa chữa', icon: 'fa-wrench' },
+                expired:   { cls: 'badge-danger',    label: 'Hết hạn',       icon: 'fa-times-circle' }
+            };
+            const s = statusMap[item.status] || { cls: 'badge-secondary', label: item.status, icon: 'fa-question' };
+            const endDate = item.warranty_end_date ? new Date(item.warranty_end_date).toLocaleDateString('vi-VN') : '—';
+            const daysLeft = item.warranty_end_date ? Math.ceil((new Date(item.warranty_end_date) - new Date()) / 86400000) : null;
+            const dateHtml = daysLeft !== null
+                ? (daysLeft < 0 ? `<br><small class="text-danger">Đã hết ${Math.abs(daysLeft)} ngày trước</small>`
+                  : daysLeft <= 30 ? `<br><small class="text-warning font-weight-bold">Còn ${daysLeft} ngày</small>`
+                  : `<br><small class="text-muted">Còn ${daysLeft} ngày</small>`)
+                : '';
             tbody.innerHTML += `<tr>
-                <td><strong>#TB-${item.id}</strong></td>
-                <td>${item.name}</td>
-                <td>${item.customer_name??'—'}</td>
-                <td>${item.serial_number??'—'}</td>
-                <td class="text-center"><span class="${sc}">${st}</span></td>
+                <td><strong class="text-primary">#TB-${item.id}</strong></td>
+                <td>${item.name}<br><small class="text-muted">S/N: ${item.serial_number??'—'}</small></td>
+                <td>${item.customer_name??'<span class="text-muted">Chưa gán</span>'}</td>
+                <td>${endDate}${dateHtml}</td>
+                <td class="text-center"><span class="badge ${s.cls} p-2"><i class="fa ${s.icon} mr-1"></i>${s.label}</span></td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-outline-info" onclick="viewDeviceDetail(${item.id})">
-                        <i class="fa fa-eye"></i> Xem chi tiết
+                        <i class="fa fa-search"></i> Chi tiết
                     </button>
                 </td></tr>`;
         });
@@ -247,4 +268,18 @@ function deleteUser(id, name) {
         if (res.success) { alert('✅ Đã xóa ['+name+']'); loadEmployeeList(); }
         else alert('❌ '+res.error);
     }).catch(()=>alert('Lỗi kết nối!'));
+}
+
+// ==========================================
+// ĐĂNG XUẤT NHÂN VIÊN NỘI BỘ
+// ==========================================
+function logoutStaff() {
+    fetch("../../backend/api/logout.php", {
+        method: "GET",
+        credentials: "include",
+        headers: { "Accept": "application/json" }
+    })
+    .then(r => r.json())
+    .then(() => { window.location.href = "index.php"; })
+    .catch(() => { window.location.href = "index.php"; });
 }

@@ -285,8 +285,8 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                                             <td class="text-center"><?= $end_date ? date('d/m/Y', $end_date) : '—' ?></td>
                                             <td class="text-center"><span class="<?= $status_class ?>"><?= $status_text ?></span></td>
                                             <td class="text-center action-col">
-                                                <button class="btn-idt-fixed btn-blue" onclick="viewDeviceDetail(<?= $dev['id'] ?>)">
-                                                    <i class="fa fa-search"></i> Xem chi tiết
+                                                <button class="btn btn-sm btn-outline-info" onclick="viewDeviceDetail(<?= $dev['id'] ?>)">
+                                                    <i class="fa fa-search"></i> Chi tiết
                                                 </button>
                                             </td>
                                         </tr>
@@ -446,7 +446,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
     </div>
 </div>
 <div class="modal fade" id="modalDevice" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="margin-top: 70px;">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title" id="modalTitle">Thêm mới thiết bị</h5>
@@ -672,7 +672,7 @@ $(document).ready(function() {
 </script>
 <!-- MODAL LÊN BÁO GIÁ SỬA CHỮA -->
 <div class="modal fade" id="modalBaoGia" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="margin-top: 70px;">
         <div class="modal-content">
             <div class="modal-header bg-warning text-dark">
                 <h5 class="modal-title">Lên báo giá sửa chữa</h5>
@@ -716,7 +716,7 @@ $(document).ready(function() {
 
 <!-- MODAL TẠO ĐƠN HÀNG -->
 <div class="modal fade" id="modalTaoDonHang" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="margin-top: 70px;">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
                 <h5 class="modal-title">Tạo Đơn hàng mới</h5>

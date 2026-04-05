@@ -35,3 +35,17 @@ function assignTicket(ticketId) {
     .catch(() => alert("Không kết nối được với máy chủ."))
     .finally(() => { if (btn) { btn.disabled = false; btn.innerHTML = originalHTML; } });
 }
+
+// ==========================================
+// ĐĂNG XUẤT NHÂN VIÊN NỘI BỘ
+// ==========================================
+function logoutStaff() {
+    fetch("../../backend/api/logout.php", {
+        method: "GET",
+        credentials: "include",
+        headers: { "Accept": "application/json" }
+    })
+    .then(r => r.json())
+    .then(() => { window.location.href = "index.php"; })
+    .catch(() => { window.location.href = "index.php"; });
+}
