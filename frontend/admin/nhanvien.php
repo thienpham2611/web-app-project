@@ -92,6 +92,18 @@ if ($_SESSION['role'] !== 'staff') {
                     <h1 class="h4">Nhân viên</h1>
                 </div>
             </div>
+            <ul class="list-unstyled" style="padding: 10px;">
+                <li class="mb-2">
+                    <a href="nhanvien.php" class="text-black d-block py-1">
+                        <i class="fa fa-home fa-fw"></i> Trang chủ
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="tracuu.php" class="text-black d-block py-1">
+                        <i class="fa fa-search"></i> Tra cứu
+                    </a>
+                </li>
+            </ul>
         </nav>
         <div class="content-inner">
 

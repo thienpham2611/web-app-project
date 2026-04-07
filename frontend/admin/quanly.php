@@ -143,13 +143,13 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
             <ul class="list-unstyled" style="padding: 10px;">
                 <li class="mb-2">
                     <a href="quanly.php" class="text-black d-block py-1">
-                        <i class="fa fa-dashboard fa-fw"></i> Dashboard
+                        <i class="fa fa-home fa-fw"></i> Trang chủ
                     </a>
                 </li>
                 <?php if ($currentRole === 'admin'): ?>
                 <li class="mb-2">
                     <a href="admin.php" class="text-black d-block py-1">
-                        <i class="fa fa-shield fa-fw"></i> Trang Admin
+                        <i class="fa fa-shield fa-fw"></i> Dashbroad
                     </a>
                 </li>
                 <?php endif; ?>
@@ -171,6 +171,16 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                 <li class="mb-2">
                     <a href="profile.php" class="text-black d-block py-1">
                         <i class="fa fa-user fa-fw"></i> Hồ sơ
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="baocao.php" class="text-black d-block py-1">
+                        <i class="fa fa-bar-chart fa-fw"></i> Báo cáo thống kê
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="dashboard.php" class="text-black d-block py-1">
+                        <i class="fa fa-dashboard fa-fw"></i> Bảng điều khiển
                     </a>
                 </li>
                 <?php if ($currentRole === 'staff'): ?>

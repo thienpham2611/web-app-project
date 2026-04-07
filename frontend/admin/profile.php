@@ -115,46 +115,56 @@ $stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt2));
             <ul class="list-unstyled" style="padding: 10px;">
                 <?php if ($currentRole === 'admin'): ?>
                 <li class="mb-2">
-                    <a href="admin.php" class="text-white d-block py-1">
+                    <a href="admin.php" class="text-black d-block py-1">
                         <i class="fa fa-dashboard fa-fw"></i> Dashboard
                     </a>
                 </li>
                 <li class="mb-2">
-                    <a href="quanly.php" class="text-white d-block py-1">
+                    <a href="quanly.php" class="text-black d-block py-1">
                         <i class="fa fa-cogs fa-fw"></i> Quản lý
                     </a>
                 </li>
                 <?php elseif ($currentRole === 'manager'): ?>
                 <li class="mb-2">
-                    <a href="quanly.php" class="text-white d-block py-1">
-                        <i class="fa fa-dashboard fa-fw"></i> Dashboard
+                    <a href="quanly.php" class="text-black d-block py-1">
+                        <i class="fa fa-home fa-fw"></i> trang chủ
                     </a>
                 </li>
                 <?php else: ?>
                 <li class="mb-2">
-                    <a href="nhanvien.php" class="text-white d-block py-1">
+                    <a href="nhanvien.php" class="text-black d-block py-1">
                         <i class="fa fa-wrench fa-fw"></i> Trang Nhân viên
                     </a>
                 </li>
                 <?php endif; ?>
                 <li class="mb-2">
-                    <a href="tables.php" class="text-white d-block py-1">
+                    <a href="tables.php" class="text-black d-block py-1">
                         <i class="fa fa-table fa-fw"></i> Bảng dữ liệu
                     </a>
                 </li>
                 <li class="mb-2">
-                    <a href="invoice.php" class="text-white d-block py-1">
+                    <a href="invoice.php" class="text-black d-block py-1">
                         <i class="fa fa-file-text fa-fw"></i> Hóa đơn
                     </a>
                 </li>
                 <li class="mb-2">
-                    <a href="email.php" class="text-white d-block py-1">
+                    <a href="email.php" class="text-black d-block py-1">
                         <i class="fa fa-envelope fa-fw"></i> Email
                     </a>
                 </li>
                 <li class="mb-2">
-                    <a href="profile.php" class="text-white d-block py-1" style="font-weight: bold;">
+                    <a href="profile.php" class="text-black d-block py-1" style="font-weight: bold;">
                         <i class="fa fa-user fa-fw"></i> Hồ sơ <small>(đang xem)</small>
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="baocao.php" class="text-black d-block py-1">
+                        <i class="fa fa-bar-chart fa-fw"></i> Báo cáo thống kê
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="dashboard.php" class="text-black d-block py-1">
+                        <i class="fa fa-dashboard fa-fw"></i> Bảng điều khiển
                     </a>
                 </li>
             </ul>
