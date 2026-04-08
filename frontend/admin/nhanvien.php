@@ -92,6 +92,18 @@ if ($_SESSION['role'] !== 'staff') {
                     <h1 class="h4">Nhân viên</h1>
                 </div>
             </div>
+            <ul class="list-unstyled" style="padding: 10px;">
+                <li class="mb-2">
+                    <a href="nhanvien.php" class="text-black d-block py-1">
+                        <i class="fa fa-home fa-fw"></i> Trang chủ
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="tracuu_staff.php" class="text-black d-block py-1">
+                        <i class="fa fa-search"></i> Tra cứu
+                    </a>
+                </li>
+            </ul>
         </nav>
         <div class="content-inner">
 
@@ -120,6 +132,59 @@ if ($_SESSION['role'] !== 'staff') {
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="updateTicketModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel"><i class="fa fa-edit"></i> Cập nhật tiến độ sửa chữa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modal_ticket_id">
+                
+                <div class="form-group">
+                    <label class="font-weight-bold">Trạng thái hiện tại:</label><br>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" id="st_repairing" name="modal_status" value="repairing" class="custom-control-input" onchange="toggleProgress()">
+                        <label class="custom-control-label text-info" for="st_repairing">Đang sửa</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" id="st_completed" name="modal_status" value="completed" class="custom-control-input" onchange="toggleProgress()">
+                        <label class="custom-control-label text-success" for="st_completed">Hoàn tất</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" id="st_cancelled" name="modal_status" value="cancelled" class="custom-control-input" onchange="toggleProgress()">
+                        <label class="custom-control-label text-danger" for="st_cancelled">Hủy/Không sửa được</label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="progress_wrapper">
+                    <label class="font-weight-bold">Tiến độ: <span id="progress_display" class="text-primary h5">50%</span></label>
+                    <input type="range" class="form-control-range" id="modal_progress" min="0" max="100" value="50" oninput="document.getElementById('progress_display').innerText = this.value + '%'">
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">Ghi chú (Tùy chọn):</label>
+                    <textarea class="form-control" id="modal_note" rows="3" placeholder="VD: Đang chờ linh kiện màn hình, đã sấy khô main..."></textarea>
+                    <small class="text-muted">Ghi chú này sẽ được lưu vào lịch sử sửa chữa để quản lý và khách hàng theo dõi.</small>
+                </div>
+
+                <hr>
+                <h6><i class="fa fa-history"></i> Lịch sử xử lý:</h6>
+                <div id="ticket_timeline" style="max-height: 250px; overflow-y: auto; padding: 10px; background: #f9f9f9; border-radius: 5px;">
+                    <small class="text-muted">Đang tải lịch sử...</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="submitTicketUpdate()"><i class="fa fa-save"></i> Lưu cập nhật</button>
             </div>
         </div>
     </div>

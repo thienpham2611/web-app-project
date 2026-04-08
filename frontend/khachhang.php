@@ -188,6 +188,12 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
             
             <div class="tab-pane fade show active" id="pills-devices" role="tabpanel">
                 <div class="card card-dashboard p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-muted">Danh sách thiết bị & phần mềm của bạn</h6>
+                        <button class="btn btn-sm btn-success" onclick="openNewRepairModal()">
+                            <i class="fa fa-plus"></i> Tạo phiếu sửa chữa mới
+                        </button>
+                    </div>
                     <table class="table table-hover mt-2">
                         <thead class="bg-light">
                             <tr>
@@ -455,6 +461,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         <input type="text" id="modal_device_name" class="form-control" readonly style="background-color: #e9ecef; font-weight: bold;">
                     </div>
 
+                    <div id="repair_expired_warning" class="alert alert-warning py-2" style="display:none;">
+                        <i class="fa fa-exclamation-triangle"></i> <strong>Bạn đã hết bảo hành.</strong> Khi tạo phiếu yêu cầu giá sẽ tăng tùy vào độ hư của máy.
+                    </div>
+
                     <div class="form-group">
                         <label>Mô tả chi tiết lỗi <span class="text-danger">*</span></label>
                         <textarea name="description" id="modal_description" class="form-control" 
@@ -532,5 +542,96 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- MODAL TẠO PHIẾU SỬA CHỮA MỚI (TỰ NHẬP THIẾT BỊ) -->
+<div class="modal fade" id="newRepairModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-plus-circle text-success"></i> Tạo phiếu sửa chữa mới</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">Nhập thông tin thiết bị cần sửa. Nếu thiết bị chưa có trong hệ thống, hệ thống sẽ tự động thêm vào.</p>
+
+                <div class="form-group">
+                    <label>Tên thiết bị / Phần mềm <span class="text-danger">*</span></label>
+                    <input type="text" id="new_device_name" class="form-control" placeholder="Ví dụ: Laptop Dell XPS 15, Phần mềm Kế toán..." required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-7">
+                        <label>Số serial (S/N)</label>
+                        <input type="text" id="new_serial_number" class="form-control" placeholder="Ví dụ: IDT-2024-001">
+                    </div>
+                    <div class="form-group col-md-5">
+                        <label>Loại thiết bị <span class="text-danger">*</span></label>
+                        <select id="new_device_type" class="form-control">
+                            <option value="hardware">Phần cứng</option>
+                            <option value="software">Phần mềm</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mô tả chi tiết lỗi <span class="text-danger">*</span></label>
+                    <textarea id="new_repair_description" class="form-control" rows="4"
+                              placeholder="Ví dụ: Máy hay bị tắt đột ngột, bàn phím liệt một số phím..."></textarea>
+                </div>
+
+                <div class="alert alert-info py-2">
+                    <i class="fa fa-info-circle"></i> Thiết bị không có bảo hành hoặc đã hết hạn — chi phí sửa chữa sẽ được báo giá sau khi kiểm tra.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-success" id="btnGuiPhieuMoi">
+                    <i class="fa fa-paper-plane"></i> Gửi yêu cầu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openNewRepairModal() {
+    document.getElementById('new_device_name').value = '';
+    document.getElementById('new_serial_number').value = '';
+    document.getElementById('new_device_type').value = 'hardware';
+    document.getElementById('new_repair_description').value = '';
+    $('#newRepairModal').modal('show');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('btnGuiPhieuMoi').addEventListener('click', function() {
+        var device_name = document.getElementById('new_device_name').value.trim();
+        var serial_number = document.getElementById('new_serial_number').value.trim();
+        var device_type = document.getElementById('new_device_type').value;
+        var description = document.getElementById('new_repair_description').value.trim();
+
+        if (!device_name) { alert('Vui lòng nhập tên thiết bị!'); return; }
+        if (!description) { alert('Vui lòng nhập mô tả lỗi!'); return; }
+
+        fetch('../backend/api/create_repair_ticket_manual.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ device_name, serial_number, device_type, description })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                alert('✅ ' + res.message + '\n\nMã phiếu: #TICK-' + res.ticket_id);
+                $('#newRepairModal').modal('hide');
+                location.reload();
+            } else {
+                alert('❌ ' + (res.error || 'Lỗi không xác định'));
+            }
+        })
+        .catch(() => alert('Lỗi kết nối máy chủ!'));
+    });
+});
+</script>
+
 </body>
 </html>

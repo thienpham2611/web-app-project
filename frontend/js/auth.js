@@ -148,14 +148,16 @@ if (updateProfileForm) {
 // HÀM BẬT MODAL YÊU CẦU SỬA CHỮA (TỪ KHACHHANG.PHP)
 // ==========================================
 function openRepairModal(deviceId, deviceName, isExpired) {
-    if (isExpired) {
-        alert('Thiết bị đã hết thời gian bảo hành. Chức năng này không thực hiện được!');
-        return false;
-    }
-    // Nếu chưa hết hạn thì mở Modal bình thường
     $('#modal_device_id').val(deviceId);
     $('#modal_device_name').val(deviceName);
     $('#modal_description').val('');
+
+    if (isExpired) {
+        $('#repair_expired_warning').show();
+    } else {
+        $('#repair_expired_warning').hide();
+    }
+
     $('#createRepairModal').modal('show');
 }
 
@@ -238,7 +240,19 @@ function loadCustomerNotifications() {
         }
         badge.textContent = result.count > 9 ? '9+' : result.count;
         badge.style.display = 'inline-block';
-        list.innerHTML = result.data.map(n => `<a class="dropdown-item py-2 border-bottom" href="${n.link}" style="white-space:normal;font-size:13px;">${n.message}</a>`).join('');
+        list.innerHTML = result.data.map(n => {
+            let extraHtml = '';
+            if (n.type === 'repair_log' && n.progress !== undefined) {
+                const barColor = n.progress >= 90 ? '#28a745' : n.progress < 30 ? '#dc3545' : '#17a2b8';
+                extraHtml = `<div style="margin-top:4px;">
+                    <div style="background:#e9ecef;border-radius:4px;height:6px;overflow:hidden;">
+                        <div style="width:${n.progress}%;background:${barColor};height:100%;"></div>
+                    </div>
+                    <small style="color:#666;">${n.progress}%</small>
+                </div>`;
+            }
+            return `<a class="dropdown-item py-2 border-bottom" href="${n.link}" style="white-space:normal;font-size:13px;">${n.message}${extraHtml}</a>`;
+        }).join('');
     });
 }
 document.addEventListener('DOMContentLoaded', function() {

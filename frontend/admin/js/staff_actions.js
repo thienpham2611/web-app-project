@@ -33,6 +33,7 @@ function loadMyTickets() {
             const bar = parseInt(item.progress)||0;
             const barColor = bar>=90?'bg-success':bar<30?'bg-danger':'bg-info';
 
+            // [ĐÃ SỬA]: Gọi hàm openUpdateModal thay vì updateTicketStatus cũ
             tbody.innerHTML += `<tr>
                 <td><strong>#RT-${item.id}</strong></td>
                 <td>${item.device_name??'—'}<br><small class="text-muted">S/N: ${item.serial_number??'—'}</small></td>
@@ -45,7 +46,7 @@ function loadMyTickets() {
                 </td>
                 <td class="text-center"><span class="badge ${sc} p-2">${st}</span></td>
                 <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary" onclick="updateTicketStatus(${item.id})">
+                    <button class="btn btn-sm btn-outline-primary" onclick="openUpdateModal(${item.id}, '${item.status}', ${bar})">
                         <i class="fa fa-edit"></i> Cập nhật
                     </button>
                 </td>
@@ -57,67 +58,137 @@ function loadMyTickets() {
     });
 }
 
-// 2. Logic cập nhật mới: Trạng thái + Tiến độ %
-function updateTicketStatus(ticketId) {
-    const newStatus = prompt('Nhập trạng thái mới:\n- repairing (đang sửa)\n- completed (hoàn tất)\n- cancelled (hủy)');
-    if (!newStatus) return;
-    
-    const allowed = ['repairing','completed','cancelled'];
-    if (!allowed.includes(newStatus)) { alert('Trạng thái không hợp lệ!'); return; }
+// 2. Mở hộp thoại Modal và điền dữ liệu cũ
+function openUpdateModal(ticketId, currentStatus, currentProgress) {
+    document.getElementById('modal_ticket_id').value = ticketId;
+    document.getElementById('modal_note').value = ''; // Reset ghi chú
 
-    let progress = 0;
-    
-    // Logic: Nếu xong thì auto 100%, nếu đang sửa thì hỏi %
-    if (newStatus === 'completed') {
-        progress = 100;
-    } else if (newStatus === 'cancelled') {
-        progress = 0;
+    // Check đúng radio button trạng thái hiện tại
+    if (currentStatus === 'completed') {
+        document.getElementById('st_completed').checked = true;
+    } else if (currentStatus === 'cancelled') {
+        document.getElementById('st_cancelled').checked = true;
     } else {
-        let inputProgress = prompt('Nhập tiến độ % hiện tại (0-99):', '50');
-        if (inputProgress === null) return;
-        progress = parseInt(inputProgress);
-        
-        if (isNaN(progress) || progress < 0 || progress > 100) {
-            alert('Tiến độ phải là số từ 0 đến 100!');
-            return;
-        }
+        document.getElementById('st_repairing').checked = true;
     }
 
-    fetch('../../backend/api/repair_tickets.php', {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include', 
-        body: JSON.stringify({id: ticketId, status: newStatus, progress: progress})
-    })
-    .then(async r => {
-        const text = await r.text(); // Lấy văn bản thô để "soi" lỗi PHP nếu có
-        if (!r.ok) {
-            console.error("HTTP Error:", text);
-            throw new Error("Lỗi HTTP: " + r.status);
-        }
-        try {
-            return JSON.parse(text); // Thử ép sang JSON
-        } catch (e) {
-            console.error("⚠️ PHÁT HIỆN LỖI PHP NGẦM:", text);
-            throw new Error("Dữ liệu trả về không phải JSON. Hãy xem Console.");
-        }
-    })
-    .then(res => {
-        if (res.success) { 
-            alert('✅ Đã cập nhật lên ' + progress + '%'); 
-            loadMyTickets(); 
-        } else {
-            alert('❌ ' + res.error);
-        }
-    })
-    .catch(err => {
-        console.error("Chi tiết lỗi:", err);
-        alert('Lỗi hệ thống! Vui lòng ấn F12 và xem tab Console để biết dòng PHP nào đang lỗi.');
-    });
+    // Set thanh kéo tiến độ
+    const progressInput = document.getElementById('modal_progress');
+    progressInput.value = currentProgress;
+    document.getElementById('progress_display').innerText = currentProgress + '%';
+
+    toggleProgress(); // Ẩn/hiện thanh kéo tùy trạng thái
+    loadTicketHistory(ticketId); // Tải lịch sử xử lý
+    $('#updateTicketModal').modal('show'); // Hiển thị modal (Yêu cầu có jQuery & Bootstrap)
 }
 
+// 3. Hàm tải Timeline từ API
+function loadTicketHistory(ticketId) {
+    const container = document.getElementById('ticket_timeline');
+    container.innerHTML = '<small class="text-muted">Đang tải...</small>';
+
+    fetch(`../../backend/api/repair_logs.php?ticket_id=${ticketId}`, {credentials:'include'})
+    .then(r => r.json())
+    .then(res => {
+        if(!res.success || res.data.length === 0) {
+            container.innerHTML = '<small class="text-muted">Chưa có ghi chú nào trước đó.</small>';
+            return;
+        }
+        
+        let html = '<div class="idt-timeline-mini" style="border-left: 2px solid #ddd; padding-left: 15px;">';
+        res.data.forEach(log => {
+            html += `
+                <div class="mb-2 pb-2 border-bottom">
+                    <div class="d-flex justify-content-between">
+                        <strong style="font-size: 12px;">${log.user_name}</strong>
+                        <small class="text-muted" style="font-size: 10px;">${log.created_at}</small>
+                    </div>
+                    <div style="font-size: 13px; color: #333;">${log.action}</div>
+                    ${log.note ? `<div class="text-info" style="font-size: 12px; font-style: italic;">Ghi chú: ${log.note}</div>` : ''}
+                </div>`;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    })
+    .catch(() => container.innerHTML = '<small class="text-danger">Lỗi tải lịch sử.</small>');
+}
+
+// 4. Logic: Tự động chỉnh tiến độ theo Trạng thái (Hoàn tất = 100%, Hủy = 0%)
+function toggleProgress() {
+    const isCompleted = document.getElementById('st_completed').checked;
+    const isCancelled = document.getElementById('st_cancelled').checked;
+    const wrapper = document.getElementById('progress_wrapper');
+    const slider = document.getElementById('modal_progress');
+    const display = document.getElementById('progress_display');
+
+    if (isCompleted) {
+        slider.value = 100;
+        display.innerText = '100%';
+        wrapper.style.display = 'none'; // Đã xong thì ẩn thanh kéo đi
+    } else if (isCancelled) {
+        slider.value = 0;
+        display.innerText = '0%';
+        wrapper.style.display = 'none'; // Hủy thì ẩn thanh kéo đi
+    } else {
+        wrapper.style.display = 'block'; // Đang sửa thì cho phép kéo
+    }
+}
+
+// 5. Gửi dữ liệu cập nhật về Backend
+async function submitTicketUpdate() {
+    const ticketId = document.getElementById('modal_ticket_id').value;
+    const status = document.querySelector('input[name="modal_status"]:checked').value;
+    const progress = parseInt(document.getElementById('modal_progress').value);
+    const note = document.getElementById('modal_note').value.trim();
+
+    try {
+        // API 1: Cập nhật Trạng thái và Tiến độ vào bảng repair_tickets
+        let res1 = await fetch('../../backend/api/repair_tickets.php', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
+            body: JSON.stringify({ id: ticketId, status: status, progress: progress })
+        }).then(r => r.json());
+
+        if (!res1.success) throw new Error(res1.error);
+
+        // API 2: Nếu nhân viên có nhập Ghi chú, lưu vào bảng repair_logs
+        if (note !== '') {
+            let actionText = `Cập nhật tiến độ: ${progress}% (Trạng thái: ${status})`;
+            let res2 = await fetch('../../backend/api/repair_logs.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                credentials: 'include',
+                body: JSON.stringify({
+                    repair_ticket_id: ticketId,
+                    action: actionText,
+                    note: note
+                })
+            }).then(r => r.json());
+            
+            if (!res2.success) console.warn("Lỗi lưu log:", res2.error);
+        }
+
+        alert('✅ Đã cập nhật thành công!');
+        $('#updateTicketModal').modal('hide'); // Đóng Modal
+        loadMyTickets(); // Load lại bảng ngay lập tức
+
+    } catch (err) {
+        console.error("Lỗi:", err);
+        alert('❌ Có lỗi xảy ra: ' + err.message);
+    }
+}
+
+// 6. Đăng xuất (Hàm cũ giữ nguyên)
 function logoutStaff() {
     if(!confirm("Đăng xuất khỏi hệ thống?")) return;
     fetch("../../backend/api/logout.php", { credentials: "include" })
     .then(() => { window.location.href = "index.php"; });
+}
+
+// 7. Xem lịch sử xử lý
+function viewTimeline(ticketId) {
+    // Bạn có thể mở modal tương tự như ở trang nhanvien.php 
+    // để load file repair_logs.php?ticket_id=...
+    alert("Tính năng đang tải lịch sử cho Case #RT-" + ticketId);
 }

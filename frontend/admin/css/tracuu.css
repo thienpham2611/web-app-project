@@ -1,0 +1,119 @@
+/* Layout chung cho trang Tra cứu */
+.content-inner {
+    background-color: #f4f7fb;
+    min-height: 100vh;
+}
+
+/* Section Header */
+h5.border-bottom {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    padding-bottom: 15px !important;
+    margin-bottom: 20px;
+}
+
+/* Khối tìm kiếm (Search Box) */
+.search-box {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+    border: 1px solid #eef2f6;
+}
+
+.search-box .form-control {
+    border-radius: 5px;
+    border: 1px solid #dce1e7;
+    padding: 10px 15px;
+}
+
+.search-box .btn-primary {
+    padding: 10px 25px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+/* Danh sách thiết bị (Data Item) */
+.data-item {
+    background: #fff;
+    border: 1px solid #eef2f6;
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.data-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border-color: #007bff;
+}
+
+/* Border riêng cho thiết bị chờ phê duyệt */
+.border-warning {
+    border-left: 4px solid #ffc107 !important;
+}
+
+/* Hiển thị dấu chấm đầu dòng đồng bộ */
+.data-item strong {
+    color: #333;
+}
+
+.data-item .text-muted {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* Badge số lần sửa chữa */
+.badge-count {
+    background: #f0f3f9;
+    color: #335d96;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 50px;
+    border: 1px solid #d1d9e6;
+}
+
+/* Badge trạng thái thiết bị */
+.badge-info {
+    background-color: #17a2b8;
+    font-weight: 500;
+    padding: 5px 10px;
+}
+
+/* Nút phê duyệt nhanh */
+.btn-success {
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 6px 15px;
+}
+
+/* Căn chỉnh khoảng cách cho icon */
+.fa-fw {
+    margin-right: 8px;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+    .data-item {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .badge-count {
+        margin-top: 10px;
+        display: inline-block;
+    }
+    
+    .btn-success {
+        margin-top: 15px;
+        width: 100%;
+    }
+}
