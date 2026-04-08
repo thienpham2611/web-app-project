@@ -60,12 +60,7 @@ $tasks = mysqli_query($conn, $sql_tasks);
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .task-item { background: #fff; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; }
-        .task-item:hover { border-color: #007bff; }
-        .task-overdue { border-left: 5px solid #dc3545; background: #fff5f5; }
-        .stat-card { padding: 20px; border-radius: 8px; color: #fff; margin-bottom: 20px; }
-    </style>
+    <link rel="stylesheet" href="css/dashboard.css">
 </head>
 
 <body>
@@ -140,21 +135,6 @@ $tasks = mysqli_query($conn, $sql_tasks);
                 </li>
                 <?php endif; ?>
                 <li class="mb-2">
-                    <a href="tables.php" class="text-black d-block py-1">
-                        <i class="fa fa-table fa-fw"></i> Bảng dữ liệu
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="invoice.php" class="text-black d-block py-1">
-                        <i class="fa fa-file-text fa-fw"></i> Hóa đơn
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="email.php" class="text-black d-block py-1">
-                        <i class="fa fa-envelope fa-fw"></i> Email
-                    </a>
-                </li>
-                <li class="mb-2">
                     <a href="profile.php" class="text-black d-block py-1">
                         <i class="fa fa-user fa-fw"></i> Hồ sơ
                     </a>
@@ -169,25 +149,30 @@ $tasks = mysqli_query($conn, $sql_tasks);
                         <i class="fa fa-dashboard fa-fw"></i> Bảng điều khiển
                     </a>
                 </li>
+                <li class="mb-2">
+                    <a href="tracuu_manager.php" class="text-black d-block py-1">
+                        <i class="fa fa-search"></i> Tra cứu
+                    </a>
+                </li>
             </ul>
         </nav>
 
         <div class="content-inner w-100">
             <div class="p-4">
-                <div class="row">
+                <div class="row" style="text-align: center;">
                     <div class="col-md-4">
                         <div class="stat-card bg-primary">
-                            <h5>● Đang xử lý: <?= $stats['dang_xu_ly'] ?></h5>
+                            <h5>Đang xử lý: <?= $stats['dang_xu_ly'] ?></h5>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card bg-success">
-                            <h5>● Hoàn thành: <?= $stats['da_xong'] ?></h5>
+                            <h5>Hoàn thành: <?= $stats['da_xong'] ?></h5>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card bg-info">
-                            <h5>● Tổng thiết bị: <?= $stats['tong_may'] ?></h5>
+                            <h5>Tổng thiết bị: <?= $stats['tong_may'] ?></h5>
                         </div>
                     </div>
                 </div>
@@ -200,7 +185,7 @@ $tasks = mysqli_query($conn, $sql_tasks);
                         ?>
                         <div class="task-item p-3 d-flex justify-content-between align-items-center <?= $isOverdue ? 'task-overdue' : '' ?>">
                             <div>
-                                ● <strong><?= htmlspecialchars($row['device_name']) ?></strong>
+                                <strong><?= htmlspecialchars($row['device_name']) ?></strong>
                                 <?php if($isOverdue): ?><span class="text-danger small ml-2">[QUÁ HẠN]</span><?php endif; ?>
                                 <p class="mb-0 text-muted small ml-3"><?= htmlspecialchars($row['description']) ?></p>
                             </div>

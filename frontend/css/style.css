@@ -1713,57 +1713,62 @@ p {
    CUSTOM NOTIFICATION DROPDOWN (KHACHHANG)
    ========================================= */
 
-/* Mở rộng khung dropdown, ghi đè inline-style 300px */
-#notification-bell .dropdown-menu {
-    width: 360px !important; 
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+/* Container tổng */
+.notif-item-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1px; /* Cực kỳ sát nhau */
 }
 
-/* Định dạng từng item thông báo */
-#notif-list .dropdown-item {
-    display: flex; /* Căn chỉnh icon và chữ nằm ngang */
-    align-items: flex-start;
-    padding: 12px 15px;
-    border-bottom: 1px solid #f1f1f1;
-    white-space: normal !important; /* QUAN TRỌNG: Cho phép chữ xuống dòng tự nhiên */
-    background-color: #fff;
-    transition: background-color 0.2s ease;
+/* Tiêu đề có chứa % */
+.notif-main-text {
+    font-size: 14.5px; 
+    color: #222;
+    line-height: 1.3;
 }
 
-#notif-list .dropdown-item:hover {
-    background-color: #f4f8ff; /* Đổi màu xanh nhạt khi hover */
+.notif-title-percent {
+    color: #17a2b8;
+    font-weight: 800;
 }
 
-#notif-list .dropdown-item:last-child {
-    border-bottom: none;
+.notif-staff-text {
+    font-size: 12px;
+    color: #666;
 }
 
-/* Căn chỉnh Icon cảnh báo */
-#notif-list .notif-icon {
-    font-size: 20px;
-    margin-right: 15px;
-    margin-top: 2px;
-    min-width: 24px;
-    text-align: center;
+/* Hàng tiến độ sát lại */
+.notif-prog-row-inline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 3px 0;
 }
 
-/* Căn chỉnh nội dung chữ */
-#notif-list .notif-content {
-    flex: 1; /* Cho phép phần chữ chiếm hết không gian còn lại */
-}
-
-#notif-list .notif-content p {
-    margin: 0;
-    font-size: 14px;
-    color: #333;
-    line-height: 1.5;
-}
-
-#notif-list .notif-content small {
+.notif-prog-label {
     font-size: 12px;
     color: #888;
-    display: block;
-    margin-top: 5px;
+}
+
+.notif-prog-track-inline {
+    flex: 1;
+    height: 7px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.notif-prog-fill-cyan {
+    height: 100%;
+    background-color: #17a2b8;
+}
+
+/* Ghi chú: Chữ đứng, bự, rõ */
+.notif-note-bottom {
+    font-size: 13.5px;      /* Chữ bự dễ nhìn */
+    font-style: normal;     /* Không nghiêng */
+    font-weight: 600;       /* Đậm rõ nét */
+    color: #17a2b8;         /* Màu Cyan đồng bộ */
+    margin-top: 2px;
+    line-height: 1.2;
 }

@@ -120,21 +120,6 @@ $staff_stats = mysqli_fetch_all($res_staff, MYSQLI_ASSOC);
                 </li>
                 <?php endif; ?>
                 <li class="mb-2">
-                    <a href="tables.php" class="text-black d-block py-1">
-                        <i class="fa fa-table fa-fw"></i> Bảng dữ liệu
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="invoice.php" class="text-black d-block py-1">
-                        <i class="fa fa-file-text fa-fw"></i> Hóa đơn
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="email.php" class="text-black d-block py-1">
-                        <i class="fa fa-envelope fa-fw"></i> Email
-                    </a>
-                </li>
-                <li class="mb-2">
                     <a href="profile.php" class="text-black d-block py-1">
                         <i class="fa fa-user fa-fw"></i> Hồ sơ
                     </a>
@@ -147,6 +132,11 @@ $staff_stats = mysqli_fetch_all($res_staff, MYSQLI_ASSOC);
                 <li class="mb-2">
                     <a href="dashboard.php" class="text-black d-block py-1">
                         <i class="fa fa-dashboard fa-fw"></i> Bảng điều khiển
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="tracuu_manager.php" class="text-black d-block py-1">
+                        <i class="fa fa-search"></i> Tra cứu
                     </a>
                 </li>
             </ul>
