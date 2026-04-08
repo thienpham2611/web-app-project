@@ -15,6 +15,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'manager
 $input = json_decode(file_get_contents("php://input"), true) ?? $_POST;
 $ticket_id = intval($input['ticket_id'] ?? 0);
 $staff_id  = intval($input['staff_id'] ?? 0);
+$due_date  = trim($input['due_date'] ?? '');
 
 if ($ticket_id <= 0 || $staff_id <= 0) {
     http_response_code(400);
@@ -34,12 +35,34 @@ if (!$staff) {
     exit;
 }
 
-// Cập nhật ticket: gán nhân viên + chuyển trạng thái sang repairing
-$stmt = mysqli_prepare($conn,
-    "UPDATE repair_tickets SET user_id = ?, status = 'repairing' WHERE id = ?");
-mysqli_stmt_bind_param($stmt, "ii", $staff_id, $ticket_id);
+// Cập nhật ticket: gán nhân viên + chuyển trạng thái sang repairing + lưu deadline
+$assigned_date = date('Y-m-d');
+if (!empty($due_date)) {
+    $stmt = mysqli_prepare($conn,
+        "UPDATE repair_tickets SET user_id = ?, status = 'repairing', assigned_date = ?, due_date = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "issi", $staff_id, $assigned_date, $due_date, $ticket_id);
+} else {
+    $stmt = mysqli_prepare($conn,
+        "UPDATE repair_tickets SET user_id = ?, status = 'repairing', assigned_date = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "isi", $staff_id, $assigned_date, $ticket_id);
+}
 
 if (mysqli_stmt_execute($stmt)) {
+    // Tạo thông báo "được giao việc" cho nhân viên
+    $msg_assign = "🔧 Bạn được giao sửa phiếu #TICK-{$ticket_id}. Thiết bị sẽ được kiểm tra ngay!";
+    $stmtN = mysqli_prepare($conn, "INSERT INTO notifications (user_id, message) VALUES (?, ?)");
+    mysqli_stmt_bind_param($stmtN, "is", $staff_id, $msg_assign);
+    mysqli_stmt_execute($stmtN);
+
+    // Nếu có deadline, tạo thêm thông báo nhắc hạn
+    if (!empty($due_date)) {
+        $due_fmt = date('d/m/Y', strtotime($due_date));
+        $msg_due = "⏰ Phiếu #TICK-{$ticket_id} có deadline: {$due_fmt}. Hãy hoàn thành đúng hạn!";
+        $stmtD = mysqli_prepare($conn, "INSERT INTO notifications (user_id, message) VALUES (?, ?)");
+        mysqli_stmt_bind_param($stmtD, "is", $staff_id, $msg_due);
+        mysqli_stmt_execute($stmtD);
+    }
+
     echo json_encode([
         "success" => true,
         "message" => "Đã giao phiếu #TICK-{$ticket_id} cho {$staff['name']}!"

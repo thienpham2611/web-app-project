@@ -238,9 +238,24 @@ function loadCustomerNotifications() {
             badge.style.display = 'none';
             return;
         }
-        badge.textContent = result.count > 9 ? '9+' : result.count;
-        badge.style.display = 'inline-block';
+
+        // Lấy timestamp lần cuối mở chuông
+        var lastSeen = parseInt(localStorage.getItem('customer_notif_seen') || '0');
+        var unreadCount = result.data.filter(n => {
+            if (!n.time) return false;
+            return new Date(n.time).getTime() > lastSeen;
+        }).length;
+
+        if (unreadCount > 0) {
+            badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+
         list.innerHTML = result.data.map(n => {
+            var isUnread = n.time && new Date(n.time).getTime() > lastSeen;
+            var bg = isUnread ? 'background:#fff8e1;' : '';
             let extraHtml = '';
             if (n.type === 'repair_log' && n.progress !== undefined) {
                 const barColor = n.progress >= 90 ? '#28a745' : n.progress < 30 ? '#dc3545' : '#17a2b8';
@@ -251,12 +266,17 @@ function loadCustomerNotifications() {
                     <small style="color:#666;">${n.progress}%</small>
                 </div>`;
             }
-            return `<a class="dropdown-item py-2 border-bottom" href="${n.link}" style="white-space:normal;font-size:13px;">${n.message}${extraHtml}</a>`;
+            return `<a class="dropdown-item py-2 border-bottom" href="${n.link}" style="white-space:normal;font-size:13px;${bg}">${n.message}${extraHtml}</a>`;
         }).join('');
     });
 }
 document.addEventListener('DOMContentLoaded', function() {
     loadCustomerNotifications();
     var bell = document.getElementById('notification-bell');
-    if (bell) { bell.addEventListener('show.bs.dropdown', loadCustomerNotifications); }
+    if (bell) {
+        bell.addEventListener('show.bs.dropdown', function() {
+            localStorage.setItem('customer_notif_seen', Date.now().toString());
+            loadCustomerNotifications();
+        });
+    }
 });

@@ -20,7 +20,7 @@ function loadMyTickets() {
         tbody.innerHTML = '';
 
         if (!res.success || !res.data || res.data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-3">Bạn hiện chưa có công việc nào được giao.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Bạn hiện chưa có công việc nào được giao.</td></tr>';
             return;
         }
 
@@ -33,7 +33,22 @@ function loadMyTickets() {
             const bar = parseInt(item.progress)||0;
             const barColor = bar>=90?'bg-success':bar<30?'bg-danger':'bg-info';
 
-            // [ĐÃ SỬA]: Gọi hàm openUpdateModal thay vì updateTicketStatus cũ
+            // Xử lý deadline
+            let deadlineHtml = '<span class="text-muted">—</span>';
+            if (item.due_date) {
+                const today = new Date(); today.setHours(0,0,0,0);
+                const due = new Date(item.due_date);
+                const daysLeft = Math.ceil((due - today) / 86400000);
+                const dueFmt = due.toLocaleDateString('vi-VN');
+                if (daysLeft < 0) {
+                    deadlineHtml = `<span class="badge badge-danger p-1">⚠ Quá hạn ${Math.abs(daysLeft)} ngày<br>${dueFmt}</span>`;
+                } else if (daysLeft <= 2) {
+                    deadlineHtml = `<span class="badge badge-warning p-1">🔔 Còn ${daysLeft} ngày<br>${dueFmt}</span>`;
+                } else {
+                    deadlineHtml = `<small class="text-success">${dueFmt}<br>(còn ${daysLeft} ngày)</small>`;
+                }
+            }
+
             tbody.innerHTML += `<tr>
                 <td><strong>#RT-${item.id}</strong></td>
                 <td>${item.device_name??'—'}<br><small class="text-muted">S/N: ${item.serial_number??'—'}</small></td>
@@ -44,6 +59,7 @@ function loadMyTickets() {
                     </div>
                     <small class="font-weight-bold">${bar}%</small>
                 </td>
+                <td class="text-center">${deadlineHtml}</td>
                 <td class="text-center"><span class="badge ${sc} p-2">${st}</span></td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-outline-primary" onclick="openUpdateModal(${item.id}, '${item.status}', ${bar})">
@@ -52,9 +68,10 @@ function loadMyTickets() {
                 </td>
             </tr>`;
         });
+        checkDeadlineNotifications(res.data);
     }).catch(err => {
         console.error(err);
-        document.getElementById('tech-repair-list').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Lỗi tải dữ liệu.</td></tr>';
+        document.getElementById('tech-repair-list').innerHTML = '<tr><td colspan="7" class="text-center text-danger">Lỗi tải dữ liệu.</td></tr>';
     });
 }
 
@@ -172,6 +189,7 @@ async function submitTicketUpdate() {
         alert('✅ Đã cập nhật thành công!');
         $('#updateTicketModal').modal('hide'); // Đóng Modal
         loadMyTickets(); // Load lại bảng ngay lập tức
+        loadStaffNotifications();
 
     } catch (err) {
         console.error("Lỗi:", err);
@@ -179,16 +197,111 @@ async function submitTicketUpdate() {
     }
 }
 
+
+// ==========================================
+// THÔNG BÁO NHÂN VIÊN
+// ==========================================
+function loadStaffNotifications() {
+    fetch('../../backend/api/notifications_staff.php', { credentials: 'include' })
+    .then(r => r.json())
+    .then(res => {
+        const list  = document.getElementById('staff-notif-list');
+        const badge = document.getElementById('staff-notif-badge');
+        if (!list || !badge) return;
+
+        if (!res.success || res.data.length === 0) {
+            list.innerHTML = '<div class="text-center text-muted py-3 small">Không có thông báo nào</div>';
+            badge.style.display = 'none';
+            return;
+        }
+
+        const unread = res.data.filter(n => !parseInt(n.is_read)).length;
+        if (unread > 0) {
+            badge.textContent = unread > 9 ? '9+' : unread;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+
+        list.innerHTML = res.data.map(n => {
+            const bg    = parseInt(n.is_read) ? '' : 'background:#fff8e1;';
+            const time  = n.created_at ? new Date(n.created_at).toLocaleString('vi-VN', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+            return `<div class="dropdown-item py-2 border-bottom" style="white-space:normal;font-size:13px;${bg}cursor:pointer;"
+                        onclick="markStaffNotifRead(${n.id}, this)">
+                        <div>${n.message}</div>
+                        <small class="text-muted">${time}</small>
+                    </div>`;
+        }).join('');
+    })
+    .catch(() => {
+        const list = document.getElementById('staff-notif-list');
+        if (list) list.innerHTML = '<div class="text-center text-danger py-2 small">Lỗi tải thông báo</div>';
+    });
+}
+
+function markStaffNotifRead(id, el) {
+    fetch('../../backend/api/notifications_staff.php', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id })
+    }).then(() => {
+        if (el) el.style.background = '';
+        loadStaffNotifications();
+    });
+}
+
+function markAllStaffNotifRead() {
+    fetch('../../backend/api/notifications_staff.php', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ mark_all: true })
+    }).then(() => loadStaffNotifications());
+}
+
+// Tự động tạo thông báo nhắc deadline sắp đến (≤ 2 ngày) nếu chưa có
+function checkDeadlineNotifications(tickets) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    tickets.forEach(item => {
+        if (!item.due_date) return;
+        const due = new Date(item.due_date);
+        const daysLeft = Math.ceil((due - today) / 86400000);
+        if (daysLeft >= 0 && daysLeft <= 2) {
+            const msg = daysLeft === 0
+                ? `⚠️ Phiếu #RT-${item.id} đến hạn HÔM NAY! Hãy hoàn thành ngay.`
+                : `🔔 Phiếu #RT-${item.id} còn ${daysLeft} ngày đến deadline (${new Date(item.due_date).toLocaleDateString('vi-VN')}).`;
+
+            fetch('../../backend/api/notifications_staff.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ message: msg })
+            });
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadStaffNotifications();
+    const bell = document.getElementById('staff-notif-bell');
+    if (bell) {
+        bell.addEventListener('show.bs.dropdown', function() {
+            // Tính vị trí dropdown theo bell icon
+            
+            // Mark all read rồi load
+            fetch('../../backend/api/notifications_staff.php', {
+                method: 'PUT', headers: {'Content-Type':'application/json'},
+                credentials: 'include',
+                body: JSON.stringify({ mark_all: true })
+            }).then(() => loadStaffNotifications());
+        });
+    }
+});
+
 // 6. Đăng xuất (Hàm cũ giữ nguyên)
 function logoutStaff() {
     if(!confirm("Đăng xuất khỏi hệ thống?")) return;
     fetch("../../backend/api/logout.php", { credentials: "include" })
     .then(() => { window.location.href = "index.php"; });
-}
-
-// 7. Xem lịch sử xử lý
-function viewTimeline(ticketId) {
-    // Bạn có thể mở modal tương tự như ở trang nhanvien.php 
-    // để load file repair_logs.php?ticket_id=...
-    alert("Tính năng đang tải lịch sử cho Case #RT-" + ticketId);
 }

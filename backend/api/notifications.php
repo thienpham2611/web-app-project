@@ -5,7 +5,9 @@ $requiredRoles = ['admin', 'manager', 'staff'];
 require_once "../middleware/check_auth.php";
 
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Origin: *");
+$origin = $_SERVER['HTTP_ORIGIN'] ?? 'http://localhost';
+header("Access-Control-Allow-Origin: $origin");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
@@ -50,15 +52,18 @@ function handleGet($conn) {
 // POST: tạo thông báo (admin/manager gửi)
 // ──────────────────────────────────────────
 function handlePost($conn) {
-    if (!in_array($_SESSION['role'], ['admin', 'manager'])) {
+    $input     = json_decode(file_get_contents("php://input"), true) ?? [];
+
+    // Staff chỉ được tạo thông báo cho chính mình (deadline reminder)
+    $is_self = isset($input['_self']) && $input['_self'] === true;
+    if (!$is_self && !in_array($_SESSION['role'], ['admin', 'manager'])) {
         http_response_code(403);
         echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
         return;
     }
 
-    $input     = json_decode(file_get_contents("php://input"), true) ?? [];
     $device_id = intval($input['device_id'] ?? 0) ?: null;
-    $user_id   = intval($input['user_id'] ?? 0);
+    $user_id   = $is_self ? intval($_SESSION['user_id']) : intval($input['user_id'] ?? 0);
     $message   = trim($input['message'] ?? '');
 
     if ($user_id <= 0 || $message === '') {

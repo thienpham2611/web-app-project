@@ -213,17 +213,19 @@ function openAssignModal(ticketId, label) {
         (res.data||[]).filter(u=>u.role==='staff'||u.role==='manager')
             .forEach(u=>{ sel.innerHTML+=`<option value="${u.id}">${u.name} (${u.role==='manager'?'Quản lý':'KTV'})</option>`; });
     });
+    document.getElementById('assign_due_date').value = '';
     $('#assignStaffModal').modal('show');
 }
 
 function submitAssign() {
     const ticketId=document.getElementById('assign_ticket_id').value;
     const staffId=document.getElementById('assign_staff_id').value;
+    const dueDate=document.getElementById('assign_due_date')?.value || '';
     if (!staffId) { alert('Vui lòng chọn kỹ thuật viên!'); return; }
     fetch('../../backend/api/assign_ticket.php', {
         method:'POST', headers:{'Content-Type':'application/json'},
         credentials: 'include',
-        body: JSON.stringify({ticket_id:parseInt(ticketId), staff_id:parseInt(staffId)})
+        body: JSON.stringify({ticket_id:parseInt(ticketId), staff_id:parseInt(staffId), due_date:dueDate})
     }).then(r=>r.json()).then(res=>{
         if (res.success) { alert('✅ '+res.message); $('#assignStaffModal').modal('hide'); loadRepairProgress(); }
         else alert('❌ '+res.error);
