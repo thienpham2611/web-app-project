@@ -1,4 +1,6 @@
 <?php
+session_name('STAFF_SESSION');
+session_start();
 require_once "../config/database.php";
 
 header("Content-Type: application/json; charset=UTF-8");
@@ -87,11 +89,10 @@ if ($user = mysqli_fetch_assoc($result)) {
 
     if (password_verify($password, $user['password'])) {
 
-        session_name('STAFF_SESSION');
-session_start();
         session_regenerate_id(true);
 
         $_SESSION['user_id'] = $user['id'];
+        $_SESSION['name']    = $user['name'];
         $_SESSION['role']    = $user['role'];
 
         http_response_code(200);

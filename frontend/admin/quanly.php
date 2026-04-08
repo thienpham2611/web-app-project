@@ -100,7 +100,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <div class="navbar-holder d-flex align-items-center justify-content-between">
-                    <div class="navbar-header">
+                    <div class="navbar-header d-flex align-items-center w-100">
                         <a href="quanly.php" class="navbar-brand">
                             <div class="brand-text brand-big hidden-lg-down">
                                 <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
@@ -114,10 +114,25 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                                 Xin chào, <strong><?php echo isset($_SESSION['name']) ? htmlspecialchars($_SESSION['name']) : strtoupper($currentRole); ?></strong>
                                 <small class="text-muted ml-1">(<?= $roleLabel[$currentRole] ?? $currentRole ?>)</small>
                             </li>
-                            <li class="nav-item">
-                                <a href="#" id="logoutBtn" class="nav-link text-danger font-weight-bold" style="padding: 0;">
-                                    <i class="fa fa-sign-out"></i> Đăng xuất
+
+
+                            <li class="nav-item dropdown" id="staff-notif-bell" style="list-style:none;">
+                                <a href="#" class="dropdown-toggle position-relative nav-link" data-toggle="dropdown"
+                                   style="color:#ff9800;padding:0 5px;">
+                                    <i class="fa fa-bell fa-lg"></i>
+                                    <span id="staff-notif-badge" class="badge badge-danger"
+                                          style="position:absolute;top:-4px;right:-2px;font-size:9px;padding:2px 4px;display:none;">0</span>
                                 </a>
+                                <div class="dropdown-menu dropdown-menu-right shadow p-0"
+                                     style="width:300px;max-height:360px;overflow-y:auto;">
+                                    <div class="px-3 py-2 border-bottom bg-light d-flex justify-content-between align-items-center">
+                                        <strong><i class="fa fa-bell text-warning"></i> Thông báo</strong>
+                                        <a href="#" onclick="markAllStaffNotifRead(); return false;" class="small text-muted">Đánh dấu tất cả</a>
+                                    </div>
+                                    <div id="staff-notif-list">
+                                        <div class="text-center text-muted py-3 small"><i class="fa fa-spinner fa-spin"></i> Đang tải...</div>
+                                    </div>
+                                </div>
                             </li>
                         </ul>
                     </div>
@@ -191,6 +206,13 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                 </li>
                 <?php endif; ?>
             </ul>
+            <div style="position:absolute;bottom:20px;left:0;right:0;padding:0 10px;">
+                <a href="#" id="logoutBtn"
+                   class="d-block py-2 px-3 text-danger font-weight-bold"
+                   style="border-top:1px solid #eee;">
+                    <i class="fa fa-sign-out"></i> Đăng xuất
+                </a>
+            </div>
         </nav>
         <!-- END SIDEBAR -->
 
@@ -233,6 +255,8 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                                                 <td class="text-center"><?= htmlspecialchars($tick['description']) ?></td>
                                                 <?php if (in_array($currentRole, ['admin', 'manager'])): ?>
                                                 <td class="text-center">
+                                                    <input type="date" class="form-control form-control-sm mb-1" id="due_date_<?= $tick['id'] ?>"
+                                                           min="<?= date('Y-m-d') ?>" placeholder="Hạn hoàn thành">
                                                     <select class="form-control form-control-sm" id="staff_assign_<?= $tick['id'] ?>">
                                                         <option value="">-- Chọn thợ --</option>
                                                         <?php foreach ($staff_list as $staff): ?>
@@ -593,6 +617,7 @@ function viewDeviceDetail(id) {
 <?php if (in_array($currentRole, ['admin', 'manager'])): ?>
 function assignTicket(ticketId) {
     const staffId = document.getElementById('staff_assign_' + ticketId).value;
+    const dueDate = document.getElementById('due_date_' + ticketId)?.value || '';
     if (!staffId) { alert('Vui lòng chọn kỹ thuật viên!'); return; }
 
     const btn = event.currentTarget;
@@ -604,7 +629,7 @@ function assignTicket(ticketId) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ ticket_id: ticketId, staff_id: staffId })
+        body: JSON.stringify({ ticket_id: ticketId, staff_id: staffId, due_date: dueDate })
     })
     .then(r => r.json())
     .then(result => {

@@ -343,6 +343,11 @@ document.getElementById("logoutBtn").addEventListener("click", function(e) {
                         <option value="">-- Đang tải... --</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Hạn hoàn thành (Deadline)</label>
+                    <input type="date" id="assign_due_date" class="form-control" min="<?= date('Y-m-d') ?>">
+                    <small class="text-muted">Không bắt buộc. Nhân viên sẽ được thông báo nếu gần hết hạn.</small>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>

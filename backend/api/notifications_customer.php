@@ -89,4 +89,12 @@ foreach (mysqli_fetch_all(mysqli_stmt_get_result($stmt4), MYSQLI_ASSOC) as $log)
     ];
 }
 
+// Sắp xếp: có time thì mới nhất lên đầu, không có time xuống cuối
+usort($notifications, function($a, $b) {
+    if ($a['time'] && $b['time']) return strtotime($b['time']) - strtotime($a['time']);
+    if ($a['time']) return -1;
+    if ($b['time']) return 1;
+    return 0;
+});
+
 echo json_encode(["success"=>true,"count"=>count($notifications),"data"=>$notifications]);

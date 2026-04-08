@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 08, 2026 lúc 07:59 AM
+-- Thời gian đã tạo: Th4 08, 2026 lúc 03:02 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -128,7 +128,9 @@ INSERT INTO `notifications` (`id`, `device_id`, `user_id`, `message`, `is_read`,
 (9, 3, 8, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 40 ngày) vào ngày 15/05/2026.', 0, '2026-04-05 01:10:38'),
 (10, 3, 4, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 37 ngày) vào ngày 15/05/2026.', 0, '2026-04-08 02:06:47'),
 (11, 3, 5, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 37 ngày) vào ngày 15/05/2026.', 0, '2026-04-08 02:06:47'),
-(12, 3, 8, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 37 ngày) vào ngày 15/05/2026.', 0, '2026-04-08 02:06:47');
+(12, 3, 8, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 37 ngày) vào ngày 15/05/2026.', 0, '2026-04-08 02:06:47'),
+(13, NULL, 6, '🔧 Bạn được giao sửa phiếu #TICK-11. Thiết bị sẽ được kiểm tra ngay!', 0, '2026-04-08 12:51:57'),
+(14, NULL, 6, '⏰ Phiếu #TICK-11 có deadline: 22/04/2026. Hãy hoàn thành đúng hạn!', 0, '2026-04-08 12:51:57');
 
 -- --------------------------------------------------------
 
@@ -171,7 +173,10 @@ CREATE TABLE `repair_logs` (
 
 INSERT INTO `repair_logs` (`id`, `repair_ticket_id`, `user_id`, `action`, `note`, `created_at`) VALUES
 (1, 7, 6, 'Cập nhật tiến độ: 75% (Trạng thái: repairing)', 'Màn hình đã khởi động lại được', '2026-04-08 02:52:18'),
-(2, 5, 6, 'Cập nhật tiến độ: 30% (Trạng thái: repairing)', 'Đang nhận linh kiện', '2026-04-08 05:11:04');
+(2, 5, 6, 'Cập nhật tiến độ: 30% (Trạng thái: repairing)', 'Đang nhận linh kiện', '2026-04-08 05:11:04'),
+(3, 7, 6, 'Cập nhật tiến độ: 90% (Trạng thái: repairing)', 'Đang lau chùi và đóng gói', '2026-04-08 08:42:25'),
+(4, 5, 6, 'Cập nhật tiến độ: 60% (Trạng thái: repairing)', 'Màn hình đã lên', '2026-04-08 10:19:09'),
+(5, 6, 6, 'Cập nhật tiến độ: 20% (Trạng thái: repairing)', 'Test', '2026-04-08 12:43:36');
 
 -- --------------------------------------------------------
 
@@ -186,6 +191,8 @@ CREATE TABLE `repair_tickets` (
   `assigned_to` int(11) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   `received_date` date DEFAULT NULL,
+  `assigned_date` date DEFAULT NULL,
+  `due_date` date DEFAULT NULL,
   `description` text DEFAULT NULL,
   `status` enum('pending','repairing','completed','cancelled') DEFAULT 'pending',
   `progress` int(3) NOT NULL DEFAULT 0,
@@ -197,14 +204,14 @@ CREATE TABLE `repair_tickets` (
 -- Đang đổ dữ liệu cho bảng `repair_tickets`
 --
 
-INSERT INTO `repair_tickets` (`id`, `device_id`, `customer_id`, `assigned_to`, `user_id`, `received_date`, `description`, `status`, `progress`, `created_at`, `updated_at`) VALUES
-(4, 4, 1, 6, 6, '2026-03-15', 'Máy thỉnh thoảng bị xanh màn hình, cần kiểm tra RAM và cài lại Win.', 'completed', 100, '2026-03-29 02:55:04', '2026-04-08 05:31:05'),
-(5, 2, 1, 6, 6, '2026-03-29', 'Bị đơ máy', 'repairing', 30, '2026-03-29 03:13:36', '2026-04-08 05:31:22'),
-(6, 3, 1, NULL, NULL, '2026-03-29', 'Hay lag', 'pending', 0, '2026-03-29 03:18:06', '2026-03-29 03:18:06'),
-(7, 7, 2, 6, 6, '2026-03-29', 'Màn hình bị sét đánh cháy khét lèn lẹt', 'repairing', 75, '2026-03-29 04:32:48', '2026-04-08 05:31:42'),
-(10, 8, 1, 6, 6, '2026-04-05', 'RAM cháy', 'completed', 100, '2026-04-05 04:06:09', '2026-04-08 05:31:52'),
-(11, 9, 1, NULL, NULL, '2026-04-08', 'Test', 'pending', 0, '2026-04-08 04:21:09', '2026-04-08 04:21:09'),
-(12, 10, 1, NULL, NULL, '2026-04-08', 'test', 'pending', 0, '2026-04-08 04:24:43', '2026-04-08 04:24:43');
+INSERT INTO `repair_tickets` (`id`, `device_id`, `customer_id`, `assigned_to`, `user_id`, `received_date`, `assigned_date`, `due_date`, `description`, `status`, `progress`, `created_at`, `updated_at`) VALUES
+(4, 4, 1, 6, 6, '2026-03-15', NULL, NULL, 'Máy thỉnh thoảng bị xanh màn hình, cần kiểm tra RAM và cài lại Win.', 'completed', 100, '2026-03-29 02:55:04', '2026-04-08 05:31:05'),
+(5, 2, 1, 6, 6, '2026-03-29', NULL, NULL, 'Bị đơ máy', 'repairing', 60, '2026-03-29 03:13:36', '2026-04-08 10:19:09'),
+(6, 3, 1, NULL, 6, '2026-03-29', NULL, NULL, 'Hay lag', 'repairing', 20, '2026-03-29 03:18:06', '2026-04-08 12:43:35'),
+(7, 7, 2, 6, 6, '2026-03-29', NULL, NULL, 'Màn hình bị sét đánh cháy khét lèn lẹt', 'repairing', 90, '2026-03-29 04:32:48', '2026-04-08 08:42:25'),
+(10, 8, 1, 6, 6, '2026-04-05', NULL, NULL, 'RAM cháy', 'completed', 100, '2026-04-05 04:06:09', '2026-04-08 05:31:52'),
+(11, 9, 1, NULL, 6, '2026-04-08', '2026-04-08', '2026-04-22', 'Test', 'repairing', 0, '2026-04-08 04:21:09', '2026-04-08 12:51:57'),
+(12, 10, 1, NULL, NULL, '2026-04-08', NULL, NULL, 'test', 'pending', 0, '2026-04-08 04:24:43', '2026-04-08 04:24:43');
 
 -- --------------------------------------------------------
 
@@ -358,7 +365,7 @@ ALTER TABLE `invoices`
 -- AUTO_INCREMENT cho bảng `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT cho bảng `orders`
@@ -370,7 +377,7 @@ ALTER TABLE `orders`
 -- AUTO_INCREMENT cho bảng `repair_logs`
 --
 ALTER TABLE `repair_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `repair_tickets`
@@ -382,7 +389,7 @@ ALTER TABLE `repair_tickets`
 -- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT cho bảng `warranty_extensions`
