@@ -278,6 +278,7 @@ input {
 /*SIDEBAR*/
 
 nav.side-navbar {
+    position: relative; /* anchor absolute logout inside sidebar */
     background: #fff;
     min-width: 250px;
     max-width: 250px;
@@ -457,6 +458,7 @@ nav.side-navbar.shrinked .sidebar-header .title {
 
 @media (max-width: 1200px) {
     nav.side-navbar {
+        position: relative;
         margin-left: -90px;
         min-width: 90px;
         max-width: 90px;

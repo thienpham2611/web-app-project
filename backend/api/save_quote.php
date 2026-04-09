@@ -44,15 +44,23 @@ if (!$ticket) {
 }
 
 $customer_id = $ticket['customer_id'];
-$device_id   = $ticket['device_id'];
+$device_id   = isset($ticket['device_id']) && $ticket['device_id'] !== null && $ticket['device_id'] !== ''
+    ? (int) $ticket['device_id'] : null;
 
 mysqli_begin_transaction($conn);
 try {
-    // Tạo ORDER
-    $stmt2 = mysqli_prepare($conn,
-        "INSERT INTO orders (repair_ticket_id, customer_id, device_id, quote_amount, total_amount, status, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, 'quoted', NOW(), NOW())");
-    mysqli_stmt_bind_param($stmt2, "iiidd", $repair_ticket_id, $customer_id, $device_id, $quote_amount, $quote_amount);
+    // Tạo ORDER (device_id có thể NULL nếu phiếu không gắn thiết bị đăng ký)
+    if ($device_id !== null) {
+        $stmt2 = mysqli_prepare($conn,
+            "INSERT INTO orders (repair_ticket_id, customer_id, device_id, quote_amount, total_amount, status, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, 'quoted', NOW(), NOW())");
+        mysqli_stmt_bind_param($stmt2, "iiidd", $repair_ticket_id, $customer_id, $device_id, $quote_amount, $quote_amount);
+    } else {
+        $stmt2 = mysqli_prepare($conn,
+            "INSERT INTO orders (repair_ticket_id, customer_id, device_id, quote_amount, total_amount, status, created_at, updated_at)
+             VALUES (?, ?, NULL, ?, ?, 'quoted', NOW(), NOW())");
+        mysqli_stmt_bind_param($stmt2, "iidd", $repair_ticket_id, $customer_id, $quote_amount, $quote_amount);
+    }
     if (!mysqli_stmt_execute($stmt2)) throw new Exception("Lỗi tạo đơn hàng");
     $order_id = mysqli_insert_id($conn);
 

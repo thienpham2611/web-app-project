@@ -21,9 +21,9 @@ require_once "../../backend/config/database.php";
 $currentRole = $_SESSION['role'];
 
 // Lấy danh sách phiếu yêu cầu chờ phân công
-$sql_pending = "SELECT rt.id, rt.received_date, rt.description, d.name as device_name, c.name as customer_name, c.phone 
+$sql_pending = "SELECT rt.id, rt.received_date, rt.description, COALESCE(d.name, rt.device_name) as device_name, c.name as customer_name, c.phone 
                 FROM repair_tickets rt 
-                JOIN devices d ON rt.device_id = d.id 
+                LEFT JOIN devices d ON rt.device_id = d.id 
                 JOIN customers c ON rt.customer_id = c.id 
                 WHERE rt.status = 'pending' AND rt.user_id IS NULL
                 ORDER BY rt.created_at ASC";
@@ -39,9 +39,9 @@ $result_devices = mysqli_query($conn, $sql_all_devices);
 $all_devices = mysqli_fetch_all($result_devices, MYSQLI_ASSOC);
 
 // Lấy phiếu đang xử lý (pending đã gán + repairing)
-$sql_ongoing = "SELECT rt.*, d.name as device_name, u.name as staff_name 
+$sql_ongoing = "SELECT rt.*, COALESCE(d.name, rt.device_name) as device_name, u.name as staff_name 
                 FROM repair_tickets rt 
-                JOIN devices d ON rt.device_id = d.id 
+                LEFT JOIN devices d ON rt.device_id = d.id 
                 LEFT JOIN users u ON rt.user_id = u.id 
                 WHERE rt.status IN ('pending', 'repairing') AND rt.user_id IS NOT NULL
                 ORDER BY rt.updated_at DESC";
@@ -198,6 +198,14 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                         <i class="fa fa-dashboard fa-fw"></i> Bảng điều khiển
                     </a>
                 </li>
+                <li class="mb-2">
+                    <?php
+                    $tracuu_link = ($currentRole === 'admin') ? 'tracuu_admin.php' : 'tracuu_manager.php';
+                    ?>
+                    <a href="<?= $tracuu_link ?>" class="text-black d-block py-1">
+                        <i class="fa fa-search fa-fw"></i> Tra cứu
+                    </a>
+                </li>
                 <?php if ($currentRole === 'staff'): ?>
                 <li class="mb-2">
                     <a href="nhanvien.php" class="text-black d-block py-1">
@@ -208,8 +216,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
             </ul>
             <div style="position:absolute;bottom:20px;left:0;right:0;padding:0 10px;">
                 <a href="#" id="logoutBtn"
-                   class="d-block py-2 px-3 text-danger font-weight-bold"
-                   style="border-top:1px solid #eee;">
+                   class="d-block py-2 px-3 text-danger font-weight-bold">
                     <i class="fa fa-sign-out"></i> Đăng xuất
                 </a>
             </div>
@@ -468,15 +475,13 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="detail-modal-title">Chi tiết thiết bị</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body" id="detail-body">
                 <div class="text-center py-4"><i class="fa fa-spinner fa-spin fa-2x"></i></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -545,168 +550,6 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
 <script src="js/manager_actions.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-function viewDeviceDetail(id) {
-    const modal = $('#deviceDetailModal');
-    document.getElementById('detail-body').innerHTML = '<div class="text-center py-4"><i class="fa fa-spinner fa-spin fa-2x"></i></div>';
-    modal.modal('show');
-
-    fetch('../../backend/api/get_device_detail.php?id=' + id, { credentials: 'include' })
-    .then(r => r.json())
-    .then(res => {
-        if (!res.success) { alert('Lỗi: ' + res.error); return; }
-        const d = res.device, ts = res.tickets, ws = res.extensions;
-        const daysLeft = Math.ceil((new Date(d.warranty_end_date) - new Date()) / 86400000);
-        const wBadge = daysLeft < 0
-            ? '<span class="badge badge-danger">Đã hết hạn</span>'
-            : daysLeft <= 90
-                ? '<span class="badge badge-warning">Sắp hết hạn (' + daysLeft + ' ngày)</span>'
-                : '<span class="badge badge-success">Còn hạn</span>';
-
-        let tr = '';
-        ts.forEach(t => {
-            const stMap = { pending: 'Chờ xử lý', repairing: 'Đang sửa', completed: 'Hoàn tất', cancelled: 'Đã hủy' };
-            tr += `<tr>
-                <td>#TICK-${t.id}</td>
-                <td>${t.description ?? '—'}</td>
-                <td>${t.staff_name ?? 'Chưa gán'}</td>
-                <td><span class="badge badge-info">${stMap[t.status] ?? t.status}</span></td>
-            </tr>`;
-        });
-        if (!tr) tr = '<tr><td colspan="4" class="text-center text-muted">Chưa có</td></tr>';
-
-        let wr = '';
-        ws.forEach(w => {
-            wr += `<tr>
-                <td>${new Date(w.created_at).toLocaleDateString('vi-VN')}</td>
-                <td><del>${w.old_end_date}</del> → <strong class="text-success">${w.new_end_date}</strong></td>
-                <td>${Number(w.cost).toLocaleString('vi-VN')} đ</td>
-                <td>${w.user_name}</td>
-            </tr>`;
-        });
-        if (!wr) wr = '<tr><td colspan="4" class="text-center text-muted">Chưa có</td></tr>';
-
-        document.getElementById('detail-body').innerHTML = `
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <p><strong>Tên:</strong> ${d.name}</p>
-                    <p><strong>Serial:</strong> ${d.serial_number ?? '—'}</p>
-                    <p><strong>Loại:</strong> ${d.type === 'hardware' ? 'Phần cứng' : 'Phần mềm'}</p>
-                    <p><strong>Khách hàng:</strong> ${d.customer_name ?? '—'} ${d.customer_phone ? '(' + d.customer_phone + ')' : ''}</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Bắt đầu BH:</strong> ${d.warranty_start_date ?? '—'}</p>
-                    <p><strong>Hết hạn BH:</strong> ${d.warranty_end_date ?? '—'} ${wBadge}</p>
-                    <p><strong>Trạng thái:</strong> ${d.status}</p>
-                </div>
-            </div>
-            <h6 class="font-weight-bold border-bottom pb-1">Lịch sử phiếu sửa chữa</h6>
-            <table class="table table-sm table-bordered mb-3">
-                <thead class="thead-light"><tr><th>Mã</th><th>Mô tả</th><th>KTV</th><th>Trạng thái</th></tr></thead>
-                <tbody>${tr}</tbody>
-            </table>
-            <h6 class="font-weight-bold border-bottom pb-1">Lịch sử gia hạn bảo hành</h6>
-            <table class="table table-sm table-bordered">
-                <thead class="thead-light"><tr><th>Ngày</th><th>Thay đổi</th><th>Chi phí</th><th>Người thực hiện</th></tr></thead>
-                <tbody>${wr}</tbody>
-            </table>`;
-        document.getElementById('detail-modal-title').innerText = 'Chi tiết: ' + d.name;
-    }).catch(() => alert('Lỗi kết nối server!'));
-}
-
-<?php if (in_array($currentRole, ['admin', 'manager'])): ?>
-function assignTicket(ticketId) {
-    const staffId = document.getElementById('staff_assign_' + ticketId).value;
-    const dueDate = document.getElementById('due_date_' + ticketId)?.value || '';
-    if (!staffId) { alert('Vui lòng chọn kỹ thuật viên!'); return; }
-
-    const btn = event.currentTarget;
-    const originalHTML = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
-
-    fetch('../../backend/api/assign_ticket.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ ticket_id: ticketId, staff_id: staffId, due_date: dueDate })
-    })
-    .then(r => r.json())
-    .then(result => {
-        if (result.success) {
-            alert('Phân công thành công!');
-            location.reload();
-        } else {
-            alert('Lỗi: ' + (result.error || 'Không xác định'));
-        }
-    })
-    .catch(() => alert('Lỗi kết nối server!'))
-    .finally(() => { btn.disabled = false; btn.innerHTML = originalHTML; });
-}
-<?php endif; ?>
-</script>
-<script>
-$(document).ready(function() {
-    // Mở modal → load danh sách khách hàng
-    $('#modalDevice').on('show.bs.modal', function(e) {
-        loadCustomers();
-        const button = $(e.relatedTarget);
-        if (button.data('id')) {
-            // Chế độ Edit
-            loadDeviceData(button.data('id'));
-        } else {
-            // Chế độ Add new
-            $('#modalTitle').text('Thêm mới thiết bị');
-            $('#formDevice')[0].reset();
-            $('#device_id').val('');
-        }
-    });
-
-    function loadCustomers() {
-        $.get('../../backend/api/get_customers.php', function(data) {
-            let html = '<option value="">-- Chọn khách hàng --</option>';
-            data.forEach(c => {
-                html += `<option value="${c.id}">${c.name} (${c.phone || 'Chưa có SĐT'})</option>`;
-            });
-            $('#customer_id').html(html);
-        });
-    }
-
-    function loadDeviceData(id) {
-        $.get('../../backend/api/get_device.php?id=' + id, function(device) {
-            $('#modalTitle').text('Chỉnh sửa thiết bị #' + device.serial_number);
-            $('#device_id').val(device.id);
-            $('#serial_number').val(device.serial_number);
-            $('#name').val(device.name);
-            $('#customer_id').val(device.customer_id);
-            $('#warranty_end_date').val(device.warranty_end_date);
-            $('#type').val(device.type);
-            $('#status').val(device.status);
-        });
-    }
-
-    // Lưu thiết bị (Add & Edit cùng 1 API)
-    $('#btnSaveDevice').click(function() {
-        $.post('../../backend/api/save_device.php', {
-            id: $('#device_id').val(),
-            serial_number: $('#serial_number').val().trim(),
-            name: $('#name').val().trim(),
-            customer_id: $('#customer_id').val(),
-            warranty_end_date: $('#warranty_end_date').val(),
-            type: $('#type').val(),
-            status: $('#status').val()
-        }, function(res) {
-            if (res.success) {
-                alert(res.message);
-                $('#modalDevice').modal('hide');
-                location.reload(); // Hoặc reload DataTable nếu bạn dùng
-            } else {
-                alert('Lỗi: ' + res.message);
-            }
-        }, 'json');
-    });
-});
-</script>
 <!-- MODAL LÊN BÁO GIÁ SỬA CHỮA -->
 <div class="modal fade" id="modalBaoGia" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -785,117 +628,6 @@ $(document).ready(function() {
         </div>
     </div>
 </div>
-
-<!-- JAVASCRIPT TÀI CHÍNH (Manager) -->
-<script>
-$(document).ready(function() {
-
-    // Load danh sách khi mở modal
-    $('#modalBaoGia, #modalTaoDonHang').on('show.bs.modal', function() {
-        loadRepairTickets();
-        loadCustomersForOrder();
-    });
-
-    function loadRepairTickets() {
-        $.get('../../backend/api/get_repair_tickets.php', function(data) {
-            let html = '<option value="">-- Chọn phiếu sửa chữa --</option>';
-            data.forEach(t => {
-                html += `<option value="${t.id}">Phiếu #${t.id} - ${t.description.substring(0,30)}...</option>`;
-            });
-            $('#repair_ticket_id, #repair_ticket_id_order').html(html);
-        });
-    }
-
-    function loadCustomersForOrder() {
-        $.get('../../backend/api/get_customers.php', function(data) {
-            let html = '<option value="">-- Chọn khách hàng --</option>';
-            data.forEach(c => {
-                html += `<option value="${c.id}">${c.name} (${c.phone})</option>`;
-            });
-            $('#customer_id_order').html(html);
-        });
-    }
-    $('#repair_ticket_id').on('change', function() {
-    const ticketId = $(this).val();
-
-    if (!ticketId) {
-        $('#customer_name_display').val('');
-        $('#device_name_display').val('');
-        return;
-    }
-
-    $.get('../../backend/api/get_repair_ticket_detail.php?id=' + ticketId, function(res) {
-        if (res.success) {
-            $('#customer_name_display').val(res.data.customer_name);
-            $('#device_name_display').val(res.data.device_name);
-        } else {
-            alert('Lỗi: ' + res.message);
-        }
-    }, 'json');
-});
-    // Lưu báo giá
-    $('#btnLuuBaoGia').click(function() {
-    fetch('../../backend/api/save_quote.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            repair_ticket_id: $('#repair_ticket_id').val(),
-            quote_amount: $('#quote_amount').val(),
-            note: $('#note_quote').val()
-        })
-    })
-    .then(res => res.json())
-    .then(res => {
-        if (res.success) {
-            alert(res.message);
-            $('#modalBaoGia').modal('hide');
-            location.reload();
-        } else {
-            alert(res.message);
-        }
-    });
-});
-    // Tạo đơn hàng
-    $('#btnTaoDonHang').click(function() {
-        $.post('../../backend/api/save_order.php', {
-            repair_ticket_id: $('#repair_ticket_id_order').val(),
-            customer_id: $('#customer_id_order').val(),
-            total_amount: $('#total_amount').val()
-        }, function(res) {
-            if (res.success) {
-                alert(res.message);
-                $('#modalTaoDonHang').modal('hide');
-                location.reload();
-            } else alert(res.message || 'Lỗi');
-        }, 'json');
-    });
-
-    // In hóa đơn (demo – sẽ hoàn thiện thêm sau)
-    window.xuatHoaDon = function() {
-        alert('✅ Đang in hóa đơn... (Manager đã xác nhận thanh toán)\n\nHóa đơn mẫu sẽ mở trong tab mới.');
-        // Sau này sẽ gọi API in PDF
-        window.open('../../backend/api/print_invoice.php', '_blank');
-    };
-});
-</script>
-<script>
-document.getElementById("logoutBtn").addEventListener("click", function(e) {
-    e.preventDefault();
-
-    fetch("../../backend/api/logout.php")
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message); 
-                window.location.href = "../../frontend/admin/index.php"; 
-            } else {
-                alert("Logout thất bại!");
-            }
-        })
-        .catch(err => console.error(err));
-});
-</script>
-
 
 </body>
 </html>

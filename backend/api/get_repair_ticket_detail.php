@@ -20,10 +20,10 @@ if ($id <= 0) {
 }
 
 $stmt = mysqli_prepare($conn,
-    "SELECT rt.id, c.name AS customer_name, d.name AS device_name
+    "SELECT rt.id, c.name AS customer_name, COALESCE(d.name, rt.device_name) AS device_name
      FROM repair_tickets rt
      JOIN customers c ON rt.customer_id = c.id
-     JOIN devices d ON rt.device_id = d.id
+     LEFT JOIN devices d ON rt.device_id = d.id
      WHERE rt.id = ?
      LIMIT 1");
 mysqli_stmt_bind_param($stmt, "i", $id);
