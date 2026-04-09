@@ -72,7 +72,7 @@ $stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt2));
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <div class="navbar-holder d-flex align-items-center justify-content-between">
-                    <div class="navbar-header">
+                    <div class="navbar-header d-flex align-items-center w-100">
                         <a href="<?= $currentRole === 'staff' ? 'nhanvien.php' : 'quanly.php' ?>" class="navbar-brand">
                             <div class="brand-text brand-big hidden-lg-down">
                                 <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
@@ -86,12 +86,26 @@ $stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt2));
                                 Xin chào, <strong><?= htmlspecialchars($user['name']) ?></strong>
                                 <small class="text-muted ml-1">(<?= $roleLabel[$currentRole] ?? $currentRole ?>)</small>
                             </li>
-                            <li class="nav-item">
-                                <a href="../../backend/api/logout.php" class="nav-link text-danger font-weight-bold" style="padding: 0;">
-                                    <i class="fa fa-sign-out"></i> Đăng xuất
-                                </a>
-                            </li>
-                        </ul>
+    
+                                                <li class="nav-item dropdown" id="staff-notif-bell" style="list-style:none;">
+                            <a href="#" class="dropdown-toggle position-relative nav-link" data-toggle="dropdown"
+                               style="color:#ff9800;padding:0 5px;">
+                                <i class="fa fa-bell fa-lg"></i>
+                                <span id="staff-notif-badge" class="badge badge-danger"
+                                      style="position:absolute;top:-4px;right:-2px;font-size:9px;padding:2px 4px;display:none;">0</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow p-0"
+                                 style="width:300px;max-height:360px;overflow-y:auto;">
+                                <div class="px-3 py-2 border-bottom bg-light d-flex justify-content-between align-items-center">
+                                    <strong><i class="fa fa-bell text-warning"></i> Thông báo</strong>
+                                    <a href="#" onclick="markAllStaffNotifRead(); return false;" class="small text-muted">Đánh dấu tất cả</a>
+                                </div>
+                                <div id="staff-notif-list">
+                                    <div class="text-center text-muted py-3 small"><i class="fa fa-spinner fa-spin"></i> Đang tải...</div>
+                                </div>
+                            </div>
+                        </li>
+</ul>
                     </div>
                 </div>
             </div>
@@ -158,6 +172,13 @@ $stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt2));
                     </a>
                 </li>
             </ul>
+            <div style="position:absolute;bottom:20px;left:0;right:0;padding:0 10px;">
+                <a href="../../backend/api/logout.php"
+                   class="d-block py-2 px-3 text-danger font-weight-bold"
+                   style="border-top:1px solid #eee;">
+                    <i class="fa fa-sign-out"></i> Đăng xuất
+                </a>
+            </div>
         </nav>
         <!-- END SIDEBAR -->
 
@@ -419,5 +440,6 @@ function changePassword() {
 }
 </script>
 
+<script src="js/manager_actions.js"></script>
 </body>
 </html>

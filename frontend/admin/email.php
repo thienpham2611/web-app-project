@@ -2,15 +2,21 @@
 session_name('STAFF_SESSION');
 session_start();
 
-// Danh sách các quyền hợp lệ của hệ thống nội bộ
 $internal_roles = ['admin', 'manager', 'staff'];
-
-// KIỂM TRA: Nếu chưa có session role HOẶC role không nằm trong danh sách nội bộ
 if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) {
-    // Đá về trang đăng nhập của nội bộ
-    header("Location: index.php");
-    exit();
+    header("Location: index.php"); exit();
 }
+
+require_once "../../backend/config/database.php";
+$currentRole   = $_SESSION['role'];
+$currentUserId = intval($_SESSION['user_id'] ?? 0);
+$roleLabel     = ['admin'=>'Quản trị viên','manager'=>'Quản lý','staff'=>'Nhân viên kỹ thuật'];
+
+$stmt = mysqli_prepare($conn, "SELECT name FROM users WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $currentUserId);
+mysqli_stmt_execute($stmt);
+$user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+$userName = $user['name'] ?? strtoupper($currentRole);
 ?>
 <!DOCTYPE html>
 <html>
@@ -41,91 +47,39 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
 
 <!--MAIN NAVBAR-->
     <header class="header">
-    <nav class="navbar navbar-expand-lg ">
-        <div class="container-fluid ">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
             <div class="navbar-holder d-flex align-items-center justify-content-between">
-                <div class="navbar-header">
-                    <a href="#" class="navbar-brand">
-                        <div class="brand-text brand-big hidden-lg-down">
-                            <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
-                        </div>
-                        <div class="brand-text brand-small">
-                            <img src="img/logo.png" alt="Logo" class="img-fluid">
-                        </div>
+                <div class="navbar-header d-flex align-items-center w-100">
+                    <a href="quanly.php" class="navbar-brand">
+                        <img src="img/logo.png" width="140" class="img-fluid">
                     </a>
-                    </div>
+                    <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center mb-0" style="margin-left:auto;gap:20px;">
+                        <li class="nav-item text-white">
+                            Xin chào, <strong><?= htmlspecialchars($userName) ?></strong>
+                            <small class="text-muted ml-1">(<?= $roleLabel[$currentRole] ?? $currentRole ?>)</small>
+                        </li>
+                        <li class="nav-item dropdown" id="staff-notif-bell" style="list-style:none;">
+                            <a href="#" class="dropdown-toggle position-relative nav-link" data-toggle="dropdown"
+                               style="color:#ff9800;padding:0 5px;">
+                                <i class="fa fa-bell fa-lg"></i>
+                                <span id="staff-notif-badge" class="badge badge-danger"
+                                      style="position:absolute;top:-4px;right:-2px;font-size:9px;padding:2px 4px;display:none;">0</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow p-0"
+                                 style="width:300px;max-height:360px;overflow-y:auto;">
+                                <div class="px-3 py-2 border-bottom bg-light d-flex justify-content-between align-items-center">
+                                    <strong><i class="fa fa-bell text-warning"></i> Thông báo</strong>
+                                    <a href="#" onclick="markAllStaffNotifRead(); return false;" class="small text-muted">Đánh dấu tất cả</a>
+                                </div>
+                                <div id="staff-notif-list">
+                                    <div class="text-center text-muted py-3 small"><i class="fa fa-spinner fa-spin"></i> Đang tải...</div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
-
-            <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
-                <li class="nav-item d-flex align-items-center full_scr_exp">
-                    <a class="nav-link" href="#">
-                        <img src="img/expand.png" onclick="toggleFullScreen(document.body)" class="img-fluid" alt="">
-                    </a>
-                </li>
-
-                <li class="nav-item dropdown"> 
-                    <a id="notifications" class="nav-link" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-bell-o"></i><span class="noti-numb-bg"></span><span class="badge">12</span>
-                    </a>
-                    <ul aria-labelledby="notifications" class="dropdown-menu">
-                        <li>
-                            <a rel="nofollow" href="#" class="dropdown-item nav-link">
-                                <div class="notification">
-                                    <div class="notification-content"><i class="fa fa-envelope bg-red"></i>Bạn có 6 tin nhắn mới</div>
-                                    <div class="notification-time"><small>4 phút trước</small></div>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <a rel="nofollow" href="#" class="dropdown-item nav-link">
-                                <div class="notification">
-                                    <div class="notification-content"><i class="fa fa-upload bg-blue"></i>Máy chủ đã khởi động lại</div>
-                                    <div class="notification-time"><small>10 phút trước</small></div>
-                                </div>
-                            </a>
-                        </li>
-                        <li><a rel="nofollow" href="#" class="dropdown-item all-notifications text-center"> <strong>xem tất cả thông báo</strong></a></li>
-                    </ul>
-                </li>
-
-                <li class="nav-item dropdown"> 
-                    <a id="messages" class="nav-link logout" rel="nofollow" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-envelope-o"></i><span class="noti-numb-bg"></span><span class="badge">10</span>
-                    </a>
-                    <ul aria-labelledby="messages" class="dropdown-menu">
-                        <li>
-                            <a rel="nofollow" href="#" class="dropdown-item d-flex">
-                                <div class="msg-profile"> <img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
-                                <div class="msg-body">
-                                    <h3 class="h5 msg-nav-h3">Hoàng Nam</h3><span>Đã gửi tin nhắn cho bạn</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li><a rel="nofollow" href="#" class="dropdown-item all-notifications text-center"> <strong>Đọc tất cả tin nhắn</strong></a></li>
-                    </ul>
-                </li> 
-
-                <li class="nav-item dropdown">
-                    <a id="profile" class="nav-link logout" data-target="#" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle" style="height: 30px; width: 30px;">
-                    </a>
-                    <ul aria-labelledby="profile" class="dropdown-menu profile">
-                        <li>
-                            <a rel="nofollow" href="#" class="dropdown-item d-flex">
-                                <div class="msg-profile"> <img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
-                                <div class="msg-body">
-                                    <h3 class="h5">Quản lý</h3><span>quanly@gmail.com</span>
-                                </div>
-                            </a>
-                        </li>
-                        <hr>
-                        <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-user"></i> Hồ sơ của tôi</a></li>
-                        <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-cog"></i> Cài đặt</a></li>
-                        <hr>
-                        <li><a rel="nofollow" href="profile.php" class="dropdown-item"><i class="fa fa-power-off"></i> Đăng xuất</a></li>
-                    </ul>
-                </li>   
-            </ul> 
         </div>
     </nav>
 </header>
@@ -134,19 +88,41 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
     <div class="page-content d-flex align-items-stretch">
 
         <!--***** SIDE NAVBAR *****-->
-        <nav class="side-navbar">
+                <nav class="side-navbar">
             <div class="sidebar-header d-flex align-items-center">
-                <div class="avatar"><img src="img/avatar.jpg" alt="..." class="img-fluid rounded-circle"></div>
+                <div class="avatar"><img src="img/avatar.jpg" class="img-fluid rounded-circle"></div>
                 <div class="title">
-                    <h1 class="h4">Quản lý</h1>
+                    <h1 class="h4"><?= $roleLabel[$currentRole] ?? '' ?></h1>
+                    <p class="text-muted small mb-0"><?= htmlspecialchars($userName) ?></p>
                 </div>
             </div>
             <hr>
-            <!-- Sidebar Navidation Menus-->
-            <ul class="list-unstyled">
-                <li class="active"> <a href="quanly.php">Trang chủ</a></li>
-                <li class="active"> <a href="email.php">Email</a></li>
-                <li class="active"> <a href="tables.php">Bảng</a></li>
+            <ul class="list-unstyled" style="padding:10px;">
+                <?php if ($currentRole === 'admin'): ?>
+                <li class="mb-2"><a href="admin.php" class="text-black d-block py-1"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a></li>
+                <?php endif; ?>
+                <li class="mb-2"><a href="quanly.php" class="text-black d-block py-1"><i class="fa fa-home fa-fw"></i> Trang chủ</a></li>
+                <li class="mb-2"><a href="tables.php" class="text-black d-block py-1"><i class="fa fa-table fa-fw"></i> Bảng dữ liệu</a></li>
+                <li class="mb-2"><a href="invoice.php" class="text-black d-block py-1"><i class="fa fa-file-text fa-fw"></i> Hóa đơn</a></li>
+                <li class="mb-2"><a href="email.php" class="text-black d-block py-1"><i class="fa fa-envelope fa-fw"></i> Email</a></li>
+                <li class="mb-2"><a href="profile.php" class="text-black d-block py-1"><i class="fa fa-user fa-fw"></i> Hồ sơ</a></li>
+                <li class="mb-2"><a href="baocao.php" class="text-black d-block py-1"><i class="fa fa-bar-chart fa-fw"></i> Báo cáo</a></li>
+                <li class="mb-2"><a href="dashboard.php" class="text-black d-block py-1"><i class="fa fa-dashboard fa-fw"></i> Bảng điều khiển</a></li>
+                <?php if ($currentRole === 'staff'): ?>
+                <li class="mb-2"><a href="nhanvien.php" class="text-black d-block py-1"><i class="fa fa-wrench fa-fw"></i> Trang Nhân viên</a></li>
+                <?php endif; ?>
+                <li class="mb-2">
+                    <?php $tracuu = ($currentRole==='admin') ? 'tracuu_admin.php' : (($currentRole==='staff') ? 'tracuu_staff.php' : 'tracuu_manager.php'); ?>
+                    <a href="<?= $tracuu ?>" class="text-black d-block py-1"><i class="fa fa-search fa-fw"></i> Tra cứu</a>
+                </li>
+            </ul>
+            <div style="position:absolute;bottom:20px;left:0;right:0;padding:0 10px;">
+                <a href="../../backend/api/logout.php"
+                   class="d-block py-2 px-3 text-danger font-weight-bold"
+                   style="border-top:1px solid #eee;">
+                    <i class="fa fa-sign-out"></i> Đăng xuất
+                </a>
+            </div>
         </nav>
         <div class="content-inner">
 
@@ -346,6 +322,7 @@ if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $internal_roles)) 
         });
     </script>
     
+    <script src="js/manager_actions.js"></script>
 </body>
 
 </html>

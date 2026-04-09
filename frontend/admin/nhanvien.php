@@ -119,8 +119,7 @@ if ($_SESSION['role'] !== 'staff') {
             </ul>
             <div style="position:absolute;bottom:20px;left:0;right:0;padding:0 10px;">
                 <a href="#" onclick="logoutStaff(); return false;"
-                   class="d-block py-2 px-3 text-danger font-weight-bold"
-                   style="border-top:1px solid #eee;">
+                   class="d-block py-2 px-3 text-danger font-weight-bold">
                     <i class="fa fa-sign-out"></i> Đăng xuất
                 </a>
             </div>

@@ -44,7 +44,7 @@ if ($_SESSION['role'] !== 'admin') {
         <nav class="navbar navbar-expand-lg ">
             <div class="container-fluid ">
                 <div class="navbar-holder d-flex align-items-center justify-content-between">
-                    <div class="navbar-header">
+                    <div class="navbar-header d-flex align-items-center w-100">
                         <a href="admin.php" class="navbar-brand">
                             <div class="brand-text brand-big hidden-lg-down">
                                 <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
@@ -57,34 +57,30 @@ if ($_SESSION['role'] !== 'admin') {
                             <li class="nav-item text-white">
                                 Xin chào, <strong><?php echo isset($_SESSION['name']) ? $_SESSION['name'] : strtoupper($_SESSION['role']); ?></strong>
                             </li>
-                            <li class="nav-item">
-                                <a href="#" id="logoutBtn" class="nav-link text-danger font-weight-bold" style="padding: 0;">
-                                    <i class="fa fa-sign-out"></i> Đăng xuất
-                                </a>
-                            </li>
-                        </ul>
+                                                <li class="nav-item dropdown" id="staff-notif-bell" style="list-style:none;">
+                            <a href="#" class="dropdown-toggle position-relative nav-link" data-toggle="dropdown"
+                               style="color:#ff9800;padding:0 5px;">
+                                <i class="fa fa-bell fa-lg"></i>
+                                <span id="staff-notif-badge" class="badge badge-danger"
+                                      style="position:absolute;top:-4px;right:-2px;font-size:9px;padding:2px 4px;display:none;">0</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow p-0"
+                                 style="width:300px;max-height:360px;overflow-y:auto;">
+                                <div class="px-3 py-2 border-bottom bg-light d-flex justify-content-between align-items-center">
+                                    <strong><i class="fa fa-bell text-warning"></i> Thông báo</strong>
+                                    <a href="#" onclick="markAllStaffNotifRead(); return false;" class="small text-muted">Đánh dấu tất cả</a>
+                                </div>
+                                <div id="staff-notif-list">
+                                    <div class="text-center text-muted py-3 small"><i class="fa fa-spinner fa-spin"></i> Đang tải...</div>
+                                </div>
+                            </div>
+                        </li>
+</ul>
                     </div>
                 </div> 
             </div>
         </nav>
     </header>
-    <script>
-document.getElementById("logoutBtn").addEventListener("click", function(e) {
-    e.preventDefault();
-
-    fetch("../../backend/api/logout.php")
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message); 
-                window.location.href = "../../frontend/admin/index.php"; 
-            } else {
-                alert("Logout thất bại!");
-            }
-        })
-        .catch(err => console.error(err));
-});
-</script>
 
     <div class="page-content d-flex align-items-stretch">
 
@@ -132,7 +128,18 @@ document.getElementById("logoutBtn").addEventListener("click", function(e) {
             <i class="fa fa-wrench fa-fw"></i> Nhân viên
         </a>
     </li>
+    <li class="mb-2">
+        <a href="tracuu_admin.php" class="text-black d-block py-1">
+            <i class="fa fa-search fa-fw"></i> Tra cứu
+        </a>
+    </li>
 </ul>
+            <div style="position:absolute;bottom:20px;left:0;right:0;padding:0 10px;">
+                <a href="#" id="logoutBtn"
+                   class="d-block py-2 px-3 text-danger font-weight-bold">
+                    <i class="fa fa-sign-out"></i> Đăng xuất
+                </a>
+            </div>
             </nav>
 
         <div class="content-inner">
@@ -295,16 +302,13 @@ document.getElementById("logoutBtn").addEventListener("click", function(e) {
     </div>
 </div>
 
-
-
-
-
 <script src="../js/jquery/jquery.min.js"></script>
     <script src="../js/popper/popper.min.js"></script>
     <script src="../js/bootstrap/bootstrap.min.js"></script>
     <script src="../js/front.js"></script>
 
     <script src="js/admin_actions.js"></script>
+    <script src="js/manager_actions.js"></script>
 
 <!-- MODAL XEM CHI TIẾT THIẾT BỊ -->
 <div class="modal fade" id="deviceDetailModal" tabindex="-1" role="dialog" aria-hidden="true">

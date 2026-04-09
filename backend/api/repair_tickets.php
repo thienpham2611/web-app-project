@@ -42,7 +42,8 @@ function handleGet($conn) {
         $id = intval($_GET['id']);
         $stmt = mysqli_prepare($conn,
             "SELECT rt.*,
-                    d.name AS device_name, d.serial_number,
+                    COALESCE(d.name, rt.device_name) AS device_name,
+                    COALESCE(d.serial_number, rt.reported_serial) AS serial_number,
                     c.name AS customer_name,
                     u.name AS staff_name
              FROM repair_tickets rt
@@ -90,7 +91,8 @@ function handleGet($conn) {
     }
 
     $sql = "SELECT rt.*,
-                   d.name AS device_name, d.serial_number,
+                   COALESCE(d.name, rt.device_name) AS device_name,
+                   COALESCE(d.serial_number, rt.reported_serial) AS serial_number,
                    c.name AS customer_name,
                    u.name AS staff_name
             FROM repair_tickets rt
@@ -232,7 +234,7 @@ function handlePut($conn) {
         if (in_array($status, ['completed', 'cancelled'])) {
             $row = mysqli_fetch_assoc(mysqli_query($conn,
                 "SELECT device_id FROM repair_tickets WHERE id=$id"));
-            if ($row) {
+            if ($row && !empty($row['device_id'])) {
                 $devUpd = mysqli_prepare($conn, "UPDATE devices SET status='active' WHERE id=?");
                 mysqli_stmt_bind_param($devUpd, "i", $row['device_id']);
                 mysqli_stmt_execute($devUpd);

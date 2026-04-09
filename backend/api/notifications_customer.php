@@ -18,8 +18,8 @@ $notifications = [];
 
 // 1. Phiếu hoàn thành / hủy (7 ngày)
 $stmt = mysqli_prepare($conn,
-    "SELECT rt.id, rt.status, rt.updated_at, d.name AS device_name
-     FROM repair_tickets rt JOIN devices d ON d.id = rt.device_id
+    "SELECT rt.id, rt.status, rt.updated_at, COALESCE(d.name, rt.device_name) AS device_name
+     FROM repair_tickets rt LEFT JOIN devices d ON d.id = rt.device_id
      WHERE rt.customer_id = ? AND rt.status IN ('completed','cancelled')
        AND rt.updated_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
      ORDER BY rt.updated_at DESC");
@@ -63,27 +63,35 @@ foreach (mysqli_fetch_all(mysqli_stmt_get_result($stmt3), MYSQLI_ASSOC) as $d) {
 // 4. Cập nhật tiến độ từ nhân viên (repair_logs, 7 ngày)
 $stmt4 = mysqli_prepare($conn,
     "SELECT rl.note, rl.created_at, rt.id AS ticket_id, rt.progress,
-            d.name AS device_name, u.name AS staff_name
+            COALESCE(d.name, rt.device_name) AS device_name, u.name AS staff_name
      FROM repair_logs rl
      JOIN repair_tickets rt ON rt.id = rl.repair_ticket_id
-     JOIN devices d ON d.id = rt.device_id
+     LEFT JOIN devices d ON d.id = rt.device_id
      LEFT JOIN users u ON u.id = rl.user_id
      WHERE rt.customer_id = ? AND rl.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
      ORDER BY rl.created_at DESC LIMIT 10");
 mysqli_stmt_bind_param($stmt4, "i", $customer_id);
 mysqli_stmt_execute($stmt4);
 foreach (mysqli_fetch_all(mysqli_stmt_get_result($stmt4), MYSQLI_ASSOC) as $log) {
-    $progress = intval($log['progress']);
+    $history_progress = 0;
+    if (isset($log['action']) && preg_match('/(\d+)%/', $log['action'], $matches)) {
+        $history_progress = intval($matches[1]);
+    } else {
+        // Fallback: Nếu vì lý do nào đó không có % trong text, mới dùng % hiện hành
+        $history_progress = intval($log['progress']); 
+    }
+
     $staff    = htmlspecialchars($log['staff_name'] ?? 'Nhân viên');
     $device   = htmlspecialchars($log['device_name']);
     $note_html = $log['note'] ? '<br><span style="font-style:italic;color:#17a2b8;">Ghi chú: '.htmlspecialchars($log['note']).'</span>' : '';
+    
     $notifications[] = [
         'type'      => 'repair_log',
         'icon'      => '🔧',
-        'message'   => '🔧 <strong>'.$device.'</strong>: '.$staff.' cập nhật tiến độ <strong>'.$progress.'%</strong>'.$note_html,
+        'message'   => '🔧 <strong>'.$device.'</strong>: '.$staff.' cập nhật tiến độ <strong>'.$history_progress.'%</strong>'.$note_html,
         'time'      => $log['created_at'],
         'link'      => '#pills-repairs',
-        'progress'  => $progress,
+        'progress'  => $history_progress, // Cập nhật lại key này để FE hiển thị đúng
         'note'      => $log['note'] ?? '',
         'ticket_id' => $log['ticket_id']
     ];

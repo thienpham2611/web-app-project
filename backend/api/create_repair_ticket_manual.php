@@ -26,8 +26,10 @@ if (empty($device_name) || empty($description)) {
     exit;
 }
 
-// 3. Tìm thiết bị theo serial (nếu có) trong danh sách của khách hàng
+// 3. Chỉ liên kết phiếu với thiết bị đã có (theo S/N). Không tạo bản ghi mới trong bảng devices.
 $device_id = null;
+$ticket_device_name = null;
+$ticket_reported_serial = null;
 
 if (!empty($serial_number)) {
     $stmtFind = mysqli_prepare($conn,
@@ -37,26 +39,19 @@ if (!empty($serial_number)) {
     mysqli_stmt_execute($stmtFind);
     $rowFound = mysqli_fetch_assoc(mysqli_stmt_get_result($stmtFind));
     if ($rowFound) {
-        $device_id = $rowFound['id'];
+        $device_id = (int) $rowFound['id'];
+        $stmtSync = mysqli_prepare($conn,
+            "UPDATE devices SET name = ?, type = ? WHERE id = ? AND customer_id = ?"
+        );
+        mysqli_stmt_bind_param($stmtSync, "ssii", $device_name, $device_type, $device_id, $customer_id);
+        mysqli_stmt_execute($stmtSync);
     }
 }
 
-// 4. Nếu không tìm thấy thiết bị → thêm mới vào bảng devices
+// 4. Không có thiết bị trùng S/N: chỉ lưu thông tin trên phiếu (không thêm thiết bị vào danh sách)
 if (!$device_id) {
-    $today = date('Y-m-d');
-    $stmtInsertDev = mysqli_prepare($conn,
-        "INSERT INTO devices (name, serial_number, customer_id, type, warranty_start_date, warranty_end_date, status)
-         VALUES (?, ?, ?, ?, ?, ?, 'expired')"
-    );
-    // warranty_end_date = ngày hôm nay (coi như không có bảo hành)
-    mysqli_stmt_bind_param($stmtInsertDev, "ssisss",
-        $device_name, $serial_number, $customer_id, $device_type, $today, $today
-    );
-    if (!mysqli_stmt_execute($stmtInsertDev)) {
-        echo json_encode(["success" => false, "error" => "Không thể thêm thiết bị: " . mysqli_error($conn)]);
-        exit;
-    }
-    $device_id = mysqli_insert_id($conn);
+    $ticket_device_name = $device_name;
+    $ticket_reported_serial = $serial_number !== null && $serial_number !== '' ? $serial_number : null;
 }
 
 // 5. Tạo phiếu sửa chữa
@@ -64,13 +59,23 @@ $received_date = date('Y-m-d');
 $status = 'pending';
 $progress = 0;
 
-$stmtTicket = mysqli_prepare($conn,
-    "INSERT INTO repair_tickets (device_id, customer_id, received_date, description, status, progress)
-     VALUES (?, ?, ?, ?, ?, ?)"
-);
-mysqli_stmt_bind_param($stmtTicket, "iisssi",
-    $device_id, $customer_id, $received_date, $description, $status, $progress
-);
+if ($device_id !== null) {
+    $stmtTicket = mysqli_prepare($conn,
+        "INSERT INTO repair_tickets (device_id, customer_id, received_date, description, status, progress, device_name, reported_serial)
+         VALUES (?, ?, ?, ?, ?, ?, NULL, NULL)"
+    );
+    mysqli_stmt_bind_param($stmtTicket, "iisssi",
+        $device_id, $customer_id, $received_date, $description, $status, $progress
+    );
+} else {
+    $stmtTicket = mysqli_prepare($conn,
+        "INSERT INTO repair_tickets (device_id, customer_id, received_date, description, status, progress, device_name, reported_serial)
+         VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)"
+    );
+    mysqli_stmt_bind_param($stmtTicket, "isssiss",
+        $customer_id, $received_date, $description, $status, $progress, $ticket_device_name, $ticket_reported_serial
+    );
+}
 
 if (mysqli_stmt_execute($stmtTicket)) {
     $ticket_id = mysqli_insert_id($conn);
