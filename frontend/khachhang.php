@@ -28,9 +28,11 @@ mysqli_stmt_execute($stmt_dev);
 $devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_dev), MYSQLI_ASSOC);
 
 // Lấy danh sách phiếu sửa chữa
-$sql_tick = "SELECT rt.id, rt.description, rt.status, rt.progress, COALESCE(d.name, rt.device_name) AS device_name 
-             FROM repair_tickets rt 
-             LEFT JOIN devices d ON rt.device_id = d.id 
+$sql_tick = "SELECT rt.id, rt.description, rt.status, rt.progress, COALESCE(d.name, rt.device_name) AS device_name,
+             rr.rating
+             FROM repair_tickets rt
+             LEFT JOIN devices d ON rt.device_id = d.id
+             LEFT JOIN repair_reviews rr ON rt.id = rr.repair_ticket_id
              WHERE rt.customer_id = ? ORDER BY rt.created_at DESC";
 $stmt_tick = mysqli_prepare($conn, $sql_tick);
 mysqli_stmt_bind_param($stmt_tick, "i", $customerId);
@@ -57,7 +59,7 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
     <meta name="author" content="">
 
     <title>Hệ thống quản lý sửa chữa & bảo hành thiết bị – phần mềm</title>
-    <link rel="shortcut icon" href="img/logo.png">
+    <link rel="shortcut icon" href="img/logo-small.png">
   
   <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,400,700" rel="stylesheet">
   <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
@@ -74,7 +76,7 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
       <nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
     <div class="container-fluid">
       <a class="navbar-brand" href="index.php">
-        <img src="img/logo.png" alt="logo" width="140">
+        <img src="img/logo.png" alt="logo" width="60">
       </a>
 
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
@@ -283,7 +285,17 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
                                             if($tick['status'] == 'completed') { $status_badge = 'badge-success'; $status_vi = 'Đã hoàn thành'; }
                                             if($tick['status'] == 'cancelled') { $status_badge = 'badge-danger'; $status_vi = 'Đã hủy'; }
                                         ?>
-                                        <span class="badge <?= $status_badge ?> p-2"><?= $status_vi ?></span>
+                                        <span class="badge <?= $status_badge ?> p-2 mb-1 d-block"><?= $status_vi ?></span>
+                                        
+                                        <?php if($tick['status'] == 'completed'): ?>
+                                            <?php if(empty($tick['rating'])): ?>
+                                                <button class="btn btn-sm btn-outline-warning mt-1" onclick="openReviewModal(<?= $tick['id'] ?>)">
+                                                    <i class="fa fa-star"></i> Đánh giá
+                                                </button>
+                                            <?php else: ?>
+                                                <small class="text-warning"><i class="fa fa-star"></i> <?= $tick['rating'] ?>/5 sao</small>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -364,34 +376,42 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
     </div>
 </div>
 
+<!--FOOTER--> 
 <footer> 
         <div id="footer-s1" class="footer-s1">
           <div class="footer">
             <div class="container-fluid" style="padding-right:80px;">
               <div class="row" style="margin:0; justify-content:flex-end;">
+                <!-- About Us -->
                 <div class="col-md-3 col-sm-6" style="margin-right:80px;">
-                  <div><img src="img/logo.png" alt="" class="img-fluid"></div>
+                  <div><img src="img/logoDN.png" alt="" class="img-fluid d-block mx-auto"></div>
                   <ul class="list-unstyled comp-desc-f">
                      <li><p>Chúng tôi cung cấp dịch vụ bảo hành, sửa chữa và bảo trì
                     chuyên nghiệp, nhanh chóng và uy tín cho khách hàng.</p></li> 
                   </ul><br> 
                 </div>
+                <!-- End About Us -->
+
+                <!-- Recent News -->
                 <div class="col-md-3 col-sm-6" style="margin-right:80px;">
-                  <div class="heading-footer"><h2>Số 3/36 Trần Điền - Phường Phương Liệt - Hà Nội</h2></div>
+                  <div class="heading-footer"><h2>Trụ sở: Ấp Trần Hưng Đạo, xã Dầu Giây, tỉnh Đồng Nai</h2></div>
                   <ul class="list-unstyled link-list">
-                    <li><a class="fa fa-envelope" href="index.php"> contact@idtvietnam.vn</a><i class="fa fa-angle-right"></i></li> 
-                    <li><a class="fa fa-phone" href="index.php"> 0243.2222.720</a><i class="fa fa-angle-right"></i></li> 
-                    <li><a class="fa fa-phone" href="index.php"> Hotline: 0904.288.822</a><i class="fa fa-angle-right"></i></li> 
-                    <li><a class="fa fa-phone" href="index.php"> VPHN: 0246.291.1401/0246.326.1898</a><i class="fa fa-angle-right"></i></li> 
-                    <li><a class="fa fa-phone" href="index.php"> VPMN: 0282.229.5501/0938.651.659</a><i class="fa fa-angle-right"></i></li> 
+                    <li><a class="fa fa-envelope" href="index.php"> phongdaotao@mit.vn</a><i class="fa fa-angle-right"></i></li> 
+                    <li><a class="fa fa-phone" href="index.php"> Hotline MIT Uni.: 0365 803 769 (Mr. Tuấn)</a><i class="fa fa-angle-right"></i></li> 
+                    <li><a class="fa fa-phone" href="index.php"> Hotline: 0981.767.568 hoặc (02513) 772 668</a><i class="fa fa-angle-right"></i></li> 
+                    <li><a class="fa fa-phone" href="index.php"> Hotline MSB: 1900 6083</a><i class="fa fa-angle-right"></i></li> 
+                     
                   </ul>
                 </div>
+                <!-- End Recent list -->
+
+                <!-- Latest Tweets -->
                 <div class="col-md-3 col-sm-6" style="margin-right:80px;">
                   <div class="heading-footer"><h2>Hỗ trợ kỹ thuật</h2></div>
                   <address class="address-details-f">
-                    tech.support@idtvietnam.vn<br>
-                    Miền Bắc - Miền Trung: 024.62.911.224<br>
-                    Miền Nam: 0938.651.659<br>
+                    Mail: tuyensinh@mit.vn<br>
+                    Hỗ trợ sinh viên: 02513.772.667 (bấm số 2)<br>
+                    Fanpage: MIT University Vietnam - Đại học Công nghệ Miền Đông<br>
                   </address>  
                   <ul class="list-inline social-icon-f top-data">
                     <li><a href="#" target="_empty"><i class="fa top-social fa-facebook"></i></a></li>
@@ -399,8 +419,10 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
                     <li><a href="#" target="_empty"><i class="fa top-social fa-google-plus"></i></a></li> 
                   </ul>
                 </div>
-                </div>
-            </div></div> 
+                <!-- End Latest Tweets -->
+              </div>
+            </div><!--/container -->
+          </div> 
         </div>
 
         <div id="footer-bottom">
@@ -408,39 +430,16 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
                 <div class="row">
                     <div class="col-md-12">
                         <div id="footer-copyrights">
-                            <p>&copy; 2026 IDT Design. All rights reserved. <a href="#">Chính sách bảo mật</a> <a href="#">Điều khoản bảo mật</a></p>
+                            <p>&copy; 2026 © 2023 MIT University Vietnam. All rights reserved. Designed by Phòng CNTT MIT. <a href="#">Chính sách bảo mật</a> <a href="#">Điều khoản bảo mật</a></p>
                         </div>
                     </div> 
                 </div>
             </div>
         </div>
-        <a href="#" id="back-to-top" class="btn btn-sm btn-green btn-back-to-top smooth-scrolls hidden-sm hidden-xs" title="home" role="button">
+        <a href="#home" id="back-to-top" class="btn btn-sm btn-green btn-back-to-top smooth-scrolls hidden-sm hidden-xs" title="home" role="button">
             <i class="fa fa-angle-up"></i>
         </a>
     </footer>
-
-<script src="js/jquery/jquery.min.js"></script>
-<script src="js/popper/popper.min.js"></script>
-<script src="js/bootstrap/bootstrap.min.js"></script>
-<script src="js/wow/wow.min.js"></script>
-<script src="js/custom.js"></script>
-<script src="js/auth.js"></script>
-
-<script>
-function formatNotifTime(datetime) {
-    var d = new Date(datetime);
-    return d.toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    loadCustomerNotifications();
-
-    var bell = document.getElementById('notification-bell');
-    if (bell) {
-        bell.addEventListener('show.bs.dropdown', loadCustomerNotifications);
-    }
-});
-</script>
 
 <div class="modal fade" id="createRepairModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -517,31 +516,42 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('btnGuiGiaHan').addEventListener('click', function() {
-        const device_id = document.getElementById('warranty_device_id').value;
-        const note = document.getElementById('warranty_note').value.trim();
+<!-- Modal đánh giá-->
+<div class="modal fade" id="reviewModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-star text-warning"></i> Đánh giá dịch vụ</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="review_ticket_id">
+                
+                <div class="form-group text-center">
+                    <label class="d-block">Mức độ hài lòng của bạn <span class="text-danger">*</span></label>
+                    <select id="review_rating" class="form-control w-50 mx-auto">
+                        <option value="5">5 Sao - Rất hài lòng</option>
+                        <option value="4">4 Sao - Hài lòng</option>
+                        <option value="3">3 Sao - Bình thường</option>
+                        <option value="2">2 Sao - Kém</option>
+                        <option value="1">1 Sao - Rất tệ</option>
+                    </select>
+                </div>
 
-        fetch('../backend/api/warranty_request.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ device_id: parseInt(device_id), note })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                alert('✅ ' + res.message);
-                $('#warrantyRequestModal').modal('hide');
-            } else {
-                alert('❌ ' + res.error);
-            }
-        })
-        .catch(() => alert('Lỗi kết nối máy chủ!'));
-    });
-});
-</script>
+                <div class="form-group">
+                    <label>Lời nhắn / Phản hồi</label>
+                    <textarea id="review_comment" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về dịch vụ..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning text-dark" id="btnSubmitReview">
+                    <i class="fa fa-paper-plane"></i> Gửi đánh giá
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL TẠO PHIẾU SỬA CHỮA MỚI (TỰ NHẬP THIẾT BỊ) -->
 <div class="modal fade" id="newRepairModal" tabindex="-1" role="dialog">
@@ -593,45 +603,12 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-<script>
-function openNewRepairModal() {
-    document.getElementById('new_device_name').value = '';
-    document.getElementById('new_serial_number').value = '';
-    document.getElementById('new_device_type').value = 'hardware';
-    document.getElementById('new_repair_description').value = '';
-    $('#newRepairModal').modal('show');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('btnGuiPhieuMoi').addEventListener('click', function() {
-        var device_name = document.getElementById('new_device_name').value.trim();
-        var serial_number = document.getElementById('new_serial_number').value.trim();
-        var device_type = document.getElementById('new_device_type').value;
-        var description = document.getElementById('new_repair_description').value.trim();
-
-        if (!device_name) { alert('Vui lòng nhập tên thiết bị!'); return; }
-        if (!description) { alert('Vui lòng nhập mô tả lỗi!'); return; }
-
-        fetch('../backend/api/create_repair_ticket_manual.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ device_name, serial_number, device_type, description })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                alert('✅ ' + res.message + '\n\nMã phiếu: #TICK-' + res.ticket_id);
-                $('#newRepairModal').modal('hide');
-                location.reload();
-            } else {
-                alert('❌ ' + (res.error || 'Lỗi không xác định'));
-            }
-        })
-        .catch(() => alert('Lỗi kết nối máy chủ!'));
-    });
-});
-</script>
+<script src="js/jquery/jquery.min.js"></script>
+<script src="js/popper/popper.min.js"></script>
+<script src="js/bootstrap/bootstrap.min.js"></script>
+<script src="js/wow/wow.min.js"></script>
+<script src="js/custom.js"></script>
+<script src="js/auth.js"></script>
 
 </body>
 </html>

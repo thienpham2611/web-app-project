@@ -81,7 +81,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Quản lý – Hệ thống sửa chữa & bảo hành</title>
-    <link rel="shortcut icon" href="img/favicon.png">
+    <link rel="shortcut icon" href="img/logo-small.png">
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
@@ -103,7 +103,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                     <div class="navbar-header d-flex align-items-center w-100">
                         <a href="quanly.php" class="navbar-brand">
                             <div class="brand-text brand-big hidden-lg-down">
-                                <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
+                                <img src="img/logo.png" width="60" alt="Logo" class="img-fluid">
                             </div>
                             <div class="brand-text brand-small">
                                 <img src="img/logo.png" alt="Logo" class="img-fluid">
@@ -168,21 +168,6 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                     </a>
                 </li>
                 <?php endif; ?>
-                <li class="mb-2">
-                    <a href="tables.php" class="text-black d-block py-1">
-                        <i class="fa fa-table fa-fw"></i> Bảng dữ liệu
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="invoice.php" class="text-black d-block py-1">
-                        <i class="fa fa-file-text fa-fw"></i> Hóa đơn
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="email.php" class="text-black d-block py-1">
-                        <i class="fa fa-envelope fa-fw"></i> Email
-                    </a>
-                </li>
                 <li class="mb-2">
                     <a href="profile.php" class="text-black d-block py-1">
                         <i class="fa fa-user fa-fw"></i> Hồ sơ
@@ -295,7 +280,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                         <div class="card-header-idt">
                             <h4 class="title-idt"><i class="fa fa-laptop"></i> HỆ THỐNG QUẢN LÝ THIẾT BỊ & BẢO HÀNH</h4>
                             <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalDevice">
-                                <i class="fas fa-plus" aria-hidden="true"></i> Thêm mới thiết bị
+                                Thêm mới thiết bị
                             </button>
                         </div>
                         <div class="card-body no-padding">

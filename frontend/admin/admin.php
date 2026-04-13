@@ -26,6 +26,7 @@ if ($_SESSION['role'] !== 'admin') {
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
+    <link rel="shortcut icon" href="img/logo-small.png">
 
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -47,7 +48,7 @@ if ($_SESSION['role'] !== 'admin') {
                     <div class="navbar-header d-flex align-items-center w-100">
                         <a href="admin.php" class="navbar-brand">
                             <div class="brand-text brand-big hidden-lg-down">
-                                <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
+                                <img src="img/logo.png" width="60" alt="Logo" class="img-fluid">
                             </div>
                             <div class="brand-text brand-small">
                                 <img src="img/logo.png" alt="Logo" class="img-fluid">
@@ -101,21 +102,6 @@ if ($_SESSION['role'] !== 'admin') {
     <li class="mb-2">
         <a href="quanly.php" class="text-black d-block py-1">
             <i class="fa fa-cogs fa-fw"></i> Quản lý
-        </a>
-    </li>
-    <li class="mb-2">
-        <a href="tables.php" class="text-black d-block py-1">
-            <i class="fa fa-table fa-fw"></i> Bảng dữ liệu
-        </a>
-    </li>
-    <li class="mb-2">
-        <a href="invoice.php" class="text-black d-block py-1">
-            <i class="fa fa-file-text fa-fw"></i> Hóa đơn
-        </a>
-    </li>
-    <li class="mb-2">
-        <a href="email.php" class="text-black d-block py-1">
-            <i class="fa fa-envelope fa-fw"></i> Email
         </a>
     </li>
     <li class="mb-2">

@@ -35,7 +35,7 @@ if ($_SESSION['role'] !== 'staff') {
     <meta name="robots" content="all,follow">
 
     <title>Hệ thống quản lý sửa chữa & bảo hành thiết bị – phần mềm</title>
-    <link rel="shortcut icon" href="img/favicon.png">
+    <link rel="shortcut icon" href="img/logo-small.png">
     
     <!-- global stylesheets -->
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
@@ -59,7 +59,7 @@ if ($_SESSION['role'] !== 'staff') {
                 <div class="navbar-header d-flex align-items-center w-100">
                     <a href="nhanvien.php" class="navbar-brand">
                         <div class="brand-text brand-big hidden-lg-down">
-                            <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
+                            <img src="img/logo.png" width="60" alt="Logo" class="img-fluid">
                         </div>
                         <div class="brand-text brand-small">
                             <img src="img/logo.png" alt="Logo" class="img-fluid">
