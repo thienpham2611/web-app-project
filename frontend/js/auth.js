@@ -292,3 +292,51 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// ==========================================
+// HÀM BẬT MODAL ĐÁNH GIÁ (TỪ KHACHHANG.PHP)
+// ==========================================
+function openReviewModal(ticketId) {
+    document.getElementById('review_ticket_id').value = ticketId;
+    document.getElementById('review_rating').value = "5"; // Mặc định 5 sao
+    document.getElementById('review_comment').value = "";
+    $('#reviewModal').modal('show');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const btnSubmitReview = document.getElementById('btnSubmitReview');
+    if (btnSubmitReview) {
+        btnSubmitReview.addEventListener('click', function() {
+            const ticket_id = document.getElementById('review_ticket_id').value;
+            const rating = document.getElementById('review_rating').value;
+            const comment = document.getElementById('review_comment').value.trim();
+
+            if (!rating) {
+                alert("Vui lòng chọn số sao đánh giá!");
+                return;
+            }
+
+            // Gọi API backend (Bạn cần tạo file PHP tương ứng để xử lý insert)
+            fetch('../backend/api/submit_review.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Đảm bảo gửi kèm session
+                body: JSON.stringify({ ticket_id: parseInt(ticket_id), rating: parseInt(rating), comment: comment })
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    alert('✅ Cảm ơn bạn đã gửi đánh giá!');
+                    $('#reviewModal').modal('hide');
+                    location.reload(); // Tải lại trang để cập nhật UI
+                } else {
+                    alert('❌ Lỗi: ' + (res.error || 'Không thể gửi đánh giá.'));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Lỗi kết nối máy chủ!');
+            });
+        });
+    }
+});

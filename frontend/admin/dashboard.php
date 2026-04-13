@@ -73,7 +73,7 @@ $tasks = mysqli_query($conn, $sql_tasks);
                     <div class="navbar-header d-flex align-items-center w-100">
                         <a href="<?= $currentRole === 'staff' ? 'nhanvien.php' : 'quanly.php' ?>" class="navbar-brand">
                             <div class="brand-text brand-big hidden-lg-down">
-                                <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
+                                <img src="img/logo.png" width="60" alt="Logo" class="img-fluid">
                             </div>
                             <div class="brand-text brand-small">
                                 <img src="img/logo.png" alt="Logo" class="img-fluid">

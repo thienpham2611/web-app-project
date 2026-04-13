@@ -35,8 +35,10 @@ $sql = "SELECT rt.id, rt.status, rt.progress, rt.due_date, rt.assigned_date,
                rt.description,
                COALESCE(d.name, rt.device_name) AS device_name, COALESCE(d.serial_number, rt.reported_serial) AS serial_number,
                c.name AS customer_name, c.phone,
-               u.name AS staff_name
+               u.name AS staff_name,
+               rr.rating, rr.comment
         FROM repair_tickets rt
+        LEFT JOIN repair_reviews rr ON rt.id = rr.repair_ticket_id
         LEFT JOIN devices d ON d.id = rt.device_id
         JOIN customers c ON c.id = rt.customer_id
         LEFT JOIN users u ON u.id = rt.user_id
@@ -74,7 +76,7 @@ $results = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tra cứu phiếu sửa chữa - Quản lý</title>
-    <link rel="shortcut icon" href="img/favicon.png">
+    <link rel="shortcut icon" href="img/logo-small.png">
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
@@ -88,7 +90,12 @@ $results = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
             <div class="navbar-holder d-flex align-items-center justify-content-between">
                 <div class="navbar-header d-flex align-items-center w-100">
                     <a href="quanly.php" class="navbar-brand">
-                        <img src="img/logo.png" width="140" class="img-fluid">
+                        <div class="brand-text brand-big hidden-lg-down">
+                            <img src="img/logo.png" width="60" alt="Logo" class="img-fluid">
+                        </div>
+                        <div class="brand-text brand-small">
+                            <img src="img/logo.png" alt="Logo" class="img-fluid">
+                        </div>
                     </a>
                     <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center mb-0" style="margin-left:auto;gap:20px;">
                         <li class="nav-item text-white">
@@ -243,6 +250,13 @@ $results = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
                             if($r['status']==='repairing'){$badge='badge-info';$label='Đang sửa';}
                             if($r['status']==='completed'){$badge='badge-success';$label='Hoàn thành';}
                             if($r['status']==='cancelled'){$badge='badge-danger';$label='Đã hủy';}
+                            $reviewHtml = '';
+                            if ($r['status'] === 'completed' && !empty($r['rating'])) {
+                                $reviewHtml = "<br><small class='text-warning font-weight-bold'><i class='fa fa-star'></i> {$r['rating']}/5 Sao</small>";
+                                if (!empty($r['comment'])) {
+                                    $reviewHtml .= "<div class='review-comment-box'>\"" . htmlspecialchars($r['comment']) . "\"</div>";
+                                }
+                            }
 
                             $deadlineHtml='<span class="text-muted">—</span>';
                             if($r['due_date']){
@@ -272,7 +286,10 @@ $results = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
                                     <small class="font-weight-bold"><?= $bar ?>%</small>
                                 </td>
                                 <td class="text-center"><?= $deadlineHtml ?></td>
-                                <td class="text-center"><span class="badge <?= $badge ?> p-2"><?= $label ?></span></td>
+                                <td class="text-center">
+                                    <span class="badge <?= $badge ?> p-2"><?= $label ?></span>
+                                    <?= $reviewHtml ?>
+                                </td>
                             </tr>
                         <?php endforeach; endif; ?>
                         </tbody>

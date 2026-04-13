@@ -53,7 +53,7 @@ $stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt2));
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hồ sơ – <?= htmlspecialchars($user['name']) ?></title>
-    <link rel="shortcut icon" href="img/favicon.png">
+    <link rel="shortcut icon" href="img/logo-small.png">
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
@@ -75,7 +75,7 @@ $stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt2));
                     <div class="navbar-header d-flex align-items-center w-100">
                         <a href="<?= $currentRole === 'staff' ? 'nhanvien.php' : 'quanly.php' ?>" class="navbar-brand">
                             <div class="brand-text brand-big hidden-lg-down">
-                                <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
+                                <img src="img/logo.png" width="60" alt="Logo" class="img-fluid">
                             </div>
                             <div class="brand-text brand-small">
                                 <img src="img/logo.png" alt="Logo" class="img-fluid">

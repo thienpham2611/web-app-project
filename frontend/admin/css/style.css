@@ -143,3 +143,17 @@
 .modal {
     z-index: 10500 !important;
 }
+
+/* Style cho phần hiển thị bình luận trong bảng */
+.review-comment-box {
+    display: block;
+    max-width: 180px;       
+    margin: 5px auto 0;    
+    white-space: normal;    
+    word-wrap: break-word;  
+    overflow-wrap: break-word;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #6c757d;          
+    font-style: italic;
+}

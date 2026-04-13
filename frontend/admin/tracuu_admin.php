@@ -97,7 +97,7 @@ if ($tab === 'customers') {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tra cứu - Admin</title>
-    <link rel="shortcut icon" href="img/favicon.png">
+    <link rel="shortcut icon" href="img/logo-small.png">
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
@@ -111,7 +111,12 @@ if ($tab === 'customers') {
             <div class="navbar-holder d-flex align-items-center justify-content-between">
                 <div class="navbar-header d-flex align-items-center w-100">
                     <a href="admin.php" class="navbar-brand">
-                        <img src="img/logo.png" width="140" class="img-fluid">
+                        <div class="brand-text brand-big hidden-lg-down">
+                            <img src="img/logo.png" width="60" alt="Logo" class="img-fluid">
+                        </div>
+                        <div class="brand-text brand-small">
+                            <img src="img/logo.png" alt="Logo" class="img-fluid">
+                        </div>
                     </a>
                     <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center mb-0" style="margin-left:auto;gap:20px;">
                         <li class="nav-item text-white">

@@ -26,7 +26,7 @@ if (isset($_SESSION['role'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Đăng nhập - Hệ thống quản lý</title>
     
-    <link rel="shortcut icon" href="img/favicon.png">
+    <link rel="shortcut icon" href="img/logo-small.png">
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
@@ -69,7 +69,7 @@ if (isset($_SESSION['role'])) {
     <div class="login-page">
         <div class="login-card">
             <div class="brand-logo">
-                <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
+                <img src="img/logoDN.png" width="400" alt="Logo" class="img-fluid">
                 <h4 class="mt-3">Đăng nhập hệ thống</h4>
             </div>
 

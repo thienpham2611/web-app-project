@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <title>Hệ thống quản lý sửa chữa & bảo hành thiết bị – phần mềm</title>
-    <link rel="shortcut icon" href="img/logo.png">
+    <link rel="shortcut icon" href="img/logo-small.png">
     <!-- Global Stylesheets -->
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i" rel="stylesheet">
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet">
@@ -28,7 +28,7 @@
   <nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
     <div class="container-fluid">
       <a class="navbar-brand" href="index.php">
-        <img src="img/logo.png" alt="logo" width="140">
+        <img src="img/logo.png" alt="logo" width="60">
       </a>
 
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
@@ -290,14 +290,14 @@
 
 
 <!--FOOTER--> 
-    <footer> 
+<footer> 
         <div id="footer-s1" class="footer-s1">
           <div class="footer">
             <div class="container-fluid" style="padding-right:80px;">
               <div class="row" style="margin:0; justify-content:flex-end;">
                 <!-- About Us -->
                 <div class="col-md-3 col-sm-6" style="margin-right:80px;">
-                  <div><img src="img/logo.png" alt="" class="img-fluid"></div>
+                  <div><img src="img/logoDN.png" alt="" class="img-fluid d-block mx-auto"></div>
                   <ul class="list-unstyled comp-desc-f">
                      <li><p>Chúng tôi cung cấp dịch vụ bảo hành, sửa chữa và bảo trì
                     chuyên nghiệp, nhanh chóng và uy tín cho khách hàng.</p></li> 
@@ -307,13 +307,13 @@
 
                 <!-- Recent News -->
                 <div class="col-md-3 col-sm-6" style="margin-right:80px;">
-                  <div class="heading-footer"><h2>Số 3/36 Trần Điền - Phường Phương Liệt - Hà Nội</h2></div>
+                  <div class="heading-footer"><h2>Trụ sở: Ấp Trần Hưng Đạo, xã Dầu Giây, tỉnh Đồng Nai</h2></div>
                   <ul class="list-unstyled link-list">
-                    <li><a class="fa fa-envelope" href="index.php"> contact@idtvietnam.vn</a><i class="fa fa-angle-right"></i></li> 
-                    <li><a class="fa fa-phone" href="index.php"> 0243.2222.720</a><i class="fa fa-angle-right"></i></li> 
-                    <li><a class="fa fa-phone" href="index.php"> Hotline: 0904.288.822</a><i class="fa fa-angle-right"></i></li> 
-                    <li><a class="fa fa-phone" href="index.php"> VPHN: 0246.291.1401/0246.326.1898</a><i class="fa fa-angle-right"></i></li> 
-                    <li><a class="fa fa-phone" href="index.php"> VPMN: 0282.229.5501/0938.651.659</a><i class="fa fa-angle-right"></i></li> 
+                    <li><a class="fa fa-envelope" href="index.php"> phongdaotao@mit.vn</a><i class="fa fa-angle-right"></i></li> 
+                    <li><a class="fa fa-phone" href="index.php"> Hotline MIT Uni.: 0365 803 769 (Mr. Tuấn)</a><i class="fa fa-angle-right"></i></li> 
+                    <li><a class="fa fa-phone" href="index.php"> Hotline: 0981.767.568 hoặc (02513) 772 668</a><i class="fa fa-angle-right"></i></li> 
+                    <li><a class="fa fa-phone" href="index.php"> Hotline MSB: 1900 6083</a><i class="fa fa-angle-right"></i></li> 
+                     
                   </ul>
                 </div>
                 <!-- End Recent list -->
@@ -322,9 +322,9 @@
                 <div class="col-md-3 col-sm-6" style="margin-right:80px;">
                   <div class="heading-footer"><h2>Hỗ trợ kỹ thuật</h2></div>
                   <address class="address-details-f">
-                    tech.support@idtvietnam.vn<br>
-                    Miền Bắc - Miền Trung: 024.62.911.224<br>
-                    Miền Nam: 0938.651.659<br>
+                    Mail: tuyensinh@mit.vn<br>
+                    Hỗ trợ sinh viên: 02513.772.667 (bấm số 2)<br>
+                    Fanpage: MIT University Vietnam - Đại học Công nghệ Miền Đông<br>
                   </address>  
                   <ul class="list-inline social-icon-f top-data">
                     <li><a href="#" target="_empty"><i class="fa top-social fa-facebook"></i></a></li>
@@ -343,13 +343,13 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div id="footer-copyrights">
-                            <p>&copy; 2026 IDT Design. All rights reserved. <a href="#">Chính sách bảo mật</a> <a href="#">Điều khoản bảo mật</a></p>
+                            <p>&copy; 2026 © 2023 MIT University Vietnam. All rights reserved. Designed by Phòng CNTT MIT. <a href="#">Chính sách bảo mật</a> <a href="#">Điều khoản bảo mật</a></p>
                         </div>
                     </div> 
                 </div>
             </div>
         </div>
-        <a href="#" id="back-to-top" class="btn btn-sm btn-green btn-back-to-top smooth-scrolls hidden-sm hidden-xs" title="home" role="button">
+        <a href="#home" id="back-to-top" class="btn btn-sm btn-green btn-back-to-top smooth-scrolls hidden-sm hidden-xs" title="home" role="button">
             <i class="fa fa-angle-up"></i>
         </a>
     </footer>
