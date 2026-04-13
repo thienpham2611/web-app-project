@@ -16,10 +16,10 @@ $user_id = intval($_SESSION['user_id']);
 $stmt = mysqli_prepare($conn,
     "SELECT rt.id, rt.status, rt.description, rt.progress, rt.received_date,
             rt.assigned_date, rt.due_date,
-            d.name AS device_name, d.serial_number,
+            COALESCE(d.name, rt.device_name) AS device_name, COALESCE(d.serial_number, rt.reported_serial) AS serial_number,
             c.name AS customer_name, c.phone AS customer_phone
      FROM repair_tickets rt
-     JOIN devices d ON d.id = rt.device_id
+     LEFT JOIN devices d ON d.id = rt.device_id
      JOIN customers c ON c.id = rt.customer_id
      WHERE rt.user_id = ?
        AND rt.status IN ('pending','repairing')

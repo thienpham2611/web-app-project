@@ -60,6 +60,25 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(() => alert('Lỗi kết nối!'));
         });
     }
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn && !logoutBtn.dataset.logoutBound) {
+        logoutBtn.dataset.logoutBound = '1';
+        logoutBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            fetch('../../backend/api/logout.php', { credentials: 'include' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        window.location.href = '../../frontend/admin/index.php';
+                    } else {
+                        alert('Logout thất bại!');
+                    }
+                })
+                .catch(err => console.error(err));
+        });
+    }
 });
 
 function loadEmployeeList() {

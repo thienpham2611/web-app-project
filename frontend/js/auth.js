@@ -272,11 +272,23 @@ function loadCustomerNotifications() {
 }
 document.addEventListener('DOMContentLoaded', function() {
     loadCustomerNotifications();
+
+    // Bootstrap 4: event 'show.bs.dropdown' phải lắng nghe trên .dropdown container (cha của bell button)
+    // KHÔNG lắng nghe trên chính bell button → đó là lý do badge không xóa
     var bell = document.getElementById('notification-bell');
-    if (bell) {
-        bell.addEventListener('show.bs.dropdown', function() {
-            localStorage.setItem('customer_notif_seen', Date.now().toString());
-            loadCustomerNotifications();
-        });
+    if (bell && window.jQuery) {
+        var $dropdown = $(bell).closest('.dropdown');
+        if ($dropdown.length) {
+            $dropdown.on('show.bs.dropdown', function() {
+                localStorage.setItem('customer_notif_seen', Date.now().toString());
+                loadCustomerNotifications();
+            });
+        } else {
+            // Fallback nếu không có .dropdown wrapper
+            bell.addEventListener('click', function() {
+                localStorage.setItem('customer_notif_seen', Date.now().toString());
+                setTimeout(loadCustomerNotifications, 100);
+            });
+        }
     }
 });

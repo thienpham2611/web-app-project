@@ -28,10 +28,10 @@ mysqli_stmt_execute($stmt_dev);
 $devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_dev), MYSQLI_ASSOC);
 
 // Lấy danh sách phiếu sửa chữa
-$sql_tick = "SELECT rt.id, rt.description, rt.status, rt.progress, d.name as device_name 
+$sql_tick = "SELECT rt.id, rt.description, rt.status, rt.progress, COALESCE(d.name, rt.device_name) AS device_name 
              FROM repair_tickets rt 
-             JOIN devices d ON rt.device_id = d.id 
-             WHERE d.customer_id = ? ORDER BY rt.created_at DESC";
+             LEFT JOIN devices d ON rt.device_id = d.id 
+             WHERE rt.customer_id = ? ORDER BY rt.created_at DESC";
 $stmt_tick = mysqli_prepare($conn, $sql_tick);
 mysqli_stmt_bind_param($stmt_tick, "i", $customerId);
 mysqli_stmt_execute($stmt_tick);
@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted small mb-3">Nhập thông tin thiết bị cần sửa. Nếu thiết bị chưa có trong hệ thống, hệ thống sẽ tự động thêm vào.</p>
+                <p class="text-muted small mb-3">Nhập thông tin thiết bị cần sửa. Chỉ tạo phiếu yêu cầu — không thêm thiết bị mới vào danh sách của bạn. Nếu nhập đúng S/N trùng với thiết bị đã đăng ký, phiếu sẽ gắn với thiết bị đó.</p>
 
                 <div class="form-group">
                     <label>Tên thiết bị / Phần mềm <span class="text-danger">*</span></label>

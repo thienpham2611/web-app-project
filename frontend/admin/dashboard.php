@@ -42,9 +42,9 @@ $res_stats = mysqli_query($conn, $sql_stats);
 $stats = mysqli_fetch_assoc($res_stats);
 
 // Lấy danh sách việc cần làm (Dạng danh sách - không dùng table)
-$sql_tasks = "SELECT rt.*, d.name as device_name 
+$sql_tasks = "SELECT rt.*, COALESCE(d.name, rt.device_name) as device_name 
               FROM repair_tickets rt 
-              JOIN devices d ON rt.device_id = d.id 
+              LEFT JOIN devices d ON rt.device_id = d.id 
               WHERE rt.status != 'completed' " . ($currentRole === 'staff' ? "AND rt.user_id = $currentUserId " : "") . "
               ORDER BY rt.created_at ASC LIMIT 5";
 $tasks = mysqli_query($conn, $sql_tasks);
@@ -70,7 +70,7 @@ $tasks = mysqli_query($conn, $sql_tasks);
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <div class="navbar-holder d-flex align-items-center justify-content-between">
-                    <div class="navbar-header">
+                    <div class="navbar-header d-flex align-items-center w-100">
                         <a href="<?= $currentRole === 'staff' ? 'nhanvien.php' : 'quanly.php' ?>" class="navbar-brand">
                             <div class="brand-text brand-big hidden-lg-down">
                                 <img src="img/logo.png" width="140" alt="Logo" class="img-fluid">
@@ -84,12 +84,26 @@ $tasks = mysqli_query($conn, $sql_tasks);
                                 Xin chào, <strong><?= htmlspecialchars($user['name']) ?></strong>
                                 <small class="text-muted ml-1">(<?= $roleLabel[$currentRole] ?? $currentRole ?>)</small>
                             </li>
-                            <li class="nav-item">
-                                <a href="../../backend/api/logout.php" class="nav-link text-danger font-weight-bold" style="padding: 0;">
-                                    <i class="fa fa-sign-out"></i> Đăng xuất
-                                </a>
-                            </li>
-                        </ul>
+    
+                                                <li class="nav-item dropdown" id="staff-notif-bell" style="list-style:none;">
+                            <a href="#" class="dropdown-toggle position-relative nav-link" data-toggle="dropdown"
+                               style="color:#ff9800;padding:0 5px;">
+                                <i class="fa fa-bell fa-lg"></i>
+                                <span id="staff-notif-badge" class="badge badge-danger"
+                                      style="position:absolute;top:-4px;right:-2px;font-size:9px;padding:2px 4px;display:none;">0</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow p-0"
+                                 style="width:300px;max-height:360px;overflow-y:auto;">
+                                <div class="px-3 py-2 border-bottom bg-light d-flex justify-content-between align-items-center">
+                                    <strong><i class="fa fa-bell text-warning"></i> Thông báo</strong>
+                                    <a href="#" onclick="markAllStaffNotifRead(); return false;" class="small text-muted">Đánh dấu tất cả</a>
+                                </div>
+                                <div id="staff-notif-list">
+                                    <div class="text-center text-muted py-3 small"><i class="fa fa-spinner fa-spin"></i> Đang tải...</div>
+                                </div>
+                            </div>
+                        </li>
+</ul>
                     </div>
                 </div>
             </div>
@@ -155,6 +169,13 @@ $tasks = mysqli_query($conn, $sql_tasks);
                     </a>
                 </li>
             </ul>
+            <div style="position:absolute;bottom:20px;left:0;right:0;padding:0 10px;">
+                <a href="../../backend/api/logout.php"
+                   class="d-block py-2 px-3 text-danger font-weight-bold"
+                   style="border-top:1px solid #eee;">
+                    <i class="fa fa-sign-out"></i> Đăng xuất
+                </a>
+            </div>
         </nav>
 
         <div class="content-inner w-100">
@@ -202,5 +223,6 @@ $tasks = mysqli_query($conn, $sql_tasks);
 <script src="../js/jquery/jquery.min.js"></script>
 <script src="../js/bootstrap/bootstrap.min.js"></script>
 <script src="../js/front.js"></script>
+<script src="js/manager_actions.js"></script>
 </body>
 </html>
