@@ -441,29 +441,6 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
         </a>
     </footer>
 
-<script src="js/jquery/jquery.min.js"></script>
-<script src="js/popper/popper.min.js"></script>
-<script src="js/bootstrap/bootstrap.min.js"></script>
-<script src="js/wow/wow.min.js"></script>
-<script src="js/custom.js"></script>
-<script src="js/auth.js"></script>
-
-<script>
-function formatNotifTime(datetime) {
-    var d = new Date(datetime);
-    return d.toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    loadCustomerNotifications();
-
-    var bell = document.getElementById('notification-bell');
-    if (bell) {
-        bell.addEventListener('show.bs.dropdown', loadCustomerNotifications);
-    }
-});
-</script>
-
 <div class="modal fade" id="createRepairModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -576,32 +553,6 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('btnGuiGiaHan').addEventListener('click', function() {
-        const device_id = document.getElementById('warranty_device_id').value;
-        const note = document.getElementById('warranty_note').value.trim();
-
-        fetch('../backend/api/warranty_request.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ device_id: parseInt(device_id), note })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                alert('✅ ' + res.message);
-                $('#warrantyRequestModal').modal('hide');
-            } else {
-                alert('❌ ' + res.error);
-            }
-        })
-        .catch(() => alert('Lỗi kết nối máy chủ!'));
-    });
-});
-</script>
-
 <!-- MODAL TẠO PHIẾU SỬA CHỮA MỚI (TỰ NHẬP THIẾT BỊ) -->
 <div class="modal fade" id="newRepairModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -652,45 +603,12 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-<script>
-function openNewRepairModal() {
-    document.getElementById('new_device_name').value = '';
-    document.getElementById('new_serial_number').value = '';
-    document.getElementById('new_device_type').value = 'hardware';
-    document.getElementById('new_repair_description').value = '';
-    $('#newRepairModal').modal('show');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('btnGuiPhieuMoi').addEventListener('click', function() {
-        var device_name = document.getElementById('new_device_name').value.trim();
-        var serial_number = document.getElementById('new_serial_number').value.trim();
-        var device_type = document.getElementById('new_device_type').value;
-        var description = document.getElementById('new_repair_description').value.trim();
-
-        if (!device_name) { alert('Vui lòng nhập tên thiết bị!'); return; }
-        if (!description) { alert('Vui lòng nhập mô tả lỗi!'); return; }
-
-        fetch('../backend/api/create_repair_ticket_manual.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ device_name, serial_number, device_type, description })
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                alert('✅ ' + res.message + '\n\nMã phiếu: #TICK-' + res.ticket_id);
-                $('#newRepairModal').modal('hide');
-                location.reload();
-            } else {
-                alert('❌ ' + (res.error || 'Lỗi không xác định'));
-            }
-        })
-        .catch(() => alert('Lỗi kết nối máy chủ!'));
-    });
-});
-</script>
+<script src="js/jquery/jquery.min.js"></script>
+<script src="js/popper/popper.min.js"></script>
+<script src="js/bootstrap/bootstrap.min.js"></script>
+<script src="js/wow/wow.min.js"></script>
+<script src="js/custom.js"></script>
+<script src="js/auth.js"></script>
 
 </body>
 </html>
