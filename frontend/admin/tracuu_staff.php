@@ -30,6 +30,7 @@ $search_results = [];
 $today = date('Y-m-d');
 
 $sql = "SELECT rt.id, rt.status, rt.progress, rt.due_date, rt.assigned_date,
+               rt.updated_at,
                rt.description,
                COALESCE(d.name, rt.device_name) AS device_name, 
                COALESCE(d.serial_number, rt.reported_serial) AS serial_number,
@@ -131,8 +132,9 @@ $search_results = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
         </ul>
         <div style="position:absolute;bottom:20px;left:0;right:0;padding:0 10px;">
             <a href="#" onclick="logoutStaff(); return false;"
-               class="d-block py-2 px-3 text-danger font-weight-bold">
-                <i class="fa fa-sign-out"></i> Đăng xuất
+               class="d-inline-flex align-items-center py-2 px-3 text-danger font-weight-bold"
+               style="width:fit-content;border-radius:6px;">
+                <i class="fa fa-sign-out mr-2"></i> Đăng xuất
             </a>
         </div>
     </nav>
@@ -238,13 +240,29 @@ $search_results = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
 
                                     // Deadline
                                     $deadlineHtml = '<span class="text-muted">—</span>';
-                                    if ($r['due_date']) {
-                                        $due = new DateTime($r['due_date']);
-                                        $now = new DateTime($today);
+                                    if ($r['status'] === 'completed') {
+                                        // Ticket đã hoàn thành — so sánh ngày hoàn thành thực tế với deadline
+                                        if ($r['due_date'] && $r['updated_at']) {
+                                            $due       = new DateTime($r['due_date']);
+                                            $completed = new DateTime(date('Y-m-d', strtotime($r['updated_at'])));
+                                            $lateDiff  = (int)$due->diff($completed)->format('%r%a');
+                                            // %r%a: âm = hoàn thành TRƯỚC deadline, dương = hoàn thành SAU deadline
+                                            if ($lateDiff <= 0) {
+                                                $deadlineHtml = "<span class='badge badge-success p-2'>✅ Đã hoàn thành đúng hạn</span>";
+                                            } else {
+                                                $deadlineHtml = "<span class='badge badge-warning p-2'>⏰ Đã trễ {$lateDiff} ngày</span>";
+                                            }
+                                        } else {
+                                            $deadlineHtml = "<span class='badge badge-success p-2'>✅ Đã hoàn thành</span>";
+                                        }
+                                    } elseif ($r['due_date']) {
+                                        // Ticket chưa hoàn thành — hiển thị thời gian còn lại / quá hạn
+                                        $due  = new DateTime($r['due_date']);
+                                        $now  = new DateTime($today);
                                         $diff = (int)$now->diff($due)->format('%r%a');
                                         $fmt  = $due->format('d/m/Y');
-                                        if ($diff < 0 && !in_array($r['status'], ['completed','cancelled'])) {
-                                            $deadlineHtml = "<span class='badge badge-danger p-1'>⚠ Quá hạn ".abs($diff)." ngày<br>$fmt</span>";
+                                        if ($diff < 0) {
+                                            $deadlineHtml = "<span class='badge badge-danger p-1'>⚠ Quá hạn " . abs($diff) . " ngày<br>$fmt</span>";
                                         } elseif ($diff <= 2) {
                                             $deadlineHtml = "<span class='badge badge-warning p-1'>🔔 Còn $diff ngày<br>$fmt</span>";
                                         } else {
