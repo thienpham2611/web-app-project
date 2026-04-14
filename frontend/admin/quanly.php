@@ -201,8 +201,9 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
             </ul>
             <div style="position:absolute;bottom:20px;left:0;right:0;padding:0 10px;">
                 <a href="#" id="logoutBtn"
-                   class="d-block py-2 px-3 text-danger font-weight-bold">
-                    <i class="fa fa-sign-out"></i> Đăng xuất
+                   class="d-inline-flex align-items-center py-2 px-3 text-danger font-weight-bold"
+                   style="width:fit-content;border-radius:6px;">
+                    <i class="fa fa-sign-out mr-2"></i> Đăng xuất
                 </a>
             </div>
         </nav>

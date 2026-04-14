@@ -119,27 +119,55 @@ $results = mysqli_fetch_all(mysqli_stmt_get_result($stmt), MYSQLI_ASSOC);
             </div>
         </div>
         <hr>
-        <ul class="list-unstyled" style="padding:10px;">
-            <li class="mb-2"><a href="quanly.php" class="text-black d-block py-1"><i class="fa fa-home fa-fw"></i> Trang chủ</a></li>
-            <?php if ($currentRole === 'admin'): ?>
-            <li class="mb-2"><a href="admin.php" class="text-black d-block py-1"><i class="fa fa-shield fa-fw"></i> Dashboard</a></li>
-            <?php endif; ?>
-            <li class="mb-2"><a href="tables.php" class="text-black d-block py-1"><i class="fa fa-table fa-fw"></i> Bảng dữ liệu</a></li>
-            <li class="mb-2"><a href="invoice.php" class="text-black d-block py-1"><i class="fa fa-file-text fa-fw"></i> Hóa đơn</a></li>
-            <li class="mb-2"><a href="email.php" class="text-black d-block py-1"><i class="fa fa-envelope fa-fw"></i> Email</a></li>
-            <li class="mb-2"><a href="profile.php" class="text-black d-block py-1"><i class="fa fa-user fa-fw"></i> Hồ sơ</a></li>
-            <li class="mb-2"><a href="baocao.php" class="text-black d-block py-1"><i class="fa fa-bar-chart fa-fw"></i> Báo cáo</a></li>
-            <li class="mb-2"><a href="dashboard.php" class="text-black d-block py-1"><i class="fa fa-dashboard fa-fw"></i> Bảng điều khiển</a></li>
-            <li class="mb-2">
-                <a href="<?= $currentRole==='admin' ? 'tracuu_admin.php' : 'tracuu_manager.php' ?>"
-                   class="text-black d-block py-1 font-weight-bold">
-                    <i class="fa fa-search fa-fw"></i> Tra cứu
-                </a>
-            </li>
-        </ul>
+        <ul class="list-unstyled" style="padding: 10px;">
+                <li class="mb-2">
+                    <a href="quanly.php" class="text-black d-block py-1">
+                        <i class="fa fa-home fa-fw"></i> Trang chủ
+                    </a>
+                </li>
+                <?php if ($currentRole === 'admin'): ?>
+                <li class="mb-2">
+                    <a href="admin.php" class="text-black d-block py-1">
+                        <i class="fa fa-shield fa-fw"></i> Dashbroad
+                    </a>
+                </li>
+                <?php endif; ?>
+                <li class="mb-2">
+                    <a href="profile.php" class="text-black d-block py-1">
+                        <i class="fa fa-user fa-fw"></i> Hồ sơ
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="baocao.php" class="text-black d-block py-1">
+                        <i class="fa fa-bar-chart fa-fw"></i> Báo cáo thống kê
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="dashboard.php" class="text-black d-block py-1">
+                        <i class="fa fa-dashboard fa-fw"></i> Bảng điều khiển
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <?php
+                    $tracuu_link = ($currentRole === 'admin') ? 'tracuu_admin.php' : 'tracuu_manager.php';
+                    ?>
+                    <a href="<?= $tracuu_link ?>" class="text-black d-block py-1">
+                        <i class="fa fa-search fa-fw"></i> Tra cứu
+                    </a>
+                </li>
+                <?php if ($currentRole === 'staff'): ?>
+                <li class="mb-2">
+                    <a href="nhanvien.php" class="text-black d-block py-1">
+                        <i class="fa fa-wrench fa-fw"></i> Trang Nhân viên
+                    </a>
+                </li>
+                <?php endif; ?>
+            </ul>
         <div style="position:absolute;bottom:20px;left:0;right:0;padding:0 10px;">
-            <a href="#" id="logoutBtn" class="d-block py-2 px-3 text-danger font-weight-bold">
-                <i class="fa fa-sign-out"></i> Đăng xuất
+            <a href="#" id="logoutBtn"
+               class="d-inline-flex align-items-center py-2 px-3 text-danger font-weight-bold"
+               style="width:fit-content;border-radius:6px;">
+                <i class="fa fa-sign-out mr-2"></i> Đăng xuất
             </a>
         </div>
     </nav>
