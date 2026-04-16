@@ -87,21 +87,21 @@ function handleGet($conn) {
 }
 
 // ──────────────────────────────────────────
-// POST: tạo đơn hàng (kèm items) — chỉ admin/manager
+// POST: tạo đơn hàng (kèm chi tiết) — chỉ admin/manager
 // ──────────────────────────────────────────
 function handlePost($conn) {
-    // [FIX 1] Staff không được tạo đơn hàng
     if (!in_array($_SESSION['role'], ['admin', 'manager'])) {
         http_response_code(403);
         echo json_encode(["success" => false, "error" => "Không có quyền thực hiện"]);
         return;
     }
 
-    $input       = json_decode(file_get_contents("php://input"), true) ?? [];
-    $customer_id = intval($input['customer_id'] ?? 0);
-    $order_date  = $input['order_date'] ?? date('Y-m-d');
-    $status      = $input['status'] ?? 'unpaid';
-    $items       = $input['items'] ?? [];
+    $input = json_decode(file_get_contents("php://input"), true) ?? [];
+    $customer_id      = intval($input['customer_id'] ?? 0);
+    $repair_ticket_id = isset($input['repair_ticket_id']) ? intval($input['repair_ticket_id']) : null;
+    $order_type       = $input['order_type'] ?? 'repair';
+    $status           = $input['status'] ?? 'unpaid';
+    $items            = $input['items'] ?? [];
 
     if ($customer_id <= 0) {
         http_response_code(400);
@@ -109,70 +109,52 @@ function handlePost($conn) {
         return;
     }
 
-    if (!in_array($status, ['paid', 'unpaid', 'cancelled'])) {
-        http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Trạng thái không hợp lệ"]);
-        return;
-    }
-
-    // [FIX 2] Bắt buộc phải có ít nhất 1 item
     if (empty($items)) {
         http_response_code(400);
-        echo json_encode(["success" => false, "error" => "Đơn hàng phải có ít nhất 1 sản phẩm"]);
+        echo json_encode(["success" => false, "error" => "Đơn hàng phải có ít nhất 1 mục phí"]);
         return;
-    }
-
-    // [FIX 3] Validate từng item trước khi insert, báo lỗi rõ nếu sai
-    foreach ($items as $index => $item) {
-        $device_id = intval($item['device_id'] ?? 0);
-        $price     = floatval($item['price'] ?? 0);
-        $qty       = intval($item['quantity'] ?? 0);
-
-        if ($device_id <= 0) {
-            http_response_code(400);
-            echo json_encode(["success" => false, "error" => "Sản phẩm #" . ($index + 1) . " thiếu mã thiết bị"]);
-            return;
-        }
-        if ($price <= 0) {
-            http_response_code(400);
-            echo json_encode(["success" => false, "error" => "Sản phẩm #" . ($index + 1) . " giá không hợp lệ"]);
-            return;
-        }
-        if ($qty <= 0) {
-            http_response_code(400);
-            echo json_encode(["success" => false, "error" => "Sản phẩm #" . ($index + 1) . " số lượng không hợp lệ"]);
-            return;
-        }
     }
 
     // Tính tổng tiền
     $total = 0;
     foreach ($items as $item) {
-        $total += floatval($item['price']) * intval($item['quantity']);
+        $total += floatval($item['price']); // (số lượng luôn là 1 theo JS)
     }
 
     mysqli_begin_transaction($conn);
     try {
-        $stmt = mysqli_prepare($conn,
-            "INSERT INTO orders (customer_id, order_date, total_amount, status) VALUES (?, ?, ?, ?)");
-        mysqli_stmt_bind_param($stmt, "isds", $customer_id, $order_date, $total, $status);
+        // 1. Insert vào orders
+        if ($repair_ticket_id > 0) {
+            $stmt = mysqli_prepare($conn, "INSERT INTO orders (repair_ticket_id, customer_id, order_type, total_amount, status) VALUES (?, ?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmt, "iisds", $repair_ticket_id, $customer_id, $order_type, $total, $status);
+        } else {
+            $stmt = mysqli_prepare($conn, "INSERT INTO orders (customer_id, order_type, total_amount, status) VALUES (?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmt, "isds", $customer_id, $order_type, $total, $status);
+        }
+        
         if (!mysqli_stmt_execute($stmt)) throw new Exception("Tạo đơn hàng thất bại");
         $order_id = mysqli_insert_id($conn);
 
+        // 2. Insert vào order_details (CHÚ Ý: Dùng đúng bảng order_details)
         foreach ($items as $item) {
-            $device_id = intval($item['device_id']);
-            $price     = floatval($item['price']);
-            $qty       = intval($item['quantity']);
+            $item_name = trim($item['item_name']);
+            $price     = intval($item['price']);
+            $qty       = 1;
 
-            $stmtI = mysqli_prepare($conn,
-                "INSERT INTO order_items (order_id, device_id, price, quantity) VALUES (?, ?, ?, ?)");
-            mysqli_stmt_bind_param($stmtI, "iidi", $order_id, $device_id, $price, $qty);
-            if (!mysqli_stmt_execute($stmtI)) throw new Exception("Thêm sản phẩm vào đơn thất bại");
+            $stmtI = mysqli_prepare($conn, "INSERT INTO order_details (order_id, item_name, price, quantity) VALUES (?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmtI, "isii", $order_id, $item_name, $price, $qty);
+            if (!mysqli_stmt_execute($stmtI)) throw new Exception("Thêm chi tiết phí thất bại");
         }
+
+        // 3. Tự động sinh hóa đơn vào bảng invoices để hiển thị ở tab Quản lý
+        $invoice_number = 'INV-' . date('Ymd') . '-' . str_pad($order_id, 4, '0', STR_PAD_LEFT);
+        $stmtInv = mysqli_prepare($conn, "INSERT INTO invoices (order_id, invoice_number, total, payment_status, created_at) VALUES (?, ?, ?, 'unpaid', NOW())");
+        mysqli_stmt_bind_param($stmtInv, "isd", $order_id, $invoice_number, $total);
+        if (!mysqli_stmt_execute($stmtInv)) throw new Exception("Lỗi khởi tạo mã hóa đơn");
 
         mysqli_commit($conn);
         http_response_code(201);
-        echo json_encode(["success" => true, "message" => "Tạo đơn hàng thành công", "id" => $order_id]);
+        echo json_encode(["success" => true, "message" => "Lên hóa đơn thành công", "id" => $order_id]);
     } catch (Exception $e) {
         mysqli_rollback($conn);
         http_response_code(500);

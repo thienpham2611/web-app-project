@@ -416,3 +416,64 @@ document.addEventListener('DOMContentLoaded', function() {
         bell.addEventListener('show.bs.dropdown', loadCustomerNotifications);
     }
 });
+
+function handleQuote(ticketId, action) {
+    let actionText = action === 'approved' ? 'Xác nhận Báo giá' : 'Từ chối Báo giá';
+    let confirmText = action === 'approved' ? 
+        'Bạn xác nhận đồng ý với mức chi phí này? Kỹ thuật viên sẽ tiến hành sửa chữa.' : 
+        'Bạn xác nhận từ chối? Phiếu yêu cầu sẽ bị hủy và bạn có thể nhận lại máy.';
+        
+    let confirmColor = action === 'approved' ? '#28a745' : '#dc3545';
+
+    Swal.fire({
+        title: actionText,
+        text: confirmText,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: confirmColor,
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Đồng ý',
+        cancelButtonText: 'Đóng'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Đóng gói dữ liệu
+            const formData = new FormData();
+            formData.append('ticket_id', ticketId);
+            formData.append('approval_status', action);
+
+            // Gửi request bằng fetch có kèm credentials để giữ Session
+            fetch('../backend/api/update_quote_status.php', {
+                method: 'POST',
+                credentials: 'include', // QUAN TRỌNG: Gửi kèm Session của khách hàng
+                body: formData
+            })
+            .then(async (response) => {
+                const text = await response.text();
+                try {
+                    // Cố gắng parse JSON
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error("Server không trả về chuẩn JSON. Dữ liệu nhận được:", text);
+                    throw new Error("Lỗi định dạng phản hồi từ server.");
+                }
+            })
+            .then(data => {
+                if(data.success) {
+                    Swal.fire('Thành công!', 'Đã cập nhật quyết định của bạn.', 'success').then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Lỗi!', data.message || 'Có lỗi xảy ra từ máy chủ.', 'error');
+                }
+            })
+            .catch(err => {
+                console.error("Chi tiết lỗi:", err);
+                Swal.fire(
+                    'Lỗi hệ thống!', 
+                    'Không thể kết nối tới máy chủ. Nếu bạn đang chạy local, hãy kiểm tra đường dẫn API hoặc xem tab Console (F12).', 
+                    'error'
+                );
+            });
+        }
+    });
+}
