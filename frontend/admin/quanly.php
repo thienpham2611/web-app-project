@@ -233,7 +233,7 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                                             <?php endif; ?>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="pending-tickets-tbody">
                                         <?php if (empty($pending_tickets)): ?>
                                             <tr><td colspan="6" class="text-center text-muted py-4">Tuyệt vời! Hiện không có yêu cầu nào đang tồn đọng.</td></tr>
                                         <?php else: ?>
@@ -346,14 +346,24 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                                             <th class="text-center">Trạng thái</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="ongoing-tickets-tbody">
                                         <?php if (empty($ongoing_tickets)): ?>
                                             <tr><td colspan="5" class="text-center text-muted py-4">Không có phiếu nào đang xử lý.</td></tr>
                                         <?php else: ?>
                                             <?php foreach ($ongoing_tickets as $tick): ?>
                                             <tr>
                                                 <td class="text-center"><strong>#TICK-<?= $tick['id'] ?></strong></td>
-                                                <td class="text-center"><?= htmlspecialchars($tick['device_name']) ?></td>
+                                                <td class="text-center">
+                                                    <?= htmlspecialchars($tick['device_name']) ?>
+                                                    <?php 
+                                                        // Bổ sung logic hiển thị duyệt giá
+                                                        if ($tick['estimated_cost'] > 0) {
+                                                            if ($tick['customer_approval'] == 'waiting') echo '<div class="mt-1"><span class="badge badge-warning">Khách đang chờ duyệt giá</span></div>';
+                                                            elseif ($tick['customer_approval'] == 'approved') echo '<div class="mt-1"><span class="badge badge-success">Khách đã ĐỒNG Ý giá</span></div>';
+                                                            elseif ($tick['customer_approval'] == 'rejected') echo '<div class="mt-1"><span class="badge badge-danger">Khách TỪ CHỐI giá</span></div>';
+                                                        }
+                                                    ?>
+                                                </td>
                                                 <td class="text-center"><?= htmlspecialchars($tick['staff_name'] ?? 'Chờ phân công') ?></td>
                                                 <td class="align-middle">
                                                     <div class="progress idt-progress-bar" style="margin-bottom: 5px;">
@@ -388,8 +398,8 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                     <i class="fa fa-file-text"></i> QUẢN LÝ HÓA ĐƠN
                 </h4>
                 <div>
-                    <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#modalBaoGia">
-                        <i class="fas fa-file-invoice"></i> Lên báo giá sửa chữa
+                    <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#modalGiaHanBH">
+                        <i class="fa fa-shield"></i> Gia hạn bảo hành
                     </button>
                     <!-- <button type="button" class="btn btn-info me-2" data-bs-toggle="modal" data-bs-target="#modalTaoDonHang">
                         <i class="fas fa-cart-plus"></i> Tạo Đơn hàng (Order)
@@ -533,48 +543,85 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
 <script src="../js/popper/popper.min.js"></script>
 <script src="../js/bootstrap/bootstrap.min.js"></script>
 <script src="../js/front.js"></script>
+
+<!-- Inject dữ liệu PHP vào JS để manager_actions.js sử dụng khi re-render AJAX -->
+<script>
+    const CURRENT_ROLE = '<?= $currentRole ?>';
+    const STAFF_LIST   = <?= json_encode($staff_list) ?>;
+</script>
+
 <script src="js/manager_actions.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- MODAL LÊN BÁO GIÁ SỬA CHỮA -->
-<div class="modal fade" id="modalBaoGia" tabindex="-1">
+<!-- MODAL GIA HẠN BẢO HÀNH -->
+<div class="modal fade" id="modalGiaHanBH" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title">Lên báo giá sửa chữa</h5>
+                <h5 class="modal-title"><i class="fa fa-shield"></i> Gia hạn bảo hành</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formBaoGia">
+                <form id="formGiaHanBH">
+
+                    <!-- Bước 1: Chọn khách hàng -->
                     <div class="mb-3">
-                        <label class="form-label">Phiếu sửa chữa</label>
-                        <select class="form-select" id="repair_ticket_id" required></select>
+                        <label class="form-label fw-bold">1. Chọn khách hàng <span class="text-danger">*</span></label>
+                        <select class="form-select" id="gh_customer_id" required>
+                            <option value="">-- Chọn khách hàng --</option>
+                        </select>
                     </div>
-                    <div class="row mt-2">
-                    <div class="col-md-6">
-                        <label class="form-label">Khách hàng</label>
-                        <input type="text" class="form-control" id="customer_name_display" readonly>
+
+                    <!-- Bước 2: Chọn thiết bị (load động theo khách) -->
+                    <div class="mb-3" id="gh_device_block" style="display:none;">
+                        <label class="form-label fw-bold">2. Chọn thiết bị <span class="text-danger">*</span></label>
+                        <select class="form-select" id="gh_device_id" required>
+                            <option value="">-- Chọn thiết bị --</option>
+                        </select>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Thiết bị</label>
-                        <input type="text" class="form-control" id="device_name_display" readonly>
-                    </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label class="form-label">Báo giá (VND) <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="quote_amount" step="1000" required>
+
+                    <!-- Thông tin hiện tại của thiết bị -->
+                    <div id="gh_device_info" class="alert alert-info py-2" style="display:none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">S/N</small>
+                                <div id="gh_serial" class="fw-bold"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">Ngày hết hạn BH hiện tại</small>
+                                <div id="gh_current_end" class="fw-bold"></div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Ghi chú</label>
-                            <textarea class="form-control" id="note_quote" rows="3"></textarea>
+                    </div>
+
+                    <!-- Bước 3: Thông tin gia hạn -->
+                    <div id="gh_extend_block" style="display:none;">
+                        <hr>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">3. Ngày hết hạn mới <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="gh_new_end_date" required>
+                                <small class="text-muted">Phải sau ngày hết hạn hiện tại</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Phí gia hạn (VNĐ) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="gh_cost" step="1000" min="0" placeholder="VD: 500000" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Ghi chú</label>
+                                <textarea class="form-control" id="gh_note" rows="2"
+                                    placeholder="VD: Khách hàng mua thêm gói bảo hành mở rộng 1 năm."></textarea>
+                            </div>
                         </div>
                     </div>
+
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-warning" id="btnLuuBaoGia">Lưu báo giá</button>
+                <button type="button" class="btn btn-warning" id="btnLuuGiaHan" disabled>
+                    <i class="fa fa-save"></i> Lưu gia hạn
+                </button>
             </div>
         </div>
     </div>
@@ -600,9 +647,25 @@ $roleLabel = ['admin' => 'Admin', 'manager' => 'Quản lý', 'staff' => 'Nhân v
                             <label>Thiết bị / Phiếu sửa</label>
                             <select class="form-select" id="repair_ticket_id_order"></select>
                         </div>
-                        <div class="col-12">
-                            <label>Tổng tiền (VND)</label>
-                            <input type="number" class="form-control" id="total_amount" required>
+                        <div class="col-12 mt-2">
+                            <label class="font-weight-bold text-info">Chi tiết dịch vụ / Linh kiện thay thế</label>
+                            <table class="table table-sm table-bordered mb-1">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Tên mục (VD: Thay màn hình)</th>
+                                        <th width="35%">Giá (VNĐ)</th>
+                                        <th width="10%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="order_items_body">
+                                    <tr>
+                                        <td><input type="text" class="form-control item-name" placeholder="VD: Thay màn hình" required></td>
+                                        <td><input type="number" class="form-control item-price" placeholder="Giá tiền" required></td>
+                                        <td class="text-center"><button type="button" class="btn btn-danger btn-sm btn-remove-item"><i class="fa fa-trash"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnAddItem"><i class="fa fa-plus"></i> Thêm mục phí</button>
                         </div>
                     </div>
                 </form>

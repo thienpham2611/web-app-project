@@ -166,8 +166,9 @@ function handlePut($conn) {
 
     $id          = intval($input['id'] ?? 0);
     $status      = $input['status'] ?? null;
-    $progress    = isset($input['progress']) ? intval($input['progress']) : null; // ✅ ĐÃ THÊM: Nhận tiến độ
-    $user_id     = array_key_exists('user_id', $input) ? (intval($input['user_id']) ?: null) : 'UNCHANGED';
+    $progress       = isset($input['progress']) ? intval($input['progress']) : null; 
+    $estimated_cost = isset($input['estimated_cost']) && $input['estimated_cost'] !== '' ? floatval($input['estimated_cost']) : null; // ✅ ĐÃ THÊM: Nhận báo giá
+    $user_id        = array_key_exists('user_id', $input) ? (intval($input['user_id']) ?: null) : 'UNCHANGED';
     $description = array_key_exists('description', $input) ? trim($input['description']) : null;
 
     if ($id <= 0) {
@@ -192,10 +193,23 @@ function handlePut($conn) {
     }
 
     // ✅ ĐÃ THÊM: Logic cập nhật cột progress vào SQL
+    // ✅ ĐÃ THÊM: Logic cập nhật cột progress vào SQL
     if ($progress !== null) {
         $sets[]   = "progress = ?";
         $params[] = $progress;
         $types   .= 'i';
+    }
+
+    // ✅ ĐÃ THÊM: Cập nhật báo giá & tự động đổi trạng thái duyệt
+    if ($estimated_cost !== null) {
+        $sets[]   = "estimated_cost = ?";
+        $params[] = $estimated_cost;
+        $types   .= 'd';
+        
+        // Nếu có giá > 0, tự động chuyển trạng thái chờ khách duyệt
+        if ($estimated_cost > 0) {
+            $sets[]   = "customer_approval = 'waiting'";
+        }
     }
 
     if ($user_id !== 'UNCHANGED') {
@@ -231,6 +245,15 @@ function handlePut($conn) {
     // -----------------------------------------------------------
 
     if (mysqli_stmt_execute($stmt)) {
+        // ✅ THÊM: Tự động ghi log để kích hoạt chuông báo bên Khách hàng
+        if ($estimated_cost !== null && $estimated_cost > 0) {
+            $logAction = "Có báo giá sửa chữa mới: " . number_format($estimated_cost, 0, ',', '.') . " VNĐ. Vui lòng xác nhận!";
+            $current_user = $_SESSION['user_id'] ?? 0;
+            $insLog = mysqli_prepare($conn, "INSERT INTO repair_logs (repair_ticket_id, user_id, action, note) VALUES (?, ?, ?, 'Hệ thống tự động gửi thông báo')");
+            mysqli_stmt_bind_param($insLog, "iis", $id, $current_user, $logAction);
+            mysqli_stmt_execute($insLog);
+        }
+
         if (in_array($status, ['completed', 'cancelled'])) {
             $row = mysqli_fetch_assoc(mysqli_query($conn,
                 "SELECT device_id FROM repair_tickets WHERE id=$id"));
