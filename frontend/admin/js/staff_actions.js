@@ -49,9 +49,24 @@ function loadMyTickets() {
                 }
             }
 
+            // Thêm logic hiển thị trạng thái báo giá
+            let quoteHtml = '';
+            if (item.estimated_cost > 0) {
+                if (item.customer_approval === 'waiting') {
+                    quoteHtml = '<div class="mt-1"><span class="badge badge-warning"><i class="fa fa-spinner fa-spin"></i> Khách đang chờ duyệt giá</span></div>';
+                } else if (item.customer_approval === 'approved') {
+                    quoteHtml = '<div class="mt-1"><span class="badge badge-success"><i class="fa fa-check"></i> Khách đã ĐỒNG Ý giá</span></div>';
+                } else if (item.customer_approval === 'rejected') {
+                    quoteHtml = '<div class="mt-1"><span class="badge badge-danger"><i class="fa fa-times"></i> Khách TỪ CHỐI giá</span></div>';
+                }
+            }
+
             tbody.innerHTML += `<tr>
                 <td><strong>#RT-${item.id}</strong></td>
-                <td>${item.device_name??'—'}<br><small class="text-muted">S/N: ${item.serial_number??'—'}</small></td>
+                <td>
+                    ${item.device_name??'—'}<br>
+                    <small class="text-muted">S/N: ${item.serial_number??'—'}</small>
+                    ${quoteHtml} </td>
                 <td>${item.customer_name??'—'}<br><small class="text-muted">${item.customer_phone??''}</small></td>
                 <td class="align-middle">
                     <div class="progress idt-progress-bar" style="margin-bottom:3px; height: 8px;">
@@ -62,7 +77,7 @@ function loadMyTickets() {
                 <td class="text-center">${deadlineHtml}</td>
                 <td class="text-center"><span class="badge ${sc} p-2">${st}</span></td>
                 <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary" onclick="openUpdateModal(${item.id}, '${item.status}', ${bar})">
+                    <button class="btn btn-sm btn-outline-primary" onclick="openUpdateModal(${item.id}, '${item.status}', ${bar}, ${item.estimated_cost || 0}, '${item.customer_approval || 'waiting'}')">
                         <i class="fa fa-edit"></i> Cập nhật
                     </button>
                 </td>
@@ -76,27 +91,51 @@ function loadMyTickets() {
 }
 
 // 2. Mở hộp thoại Modal và điền dữ liệu cũ
-function openUpdateModal(ticketId, currentStatus, currentProgress) {
+function openUpdateModal(ticketId, currentStatus, currentProgress, estimatedCost, approval) {
     document.getElementById('modal_ticket_id').value = ticketId;
-    document.getElementById('modal_note').value = ''; // Reset ghi chú
+    document.getElementById('modal_note').value = ''; 
+    document.getElementById('modal_estimated_cost').value = estimatedCost == 0 ? '' : estimatedCost;
 
-    // Check đúng radio button trạng thái hiện tại
-    if (currentStatus === 'completed') {
-        document.getElementById('st_completed').checked = true;
-    } else if (currentStatus === 'cancelled') {
-        document.getElementById('st_cancelled').checked = true;
+    // Hiển thị cảnh báo trạng thái duyệt của khách
+    const alertBox = document.getElementById('approval_status_alert');
+    const radioRepairing = document.getElementById('st_repairing');
+    const radioCompleted = document.getElementById('st_completed');
+    const costInput = document.getElementById('modal_estimated_cost');
+
+    // Mặc định mở khóa
+    radioRepairing.disabled = false;
+    radioCompleted.disabled = false;
+    costInput.disabled = false;
+
+    if (estimatedCost > 0) {
+        if (approval === 'waiting') {
+            alertBox.innerHTML = '<span class="text-warning"><i class="fa fa-spinner fa-spin"></i> Đang chờ khách hàng duyệt báo giá. Chưa thể tiến hành sửa!</span>';
+            radioRepairing.disabled = true; // Khóa nút sửa
+            radioCompleted.disabled = true;
+        } else if (approval === 'approved') {
+            alertBox.innerHTML = '<span class="text-success"><i class="fa fa-check-circle"></i> Khách hàng đã ĐỒNG Ý báo giá. Có thể tiến hành sửa.</span>';
+            costInput.disabled = true; // Khách đã đồng ý thì không được sửa giá nữa
+        } else if (approval === 'rejected') {
+            alertBox.innerHTML = '<span class="text-danger"><i class="fa fa-times-circle"></i> Khách hàng đã TỪ CHỐI sửa chữa.</span>';
+            radioRepairing.disabled = true;
+            radioCompleted.disabled = true;
+            document.getElementById('st_cancelled').checked = true; // Tự động chọn hủy
+        }
     } else {
-        document.getElementById('st_repairing').checked = true;
+        alertBox.innerHTML = '<span class="text-secondary"><i class="fa fa-info-circle"></i> Vui lòng nhập báo giá nếu thiết bị tính phí. Khách hàng sẽ nhận được thông báo để duyệt.</span>';
     }
 
-    // Set thanh kéo tiến độ
-    const progressInput = document.getElementById('modal_progress');
-    progressInput.value = currentProgress;
+    // Các phần check radio và slider giữ nguyên như code cũ của bạn...
+    if (currentStatus === 'completed') document.getElementById('st_completed').checked = true;
+    else if (currentStatus === 'cancelled') document.getElementById('st_cancelled').checked = true;
+    else document.getElementById('st_repairing').checked = true;
+
+    document.getElementById('modal_progress').value = currentProgress;
     document.getElementById('progress_display').innerText = currentProgress + '%';
 
-    toggleProgress(); // Ẩn/hiện thanh kéo tùy trạng thái
-    loadTicketHistory(ticketId); // Tải lịch sử xử lý
-    $('#updateTicketModal').modal('show'); // Hiển thị modal (Yêu cầu có jQuery & Bootstrap)
+    toggleProgress();
+    loadTicketHistory(ticketId);
+    $('#updateTicketModal').modal('show');
 }
 
 // 3. Hàm tải Timeline từ API
@@ -157,6 +196,7 @@ async function submitTicketUpdate() {
     const status = document.querySelector('input[name="modal_status"]:checked').value;
     const progress = parseInt(document.getElementById('modal_progress').value);
     const note = document.getElementById('modal_note').value.trim();
+    const estimatedCost = document.getElementById('modal_estimated_cost').value;
 
     try {
         // API 1: Cập nhật Trạng thái và Tiến độ vào bảng repair_tickets
@@ -164,7 +204,7 @@ async function submitTicketUpdate() {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
             credentials: 'include',
-            body: JSON.stringify({ id: ticketId, status: status, progress: progress })
+            body: JSON.stringify({ id: ticketId, status: status, progress: progress, estimated_cost: estimatedCost })
         }).then(r => r.json());
 
         if (!res1.success) throw new Error(res1.error);

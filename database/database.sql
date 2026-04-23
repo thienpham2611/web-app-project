@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 13, 2026 lúc 10:01 AM
+-- Thời gian đã tạo: Th4 16, 2026 lúc 01:50 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -144,21 +144,30 @@ INSERT INTO `notifications` (`id`, `device_id`, `user_id`, `message`, `is_read`,
 (22, NULL, 6, '🔧 Bạn được giao sửa phiếu #TICK-26. Thiết bị sẽ được kiểm tra ngay!', 0, '2026-04-09 07:32:56'),
 (23, NULL, 6, '⏰ Phiếu #TICK-26 có deadline: 23/04/2026. Hãy hoàn thành đúng hạn!', 0, '2026-04-09 07:32:56'),
 (24, 3, 4, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 35 ngày) vào ngày 15/05/2026.', 0, '2026-04-10 03:03:40'),
-(25, 3, 5, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 35 ngày) vào ngày 15/05/2026.', 0, '2026-04-10 03:03:40'),
+(25, 3, 5, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 35 ngày) vào ngày 15/05/2026.', 1, '2026-04-10 03:03:40'),
 (26, 3, 8, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 35 ngày) vào ngày 15/05/2026.', 0, '2026-04-10 03:03:40'),
 (27, NULL, 6, '🔧 Bạn được giao sửa phiếu #TICK-28. Thiết bị sẽ được kiểm tra ngay!', 0, '2026-04-10 03:41:35'),
 (28, NULL, 6, '⏰ Phiếu #TICK-28 có deadline: 24/04/2026. Hãy hoàn thành đúng hạn!', 0, '2026-04-10 03:41:35'),
 (29, NULL, 6, '🔧 Bạn được giao sửa phiếu #TICK-27. Thiết bị sẽ được kiểm tra ngay!', 0, '2026-04-10 03:51:14'),
 (30, NULL, 6, '⏰ Phiếu #TICK-27 có deadline: 10/04/2028. Hãy hoàn thành đúng hạn!', 0, '2026-04-10 03:51:14'),
 (31, 3, 4, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 32 ngày) vào ngày 15/05/2026.', 0, '2026-04-13 04:22:43'),
-(32, 3, 5, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 32 ngày) vào ngày 15/05/2026.', 0, '2026-04-13 04:22:43'),
+(32, 3, 5, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 32 ngày) vào ngày 15/05/2026.', 1, '2026-04-13 04:22:43'),
 (33, 3, 8, '⚠️ Thiết bị \'Phần mềm Quản lý Kho\' (KH: customer1) sắp hết hạn bảo hành (còn 32 ngày) vào ngày 15/05/2026.', 0, '2026-04-13 04:22:43'),
 (34, NULL, 4, '⭐ Khách hàng customer1 vừa đánh giá 3 sao cho phiếu #TICK-28.', 0, '2026-04-13 06:34:03'),
 (35, NULL, 5, '⭐ Khách hàng customer1 vừa đánh giá 3 sao cho phiếu #TICK-28.', 1, '2026-04-13 06:34:03'),
 (36, NULL, 8, '⭐ Khách hàng customer1 vừa đánh giá 3 sao cho phiếu #TICK-28.', 0, '2026-04-13 06:34:03'),
 (37, NULL, 4, '⭐ Khách hàng Test3 vừa đánh giá 5 sao cho phiếu #TICK-26.', 0, '2026-04-13 06:42:59'),
-(38, NULL, 5, '⭐ Khách hàng Test3 vừa đánh giá 5 sao cho phiếu #TICK-26.', 0, '2026-04-13 06:42:59'),
-(39, NULL, 8, '⭐ Khách hàng Test3 vừa đánh giá 5 sao cho phiếu #TICK-26.', 0, '2026-04-13 06:42:59');
+(38, NULL, 5, '⭐ Khách hàng Test3 vừa đánh giá 5 sao cho phiếu #TICK-26.', 1, '2026-04-13 06:42:59'),
+(39, NULL, 8, '⭐ Khách hàng Test3 vừa đánh giá 5 sao cho phiếu #TICK-26.', 0, '2026-04-13 06:42:59'),
+(40, NULL, 6, '🔧 Bạn được giao sửa phiếu #TICK-30. Thiết bị sẽ được kiểm tra ngay!', 1, '2026-04-15 18:25:31'),
+(41, NULL, 6, '⏰ Phiếu #TICK-30 có deadline: 30/04/2026. Hãy hoàn thành đúng hạn!', 1, '2026-04-15 18:25:31'),
+(42, NULL, 6, '🔧 Bạn được giao sửa phiếu #TICK-25. Thiết bị sẽ được kiểm tra ngay!', 1, '2026-04-16 04:44:51'),
+(43, NULL, 6, '⏰ Phiếu #TICK-25 có deadline: 30/04/2026. Hãy hoàn thành đúng hạn!', 1, '2026-04-16 04:44:51'),
+(44, NULL, 5, 'Khách hàng đã ĐỒNG Ý báo giá sửa chữa cho phiếu #TICK-30 (Laptop samsung).', 0, '2026-04-16 05:25:46'),
+(45, NULL, 8, 'Khách hàng đã ĐỒNG Ý báo giá sửa chữa cho phiếu #TICK-30 (Laptop samsung).', 0, '2026-04-16 05:25:46'),
+(46, NULL, 6, 'Khách hàng đã ĐỒNG Ý báo giá sửa chữa cho phiếu #TICK-25 (Màn hình Asus).', 1, '2026-04-16 11:19:57'),
+(47, NULL, 5, 'Khách hàng đã ĐỒNG Ý báo giá sửa chữa cho phiếu #TICK-25 (Màn hình Asus).', 0, '2026-04-16 11:19:57'),
+(48, NULL, 8, 'Khách hàng đã ĐỒNG Ý báo giá sửa chữa cho phiếu #TICK-25 (Màn hình Asus).', 0, '2026-04-16 11:19:57');
 
 -- --------------------------------------------------------
 
@@ -170,6 +179,7 @@ CREATE TABLE `orders` (
   `id` int(11) NOT NULL,
   `repair_ticket_id` int(11) DEFAULT NULL,
   `customer_id` int(11) NOT NULL,
+  `order_type` enum('repair','warranty') NOT NULL DEFAULT 'repair' COMMENT 'Loại hóa đơn: Sửa chữa hoặc Gia hạn bảo hành',
   `device_id` int(11) DEFAULT NULL,
   `quote_amount` decimal(12,2) NOT NULL DEFAULT 0.00,
   `total_amount` decimal(12,2) NOT NULL DEFAULT 0.00,
@@ -178,6 +188,20 @@ CREATE TABLE `orders` (
   `payment_date` date DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `order_details`
+--
+
+CREATE TABLE `order_details` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `item_name` varchar(255) NOT NULL COMMENT 'Tên mục phí (vd: Thay màn hình, Phí dịch vụ)',
+  `price` int(11) NOT NULL COMMENT 'Giá tiền của mục này',
+  `quantity` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -205,7 +229,10 @@ INSERT INTO `repair_logs` (`id`, `repair_ticket_id`, `user_id`, `action`, `note`
 (12, 26, 6, 'Cập nhật tiến độ: 60% (Trạng thái: repairing)', 'Máy lên', NULL, '2026-04-09 07:34:12'),
 (13, 28, 6, 'Cập nhật tiến độ: 20% (Trạng thái: repairing)', 'Màn hình tháo rời để kiểm tra', NULL, '2026-04-10 03:47:48'),
 (14, 28, 6, 'Cập nhật tiến độ: 60% (Trạng thái: repairing)', 'Linh kiện đang được lắp đặt vào màn hình', NULL, '2026-04-10 03:49:49'),
-(15, 27, 6, 'Cập nhật tiến độ: 60% (Trạng thái: repairing)', 'Linh kiện đang được lắp vào màn hình', NULL, '2026-04-10 03:51:46');
+(15, 27, 6, 'Cập nhật tiến độ: 60% (Trạng thái: repairing)', 'Linh kiện đang được lắp vào màn hình', NULL, '2026-04-10 03:51:46'),
+(16, 25, 6, 'Có báo giá sửa chữa mới: 5.000.000 VNĐ. Vui lòng xác nhận!', 'Hệ thống tự động gửi thông báo', NULL, '2026-04-16 04:45:59'),
+(17, 30, 6, 'Có báo giá sửa chữa mới: 999.998 VNĐ. Vui lòng xác nhận!', 'Hệ thống tự động gửi thông báo', NULL, '2026-04-16 05:25:30'),
+(18, 25, 6, 'Có báo giá sửa chữa mới: 499.996 VNĐ. Vui lòng xác nhận!', 'Hệ thống tự động gửi thông báo', NULL, '2026-04-16 11:19:45');
 
 -- --------------------------------------------------------
 
@@ -251,20 +278,23 @@ CREATE TABLE `repair_tickets` (
   `status` enum('pending','repairing','completed','cancelled') DEFAULT 'pending',
   `progress` int(3) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `estimated_cost` int(11) DEFAULT 0 COMMENT 'Chi phí sửa chữa dự kiến (Báo giá)',
+  `customer_approval` enum('waiting','approved','rejected') DEFAULT 'waiting' COMMENT 'Trạng thái khách hàng duyệt báo giá'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `repair_tickets`
 --
 
-INSERT INTO `repair_tickets` (`id`, `device_id`, `device_name`, `reported_serial`, `customer_id`, `assigned_to`, `user_id`, `received_date`, `assigned_date`, `due_date`, `description`, `status`, `progress`, `created_at`, `updated_at`) VALUES
-(24, NULL, 'Laptop samsung', '2541516', 1, NULL, NULL, '2026-04-09', NULL, NULL, 'Lap hỏng', 'pending', 0, '2026-04-09 05:14:35', '2026-04-09 05:14:35'),
-(25, NULL, 'Màn hình Asus', '889495', 1, NULL, NULL, '2026-04-09', NULL, NULL, 'Màn hỏng', 'pending', 0, '2026-04-09 05:15:00', '2026-04-09 05:15:00'),
-(26, NULL, 'Laptop samsung', '2541516', 17, NULL, 6, '2026-04-09', '2026-04-09', '2026-04-23', 'Laptop hư', 'completed', 100, '2026-04-09 07:32:10', '2026-04-09 07:34:15'),
-(27, NULL, 'Màn hình Asus', '88949533', 1, NULL, 6, '2026-04-10', '2026-04-10', '2028-04-10', 'Màn cháy', 'repairing', 60, '2026-04-10 03:38:38', '2026-04-10 03:51:46'),
-(28, NULL, 'Điện thoại Apple', '88949533', 1, NULL, 6, '2026-04-10', '2026-04-10', '2026-04-24', 'Màn hình bị liệt cảm ứng', 'completed', 100, '2026-04-10 03:39:50', '2026-04-13 06:06:14'),
-(29, 17, NULL, NULL, 18, NULL, NULL, '2026-04-13', NULL, NULL, 'Cháy màn', 'pending', 0, '2026-04-13 03:33:49', '2026-04-13 03:33:49');
+INSERT INTO `repair_tickets` (`id`, `device_id`, `device_name`, `reported_serial`, `customer_id`, `assigned_to`, `user_id`, `received_date`, `assigned_date`, `due_date`, `description`, `status`, `progress`, `created_at`, `updated_at`, `estimated_cost`, `customer_approval`) VALUES
+(24, NULL, 'Laptop samsung', '2541516', 1, NULL, NULL, '2026-04-09', NULL, NULL, 'Lap hỏng', 'pending', 0, '2026-04-09 05:14:35', '2026-04-09 05:14:35', 0, 'waiting'),
+(25, NULL, 'Màn hình Asus', '889495', 1, NULL, 6, '2026-04-09', '2026-04-16', '2026-04-30', 'Màn hỏng', 'repairing', 0, '2026-04-09 05:15:00', '2026-04-16 11:19:57', 499996, 'approved'),
+(26, NULL, 'Laptop samsung', '2541516', 17, NULL, 6, '2026-04-09', '2026-04-09', '2026-04-23', 'Laptop hư', 'completed', 100, '2026-04-09 07:32:10', '2026-04-09 07:34:15', 0, 'waiting'),
+(27, NULL, 'Màn hình Asus', '88949533', 1, NULL, 6, '2026-04-10', '2026-04-10', '2028-04-10', 'Màn cháy', 'completed', 100, '2026-04-10 03:38:38', '2026-04-16 04:47:03', 0, 'waiting'),
+(28, NULL, 'Điện thoại Apple', '88949533', 1, NULL, 6, '2026-04-10', '2026-04-10', '2026-04-24', 'Màn hình bị liệt cảm ứng', 'completed', 100, '2026-04-10 03:39:50', '2026-04-13 06:06:14', 0, 'waiting'),
+(29, 17, NULL, NULL, 18, NULL, NULL, '2026-04-13', NULL, NULL, 'Cháy màn', 'pending', 0, '2026-04-13 03:33:49', '2026-04-13 03:33:49', 0, 'waiting'),
+(30, NULL, 'Laptop samsung', '123456', 1, NULL, 6, '2026-04-15', '2026-04-15', '2026-04-30', 'á', 'repairing', 0, '2026-04-15 18:24:43', '2026-04-16 05:25:46', 999998, 'approved');
 
 -- --------------------------------------------------------
 
@@ -361,6 +391,13 @@ ALTER TABLE `orders`
   ADD KEY `fk_order_device` (`device_id`);
 
 --
+-- Chỉ mục cho bảng `order_details`
+--
+ALTER TABLE `order_details`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_detail_order` (`order_id`);
+
+--
 -- Chỉ mục cho bảng `repair_logs`
 --
 ALTER TABLE `repair_logs`
@@ -426,7 +463,7 @@ ALTER TABLE `invoices`
 -- AUTO_INCREMENT cho bảng `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT cho bảng `orders`
@@ -435,10 +472,16 @@ ALTER TABLE `orders`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT cho bảng `order_details`
+--
+ALTER TABLE `order_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT cho bảng `repair_logs`
 --
 ALTER TABLE `repair_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT cho bảng `repair_reviews`
@@ -450,7 +493,7 @@ ALTER TABLE `repair_reviews`
 -- AUTO_INCREMENT cho bảng `repair_tickets`
 --
 ALTER TABLE `repair_tickets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT cho bảng `users`
@@ -494,6 +537,12 @@ ALTER TABLE `orders`
   ADD CONSTRAINT `fk_order_customer` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`),
   ADD CONSTRAINT `fk_order_device` FOREIGN KEY (`device_id`) REFERENCES `devices` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_order_repair` FOREIGN KEY (`repair_ticket_id`) REFERENCES `repair_tickets` (`id`) ON DELETE SET NULL;
+
+--
+-- Các ràng buộc cho bảng `order_details`
+--
+ALTER TABLE `order_details`
+  ADD CONSTRAINT `fk_detail_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `repair_logs`

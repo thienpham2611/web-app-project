@@ -186,6 +186,15 @@ if ($_SESSION['role'] !== 'staff') {
                     </div>
                 </div>
 
+                <div class="form-group p-3 mb-3" style="background-color: #f8f9fa; border-radius: 5px; border-left: 4px solid #ff9800;">
+                    <label class="font-weight-bold"><i class="fa fa-money"></i> Báo giá chi phí sửa chữa (VNĐ):</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="modal_estimated_cost" placeholder="Ví dụ: 500000">
+                        <div class="input-group-append"><span class="input-group-text">VNĐ</span></div>
+                    </div>
+                    <div id="approval_status_alert" class="mt-2 small font-weight-bold"></div>
+                </div>
+
                 <div class="form-group" id="progress_wrapper">
                     <label class="font-weight-bold">Tiến độ: <span id="progress_display" class="text-primary h5">50%</span></label>
                     <input type="range" class="form-control-range" id="modal_progress" min="0" max="100" value="50" oninput="document.getElementById('progress_display').innerText = this.value + '%'">

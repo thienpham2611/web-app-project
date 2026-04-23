@@ -29,7 +29,7 @@ $devices = mysqli_fetch_all(mysqli_stmt_get_result($stmt_dev), MYSQLI_ASSOC);
 
 // Lấy danh sách phiếu sửa chữa
 $sql_tick = "SELECT rt.id, rt.description, rt.status, rt.progress, COALESCE(d.name, rt.device_name) AS device_name,
-             rr.rating
+             rr.rating, rt.estimated_cost, rt.customer_approval
              FROM repair_tickets rt
              LEFT JOIN devices d ON rt.device_id = d.id
              LEFT JOIN repair_reviews rr ON rt.id = rr.repair_ticket_id
@@ -68,6 +68,7 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
   <link rel="stylesheet" href="css/owl-carousel/owl.carousel.min.css">
   <link rel="stylesheet" href="css/owl-carousel/owl.theme.default.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-light">
@@ -258,9 +259,9 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
                             <tr>
                                 <th>Mã phiếu</th>
                                 <th>Tên thiết bị</th>
-                                <th>Ghi chú lỗi</th>
                                 <th>Tiến độ</th>
-                                <th>Trạng thái</th>
+                                <th>Báo giá (VNĐ)</th>
+                                <th>Trạng thái / Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -270,30 +271,61 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
                                 <?php foreach($tickets as $tick): ?>
                                 <tr>
                                     <td><strong>#TICK-<?= $tick['id'] ?></strong></td>
-                                    <td><?= htmlspecialchars($tick['device_name']) ?></td>
-                                    <td><?= htmlspecialchars($tick['description'] ?? 'Không có mô tả') ?></td>
-                                    <td class="align-middle">
+                                    <td>
+                                        <?= htmlspecialchars($tick['device_name']) ?><br>
+                                        <small class="text-muted">Lỗi: <?= htmlspecialchars($tick['description'] ?? 'Không có') ?></small>
+                                    </td>
+                                    <td class="align-middle" style="width: 15%">
                                         <div class="progress" style="height: 8px;">
                                             <div class="progress-bar bg-info" style="width: <?= $tick['progress'] ?>%;"></div>
                                         </div>
                                         <small class="font-weight-bold"><?= $tick['progress'] ?>%</small>
                                     </td>
-                                    <td>
+                                    
+                                    <td class="align-middle font-weight-bold text-danger">
+                                        <?php if($tick['estimated_cost'] > 0): ?>
+                                            <?= number_format($tick['estimated_cost'], 0, ',', '.') ?> đ
+                                        <?php else: ?>
+                                            <span class="text-muted font-weight-normal">Chờ kiểm tra</span>
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <td class="align-middle">
                                         <?php 
-                                            $status_badge = 'badge-secondary'; $status_vi = 'Chờ xử lý';
+                                            // 1. Logic Trạng thái
+                                            $status_badge = 'badge-secondary'; $status_vi = 'Chờ tiếp nhận';
                                             if($tick['status'] == 'repairing') { $status_badge = 'badge-warning'; $status_vi = 'Đang sửa chữa'; }
                                             if($tick['status'] == 'completed') { $status_badge = 'badge-success'; $status_vi = 'Đã hoàn thành'; }
                                             if($tick['status'] == 'cancelled') { $status_badge = 'badge-danger'; $status_vi = 'Đã hủy'; }
                                         ?>
-                                        <span class="badge <?= $status_badge ?> p-2 mb-1 d-block"><?= $status_vi ?></span>
+                                        <span class="badge <?= $status_badge ?> p-2 mb-1 d-inline-block"><?= $status_vi ?></span>
                                         
-                                        <?php if($tick['status'] == 'completed'): ?>
+                                        <?php 
+                                            // 2. Logic Nút Duyệt Báo Giá
+                                            if ($tick['estimated_cost'] > 0 && $tick['status'] != 'completed' && $tick['status'] != 'cancelled') {
+                                                if ($tick['customer_approval'] == 'waiting') {
+                                                    echo '<div class="mt-2">';
+                                                    echo '<button class="btn btn-sm btn-success mr-1" onclick="handleQuote('.$tick['id'].', \'approved\')"><i class="fa fa-check"></i> Làm máy</button>';
+                                                    echo '<button class="btn btn-sm btn-danger" onclick="handleQuote('.$tick['id'].', \'rejected\')"><i class="fa fa-times"></i> Hủy sửa</button>';
+                                                    echo '</div>';
+                                                } elseif ($tick['customer_approval'] == 'approved') {
+                                                    echo '<span class="badge badge-info p-2 mt-1 d-block"><i class="fa fa-check-circle"></i> Đã đồng ý sửa</span>';
+                                                } elseif ($tick['customer_approval'] == 'rejected') {
+                                                    echo '<span class="badge badge-dark p-2 mt-1 d-block"><i class="fa fa-times-circle"></i> Đã hủy sửa</span>';
+                                                }
+                                            }
+                                        ?>
+
+                                        <?php 
+                                            // 3. Logic Đánh giá
+                                            if($tick['status'] == 'completed'): 
+                                        ?>
                                             <?php if(empty($tick['rating'])): ?>
                                                 <button class="btn btn-sm btn-outline-warning mt-1" onclick="openReviewModal(<?= $tick['id'] ?>)">
                                                     <i class="fa fa-star"></i> Đánh giá
                                                 </button>
                                             <?php else: ?>
-                                                <small class="text-warning"><i class="fa fa-star"></i> <?= $tick['rating'] ?>/5 sao</small>
+                                                <small class="text-warning d-block mt-1"><i class="fa fa-star"></i> <?= $tick['rating'] ?>/5 sao</small>
                                             <?php endif; ?>
                                         <?php endif; ?>
                                     </td>
@@ -301,6 +333,7 @@ $extensions = mysqli_fetch_all(mysqli_stmt_get_result($stmt_ext), MYSQLI_ASSOC);
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </tbody>
+                        
                     </table>
                 </div>
             </div>
